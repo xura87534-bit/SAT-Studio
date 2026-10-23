@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "SAT Studio",
+  "version": "1.0.0",
+  "description": "Open SAT Studio, adaptive SAT practice with a Claude tutor, in its own window.",
+  "action": { "default_title": "Open SAT Studio", "default_icon": { "16": "icons/16.png", "48": "icons/48.png", "128": "icons/128.png" } },
+  "icons": { "16": "icons/16.png", "48": "icons/48.png", "128": "icons/128.png" },
+  "permissions": ["storage"],
+  "background": { "service_worker": "background.js" }
+}
