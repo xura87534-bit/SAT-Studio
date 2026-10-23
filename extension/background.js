@@ -1,5 +1,5 @@
 // Change this to your deployed address before packaging the extension.
-const APP_URL = "https://sat-studio.vercel.app/";
+const APP_URL = "https://sat-studio-rust.vercel.app/";
 
 // The service worker can be shut down between clicks, so the window id lives in session storage.
 chrome.action.onClicked.addListener(async () => {
