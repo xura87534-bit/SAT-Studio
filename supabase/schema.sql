@@ -1,4 +1,4 @@
-supabase/schema.sql-- SAT Studio database. Run once in Supabase: SQL Editor -> New query -> paste -> Run.
+insert into public.admins (email) values ('xurshid.oo8@icloud.com');supabase/schema.sql-- SAT Studio database. Run once in Supabase: SQL Editor -> New query -> paste -> Run.
 
 -- Each student's tests, unfinished sessions and settings (one row per app document).
 create table if not exists public.docs (
