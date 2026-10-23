@@ -5273,7 +5273,7 @@ function shell(content){
   app.innerHTML=`<div class="shell"><nav class="side" aria-label="Main">
     <div class="brand"><span class="logo">∑</span>SAT Studio</div>
     ${nav.map(([k,l,i,sh])=>`<button class="nav${view===k?" on":""}" data-nav="${k}"${view===k?' aria-current="page"':""}>${i}<span class="${sh?"lg":""}">${esc(l)}</span>${sh?`<span class="sm">${esc(sh)}</span>`:""}${k==="home"&&ns?`<em aria-label="${ns} saved">${ns}</em>`:""}</button>`).join("")}
-    <div class="sidefoot"><i class="${AI?"on":""}"></i>${!BOOTED&&window.claude?"Syncing your progress…":AI?"Claude connected":"Built-in questions"}</div>${!AI&&(BOOTED||!window.claude)?`<button class="sidesync connai" data-connai>${window.SAT_PLATFORM?"Sign in for Claude":"Connect Claude"}</button>`:""}${AI&&window.SAT_PLATFORM?`<button class="sidesync" data-signout>Sign out</button>`:""}<button class="sidesync" id="syncOpen">Backup &amp; sync</button><span class="appver">${window._vl||(window._vl=(()=>{let h=0;const a=BANK.concat(RWBANK);for(const x of a){const d=String(x.id)+":"+(x.lv|0);for(let i=0;i<d.length;i++)h=(h*31+d.charCodeAt(i))|0}return "Build "+a.length.toLocaleString("en-US")+" Q · "+(h>>>0).toString(36).toUpperCase().slice(0,4)})())}${window.claude?"":" · downloaded copy"}</span>
+    <div class="sidefoot"><i class="${AI?"on":""}"></i>${!BOOTED&&window.claude?"Syncing your progress…":AI?"Claude connected":"Built-in questions"}</div>${!AI&&(BOOTED||!window.claude)&&!(window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn)?`<button class="sidesync connai" data-connai>${window.SAT_PLATFORM?(window.SAT_PLATFORM.ai?"Sign in for Claude":"Sign in to sync"):"Connect Claude"}</button>`:""}${window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn?`<button class="sidesync" data-signout>Sign out</button>`:""}<button class="sidesync" id="syncOpen">Backup &amp; sync</button><span class="appver">${window._vl||(window._vl=(()=>{let h=0;const a=BANK.concat(RWBANK);for(const x of a){const d=String(x.id)+":"+(x.lv|0);for(let i=0;i<d.length;i++)h=(h*31+d.charCodeAt(i))|0}return "Build "+a.length.toLocaleString("en-US")+" Q · "+(h>>>0).toString(36).toUpperCase().slice(0,4)})())}${window.claude?"":" · downloaded copy"}</span>
   </nav><main class="main">${content}</main></div>`;
   $$("[data-nav]").forEach(b=>b.onclick=()=>go(b.dataset.nav));
 }
@@ -8262,7 +8262,7 @@ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest
 /* ---------- Reconnect Claude (sample permission) ---------- */
 async function connectAI(){
   const say=t=>{if(typeof wbToast==="function")wbToast(t);else alert(t)};
-  if(window.SAT_PLATFORM){if(!window.SAT_PLATFORM.hasBackend){say("Claude needs the online version of SAT Studio.");return}window.SAT_PLATFORM.signIn();return}
+  if(window.SAT_PLATFORM){if(!window.SAT_PLATFORM.hasBackend){say("Sign-in and sync need the online version of SAT Studio.");return}window.SAT_PLATFORM.signIn();return}
   if(!window.claude){say("Claude features only work when the app is open in claude.ai, not in a downloaded copy.");return}
   const perm=await use("permissions");let st=null;
   try{if(perm){st=await perm.state("sample");

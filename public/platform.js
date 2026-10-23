@@ -178,7 +178,7 @@
     if (!s) return null;
     if (name === "user") return makeUser(s);
     if (name === "db") return makeDb(s);
-    if (name === "sample") return makeSample();
+    if (name === "sample") return CFG.ai ? makeSample() : null;
     return null; // downloads/permissions: the app has browser fallbacks
   }
   async function signOut() {
@@ -195,7 +195,8 @@
   }
 
   if (hasBackend) window.claude = { use };
-  window.SAT_PLATFORM = { signOut, signIn, hasBackend, getSession };
+  window.SAT_PLATFORM = { signOut, signIn, hasBackend, getSession, ai: !!CFG.ai, signedIn: false };
+  if (sb) sb.auth.getSession().then(({ data }) => { window.SAT_PLATFORM.signedIn = !!data.session; }, () => {});
 
   /* ---------- PWA ---------- */
   if ("serviceWorker" in navigator && location.protocol === "https:") {

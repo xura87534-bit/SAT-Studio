@@ -40,9 +40,9 @@ If Supabase isn't configured, or a student picks **Use offline on this device**,
 1. Import this GitHub repo at [vercel.com/new](https://vercel.com/new). Leave the framework set to **Other**, since `vercel.json` handles the build.
 2. Add these environment variables (see `.env.example`):
    - `SUPABASE_URL`, `SUPABASE_ANON_KEY` from step 1.6
-   - `ANTHROPIC_API_KEY` from [console.anthropic.com](https://console.anthropic.com)
+   - Optional: `ANTHROPIC_API_KEY` from [console.anthropic.com](https://console.anthropic.com). This needs prepaid API credits. Without it, the app works fully except the Claude tutor, question generation and Claude feedback, which stay hidden. Add the key later and redeploy to turn them on.
    - Optional: `CLAUDE_MODEL` (default `claude-opus-5-5`) and `DAILY_AI_LIMIT` (default 150 Claude requests per student per day)
-3. Deploy. Visit the site, sign in, and check that the sidebar says **Claude connected**.
+3. Deploy. Visit the site and sign in. The sidebar says **Claude connected** if you added an API key, or **Built-in questions** if not.
 
 ### 3. Chrome extension (optional)
 

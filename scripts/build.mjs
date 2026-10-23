@@ -5,6 +5,7 @@ import { copyFileSync, mkdirSync, writeFileSync } from "node:fs";
 const cfg = {
   supabaseUrl: process.env.SUPABASE_URL || "",
   supabaseAnonKey: process.env.SUPABASE_ANON_KEY || "",
+  ai: !!process.env.ANTHROPIC_API_KEY, // Claude features stay hidden until a key is added
 };
 if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) console.warn("SUPABASE_URL / SUPABASE_ANON_KEY not set: the app will run in offline-only mode.");
 writeFileSync("public/config.js", `window.SAT_CONFIG=${JSON.stringify(cfg)};\n`);
