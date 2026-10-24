@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SAT Studio · Adaptive Digital SAT practice</title>
+<meta name="description" content="Free adaptive Digital SAT practice. Full Math and Reading & Writing tests where Module 2 is built from your Module 1 answers, with a graphing calculator and instant score reports.">
+<meta property="og:title" content="SAT Studio · Aim for the top">
+<meta property="og:description" content="Free adaptive Digital SAT practice tests, scored instantly.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#dfe6ee">
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<style>html,body{margin:0}img{max-width:100%}:root{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}[hidden]{display:none!important}</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+/* Layout: "altitude". Misty sky hero where a 3D graduation cap flies in and lands; ghost 1600 behind; then light product sections on paper. Ink + one warm gold accent. */
+:root{
+  --sky1:#dfe6ee; --sky2:#c9d3de; --mist:#eef1f5; --paper:#f7f8fa; --white:#ffffff;
+  --ink:#14161a; --ink2:#2a2e35; --dim:#677080; --dim2:#98a0ad; --line:rgba(20,22,26,.09); --line2:rgba(20,22,26,.16);
+  --gold:#f2d34b; --gold-d:#c9a227; --red:#e0705f;
+  --f-sans:"Geist",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --f-serif:"Instrument Serif",Georgia,"Times New Roman",serif;
+  --f-mono:"Geist Mono",ui-monospace,Menlo,Consolas,monospace;
+  --gl:max(16px, env(safe-area-inset-left,0px)); --gr:max(16px, env(safe-area-inset-right,0px));
+  --ease:cubic-bezier(.16,1,.3,1);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-sans);font-size:15px;line-height:1.55;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--sky1)}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:400;text-wrap:balance}
+.wrap{max-width:1200px;margin:0 auto;padding-left:var(--gl);padding-right:var(--gr)}
+.mono{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+em.s{font-family:var(--f-serif);font-style:italic}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:6px}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:500;font-size:.88rem;padding:11px 18px;border-radius:999px;transition:transform .4s var(--ease),box-shadow .4s var(--ease),background .3s}
+.btn.y{background:var(--gold);color:var(--ink);box-shadow:0 10px 30px -12px rgba(201,162,39,.8)}
+.btn.y:hover{transform:translateY(-2px);box-shadow:0 16px 36px -12px rgba(201,162,39,.9)}
+.btn.k{background:var(--ink);color:var(--white)}
+.btn.k:hover{transform:translateY(-2px)}
+.btn.t{color:var(--ink2)}
+.btn.t span{transition:transform .4s var(--ease)}.btn.t:hover span{transform:translateX(4px)}
+
+/* nav */
+.nav{position:absolute;left:0;right:0;top:env(safe-area-inset-top,0px);z-index:40}
+.nav .wrap{display:flex;align-items:center;gap:24px;height:72px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:.82rem;letter-spacing:.22em;font-weight:500}
+.logo svg{width:22px;height:22px}
+.nav ul{display:flex;gap:26px;list-style:none;margin:0 auto;padding:0;font-size:.86rem;color:var(--ink2)}
+.nav ul a{opacity:.75;transition:opacity .2s}.nav ul a:hover{opacity:1}
+.nav .right{display:flex;gap:8px}
+.nav .btn{padding:9px 15px;font-size:.8rem}
+@media (max-width:780px){.nav ul{display:none}.nav .right{margin-left:auto}.nav .right .t{display:none}}
+
+/* hero */
+.hero{position:relative;height:100svh;min-height:640px;max-height:1100px;overflow:hidden;background:
+  radial-gradient(120% 70% at 70% 0%,#f4f6f9 0%,transparent 60%),
+  radial-gradient(90% 60% at 20% 100%,#b8c4d2 0%,transparent 70%),
+  linear-gradient(180deg,var(--sky1) 0%,#d3dbe4 55%,var(--sky2) 100%)}
+.clouds{position:absolute;inset:0;pointer-events:none}
+.clouds i{position:absolute;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.95),rgba(255,255,255,0));filter:blur(8px);will-change:transform}
+.back i:nth-child(1){width:70vw;height:30vh;left:-10vw;top:12vh;animation:drift 38s linear infinite}
+.back i:nth-child(2){width:60vw;height:24vh;right:-15vw;top:30vh;opacity:.8;animation:drift 46s linear infinite reverse}
+.back i:nth-child(3){width:90vw;height:40vh;left:10vw;bottom:-14vh;animation:drift 52s linear infinite}
+.front{z-index:4}
+.front i:nth-child(1){width:110vw;height:34vh;left:-30vw;bottom:-18vh;opacity:.95;animation:drift 30s linear infinite}
+.front i:nth-child(2){width:80vw;height:26vh;right:-30vw;bottom:-12vh;opacity:.8;animation:drift 40s linear infinite reverse}
+@keyframes drift{from{transform:translateX(-6vw)}to{transform:translateX(6vw)}}
+.ghost{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);z-index:1;font-family:var(--f-serif);font-size:clamp(9rem,34vw,30rem);line-height:.8;color:rgba(255,255,255,.55);letter-spacing:-.02em;white-space:nowrap;pointer-events:none;text-shadow:0 0 60px rgba(255,255,255,.5)}
+#stage{position:absolute;inset:0;width:100%;height:100%;z-index:2;display:block}
+.hero-ui{position:absolute;inset:0;z-index:5;pointer-events:none}
+.hero-ui .wrap{height:100%;position:relative}
+.hl{position:absolute;left:var(--gl);top:50%;transform:translateY(-38%);max-width:30rem;pointer-events:auto}
+.hl h1{font-family:var(--f-serif);font-size:clamp(3.2rem,6.4vw,5.8rem);line-height:.92;letter-spacing:-.02em;color:var(--ink)}
+.hl h1 em{color:#5d6675}
+.hl p{color:var(--ink2);opacity:.8;max-width:22rem;margin:18px 0 26px;font-size:1rem}
+.hl .ctas{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tag{position:absolute;left:var(--gl);top:118px;pointer-events:auto}
+.stats-float{position:absolute;right:var(--gr);bottom:7%;display:flex;gap:12px;pointer-events:auto}
+.sf{width:150px;border-radius:16px;background:rgba(18,20,24,.86);color:#f2f3f5;padding:12px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 30px 50px -20px rgba(20,30,50,.55);display:grid;gap:8px}
+.sf .k{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.06em;opacity:.6;text-transform:uppercase}
+.sf .v{font-size:1.7rem;letter-spacing:-.04em;font-weight:500;font-variant-numeric:tabular-nums;line-height:1}
+.sf .qm{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:2px;min-width:0}
+.sf .qm i{aspect-ratio:1;border-radius:2px;background:#e6c645}.sf .qm i.x{background:var(--red)}
+.sf svg{width:100%;height:34px;display:block}
+.replay{position:absolute;right:var(--gr);top:118px;pointer-events:auto;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.8);border-radius:999px;padding:7px 12px;font:inherit;font-family:var(--f-mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.replay:hover{background:#fff}
+@media (max-width:820px){
+  .hl{top:auto;bottom:calc(36px + env(safe-area-inset-bottom,0px));transform:none;right:var(--gr)}
+  .hl h1{font-size:clamp(2.8rem,13vw,4rem)}
+  .stats-float{display:none}
+  .ghost{top:34%}
+}
+/* hero reveal choreography */
+.js .hero .rv{opacity:0;transform:translateY(16px);filter:blur(8px);transition:opacity 1.2s var(--ease),transform 1.2s var(--ease),filter 1.2s var(--ease)}
+.js .hero.landed .rv{opacity:1;transform:none;filter:none}
+.js .hero .ghost{opacity:0;letter-spacing:.2em;transition:opacity 2.2s var(--ease),letter-spacing 2.6s var(--ease)}
+.js .hero.landed .ghost{opacity:1;letter-spacing:-.02em}
+.js .hero.landed .d1{transition-delay:.12s}.js .hero.landed .d2{transition-delay:.24s}.js .hero.landed .d3{transition-delay:.4s}.js .hero.landed .d4{transition-delay:.55s}
+.js .hl .rv{transform:translateY(16px)}
+
+/* sections */
+.sec{padding-block:clamp(5rem,9vw,8rem)}
+.sh{max-width:40rem;margin-bottom:44px}
+.sh h2{font-family:var(--f-serif);font-size:clamp(2.4rem,4.6vw,3.8rem);line-height:1;letter-spacing:-.02em;margin:14px 0 14px}
+.sh h2 em{color:var(--dim)}
+.sh p{color:var(--dim);margin:0;font-size:1.02rem}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px}
+.card{background:var(--white);border:1px solid var(--line);border-radius:20px;padding:24px;display:grid;gap:18px;align-content:start;min-width:0;box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 20px 40px -30px rgba(20,30,50,.25);transition:transform .6s var(--ease),box-shadow .6s var(--ease)}
+.card:hover{transform:translateY(-3px);box-shadow:0 30px 60px -30px rgba(20,30,50,.35)}
+.card h3{font-size:1.12rem;font-weight:500;letter-spacing:-.02em}
+.card p{margin:0;color:var(--dim);font-size:.92rem;max-width:30rem}
+.c7{grid-column:span 7}.c5{grid-column:span 5}
+@media (max-width:900px){.grid>*{grid-column:1/-1!important}}
+.cap{font-family:var(--f-mono);font-size:.64rem;letter-spacing:.04em;text-transform:uppercase;color:var(--dim2);border-top:1px solid var(--line);padding-top:12px;display:flex;justify-content:space-between;gap:10px}
+.flow{position:relative;height:220px;border-radius:14px;background:var(--mist);border:1px solid var(--line);overflow:hidden}
+.flow svg{position:absolute;inset:0;width:100%;height:100%}
+.edge{fill:none;stroke:var(--line2);stroke-width:1.3}
+.edge.live{stroke:var(--ink);stroke-dasharray:4 6;animation:dash 1.3s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-20}}
+.node{position:absolute;transform:translate(-50%,-50%);background:var(--white);border:1px solid var(--line2);border-radius:10px;padding:7px 11px;font-size:.76rem;white-space:nowrap;box-shadow:0 8px 20px -14px rgba(20,30,50,.4)}
+.node small{display:block;font-family:var(--f-mono);font-size:.58rem;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.node.hub{background:var(--ink);color:#fff;border-color:var(--ink)}.node.hub small{color:#9aa2ae}
+.node.on{border-color:var(--gold-d);background:#fffbea}
+.node.off{opacity:.5;border-style:dashed}
+.rows{display:grid;gap:12px}
+.row{display:grid;grid-template-columns:8.5rem minmax(0,1fr) 2.6rem;gap:12px;align-items:center;font-size:.82rem}
+.row .t{height:6px;border-radius:4px;background:var(--mist);overflow:hidden}
+.row .t i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--gold-d),var(--gold));width:0;transition:width 1.4s var(--ease)}
+.in .row .t i{width:var(--w)}
+.row em{font-style:normal;font-family:var(--f-mono);font-size:.72rem;color:var(--dim);text-align:right}
+.calc{height:200px;border-radius:14px;background:var(--mist);border:1px solid var(--line);position:relative;overflow:hidden}
+.calc canvas{position:absolute;inset:0;width:100%;height:100%}
+.calc .eq{position:absolute;left:10px;top:10px;display:grid;gap:4px}
+.calc .eq span{font-family:var(--f-mono);font-size:.68rem;background:var(--white);border:1px solid var(--line);border-radius:6px;padding:3px 8px}
+.resume{display:grid;gap:8px}
+.rz{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:12px;padding:11px 13px;font-size:.84rem;background:var(--paper)}
+.rz .pb{flex:1;height:4px;background:var(--mist);border-radius:3px;overflow:hidden}
+.rz .pb i{display:block;height:100%;background:var(--ink)}
+.rz em{font-style:normal;font-family:var(--f-mono);font-size:.68rem;color:var(--dim)}
+
+.tl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--line);border-radius:20px;overflow:hidden;background:var(--white)}
+.tl .step{padding:22px;border-right:1px solid var(--line);display:grid;gap:10px;align-content:start;position:relative}
+.tl .step:last-child{border-right:0}
+.tl .when{font-family:var(--f-mono);font-size:.7rem;color:var(--gold-d)}
+.tl h3{font-size:1rem;font-weight:500}
+.tl p{margin:0;color:var(--dim);font-size:.86rem}
+.tl .prog{position:absolute;left:0;top:0;height:2px;background:var(--ink);width:0;transition:width 1s var(--ease)}
+.in .tl .prog{width:100%}
+.in .tl .step:nth-child(2) .prog{transition-delay:.25s}.in .tl .step:nth-child(3) .prog{transition-delay:.5s}.in .tl .step:nth-child(4) .prog{transition-delay:.75s}
+@media (max-width:860px){.tl{grid-template-columns:1fr 1fr}.tl .step:nth-child(2){border-right:0}.tl .step:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+@media (max-width:520px){.tl{grid-template-columns:1fr}.tl .step{border-right:0;border-bottom:1px solid var(--line)}.tl .step:last-child{border-bottom:0}}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:14px}
+.stat{border:1px solid var(--line);border-radius:18px;padding:20px;background:var(--white)}
+.stat .v{font-family:var(--f-serif);font-size:clamp(2.4rem,4.4vw,3.6rem);letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+.stat .k{color:var(--dim);font-size:.82rem;margin-top:8px}
+@media (max-width:760px){.stats{grid-template-columns:1fr 1fr}}
+
+.faq{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:40px}
+.faq details{border-bottom:1px solid var(--line);padding-block:18px}
+.faq details:first-child{border-top:1px solid var(--line)}
+.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:16px;font-weight:500}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:var(--dim);transition:transform .3s var(--ease)}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{color:var(--dim);margin:10px 0 0;max-width:40rem}
+@media (max-width:860px){.faq{grid-template-columns:1fr}}
+
+.cta{position:relative;border-radius:28px;overflow:hidden;padding:clamp(48px,8vw,96px) clamp(22px,5vw,64px);background:linear-gradient(180deg,var(--sky1),var(--sky2));text-align:center}
+.cta .clouds i:nth-child(1){width:80%;height:60%;left:-20%;bottom:-30%;animation:drift 30s linear infinite}
+.cta .clouds i:nth-child(2){width:70%;height:50%;right:-20%;top:-20%;animation:drift 40s linear infinite reverse}
+.cta .inner{position:relative}
+.cta h2{font-family:var(--f-serif);font-size:clamp(2.6rem,6vw,5rem);line-height:.95;letter-spacing:-.02em;margin:14px 0 16px}
+.cta h2 em{color:#5d6675}
+.cta p{color:var(--ink2);opacity:.8;margin:0 auto 26px;max-width:28rem}
+footer{padding-block:44px calc(32px + env(safe-area-inset-bottom,0px));color:var(--dim);font-size:.84rem}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;border-top:1px solid var(--line);padding-top:26px}
+
+.js .sr{opacity:0;transform:translateY(20px);filter:blur(6px);transition:opacity 1s var(--ease),transform 1s var(--ease),filter 1s var(--ease)}
+.js .sr.in{opacity:1;transform:none;filter:none}
+.js .sr.d1{transition-delay:.1s}.js .sr.d2{transition-delay:.2s}
+@media (prefers-reduced-motion:reduce){.clouds i{animation:none!important}.js .sr,.js .hero .rv{transition-duration:.01s!important}.edge.live{animation:none}}
+</style>
+
+<script>document.documentElement.classList.add('js');setTimeout(function(){var h=document.querySelector('.hero');if(h)h.classList.add('landed')},6000);</script>
+
+</head>
+<body>
+<header class="nav">
+  <div class="wrap">
+    <a href="#top" class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#14161a" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M2 9.5 12 5l10 4.5-10 4.5L2 9.5Z"/><path d="M6.5 11.6V16c0 1.3 2.5 2.6 5.5 2.6s5.5-1.3 5.5-2.6v-4.4"/><path d="M21 10v5" stroke-linecap="round"/></svg>SAT STUDIO</a>
+    <ul><li><a href="#product">Product</a></li><li><a href="#how">How it works</a></li><li><a href="#faq">FAQ</a></li></ul>
+    <div class="right"><a href="/" class="btn t">Sign in</a><a href="/" class="btn k">Get access</a></div>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero" id="hero">
+    <div class="clouds back" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="ghost" aria-hidden="true">1600</div>
+    <canvas id="stage" aria-label="A graduation cap flies in from the clouds and lands"></canvas>
+    <div class="clouds front" aria-hidden="true"><i></i><i></i></div>
+    <div class="hero-ui">
+      <div class="wrap">
+        <span class="tag mono rv">Adaptive Digital SAT practice</span>
+        <button class="replay rv" id="replay" type="button">↻ Replay</button>
+        <div class="hl">
+          <h1 class="rv d1">Aim for<br><em>the top.</em></h1>
+          <p class="rv d2">Full Math and Reading &amp; Writing tests where Module 2 is built from your Module 1 answers, just like the real exam.</p>
+          <div class="ctas rv d3"><a href="/" class="btn y">Start free</a><a href="#how" class="btn t">How it adapts <span>→</span></a></div>
+        </div>
+        <div class="stats-float">
+          <div class="sf rv d3"><span class="k">Module 1</span><div class="qm" id="qm"></div><span class="v">19/22</span></div>
+          <div class="sf rv d4"><span class="k">Projected</span><svg viewBox="0 0 120 34" preserveAspectRatio="none" aria-hidden="true"><path d="M0 30 L20 27 L40 24 L60 25 L80 16 L100 10 L120 4" fill="none" stroke="#f2d34b" stroke-width="2"/></svg><span class="v">1440</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="product">
+    <div class="wrap">
+      <div class="sh">
+        <span class="mono sr">Product</span>
+        <h2 class="sr d1">One test. Two modules. <em>No surprises.</em></h2>
+        <p class="sr d2">The Digital SAT changes as you answer. SAT Studio follows the same rules, so test day feels like something you've already done.</p>
+      </div>
+      <div class="grid">
+        <article class="card c7 sr">
+          <div><h3>Adaptive Module 2</h3><p>Your Module 1 answers are checked topic by topic, then routed to the harder or easier second module.</p></div>
+          <div class="flow">
+            <svg viewBox="0 0 600 220" preserveAspectRatio="none" aria-hidden="true">
+              <path class="edge live" d="M120 110 C 200 110, 220 110, 300 110"/><path class="edge live" d="M300 110 C 380 110, 400 60, 480 60"/><path class="edge" d="M300 110 C 380 110, 400 160, 480 160"/>
+            </svg>
+            <div class="node" style="left:20%;top:50%"><small>Module 1</small>22 questions</div>
+            <div class="node hub" style="left:50%;top:50%"><small>Evaluate</small>19 / 22</div>
+            <div class="node on" style="left:80%;top:27%"><small>Module 2</small>Harder</div>
+            <div class="node off" style="left:80%;top:73%"><small>Module 2</small>Easier</div>
+          </div>
+          <div class="cap"><span>Same structure as the real test</span><span>Route: harder</span></div>
+        </article>
+        <article class="card c5 sr d1 io">
+          <div><h3>Scores you can read</h3><p>A full 400–1600 report the moment you finish, broken down by topic.</p></div>
+          <div class="rows">
+            <div class="row">Algebra<span class="t"><i style="--w:92%"></i></span><em>92%</em></div>
+            <div class="row">Advanced math<span class="t"><i style="--w:84%"></i></span><em>84%</em></div>
+            <div class="row">Problem solving<span class="t"><i style="--w:80%"></i></span><em>80%</em></div>
+            <div class="row">Geometry &amp; trig<span class="t"><i style="--w:67%"></i></span><em>67%</em></div>
+            <div class="row">Craft &amp; structure<span class="t"><i style="--w:74%"></i></span><em>74%</em></div>
+          </div>
+          <div class="cap"><span>Example report</span><span>Math 760 · R&amp;W 680</span></div>
+        </article>
+        <article class="card c5 sr">
+          <div><h3>Graphing calculator, built in</h3><p>Graph it, find the intersection, move on.</p></div>
+          <div class="calc"><canvas id="calc" aria-label="Graph of y = 3x + 7 crossing y = 25 at x = 6"></canvas><div class="eq"><span>y = 3x + 7</span><span>y = 25</span></div></div>
+        </article>
+        <article class="card c7 sr d1">
+          <div><h3>Stop anytime. Resume exactly there.</h3><p>Save and exit mid-test. Every attempt keeps its place, timer and answers.</p></div>
+          <div class="resume">
+            <div class="rz"><span>Practice Test 4</span><span class="pb"><i style="width:64%"></i></span><em>Q 63 / 98</em></div>
+            <div class="rz"><span>R&amp;W Drill · Transitions</span><span class="pb"><i style="width:30%"></i></span><em>Q 6 / 20</em></div>
+            <div class="rz"><span>Practice Test 3</span><span class="pb"><i style="width:100%"></i></span><em>1440</em></div>
+          </div>
+          <div class="cap"><span>History &amp; progress</span><span>3 attempts</span></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="how" style="padding-top:0">
+    <div class="wrap">
+      <div class="sh"><span class="mono sr">How it works</span><h2 class="sr d1">A practice test, <em>start to score.</em></h2></div>
+      <div class="sr io">
+        <div class="tl">
+          <div class="step"><span class="prog"></span><span class="when">00:00</span><h3>Module 1 starts</h3><p>22 Math questions, easy to hard, on a real timer.</p></div>
+          <div class="step"><span class="prog"></span><span class="when">35:00</span><h3>Answers evaluated</h3><p>Accuracy checked per topic, not just as one total.</p></div>
+          <div class="step"><span class="prog"></span><span class="when">35:01</span><h3>Module 2 built</h3><p>Harder or easier, routed by how you did.</p></div>
+          <div class="step"><span class="prog"></span><span class="when">70:00</span><h3>Score report</h3><p>400–1600 estimate with a topic breakdown.</p></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="v count" data-to="98">98</div><div class="k">questions on the full test</div></div>
+          <div class="stat"><div class="v"><span class="count" data-to="134">134</span>m</div><div class="k">total testing time</div></div>
+          <div class="stat"><div class="v count" data-to="4">4</div><div class="k">modules, two adaptive</div></div>
+          <div class="stat"><div class="v count" data-to="1600">1600</div><div class="k">top of the scale</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="faq" style="padding-top:0">
+    <div class="wrap faq">
+      <div class="sh" style="margin:0"><span class="mono">FAQ</span><h2>Questions, <em>answered.</em></h2></div>
+      <div>
+        <details open><summary>Is SAT Studio free?</summary><p>Yes. Sign in and take full adaptive practice tests at no cost.</p></details>
+        <details><summary>Does it look like Bluebook?</summary><p>The test screen follows the same layout: timer, question navigator, mark for review and a built-in graphing calculator.</p></details>
+        <details><summary>How does the adaptive part work?</summary><p>After Module 1, the app checks how you did on each topic and builds a harder or easier Module 2, the same structure the real Digital SAT uses.</p></details>
+        <details><summary>Is Reading &amp; Writing included?</summary><p>Yes, in its own tab, with every question type from the real test.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" id="start" style="padding-bottom:40px">
+    <div class="cta sr">
+      <div class="clouds" aria-hidden="true"><i></i><i></i></div>
+      <div class="inner">
+        <span class="mono">Free while we grow</span>
+        <h2>Sit your first test <em>tonight.</em></h2>
+        <p>Sign in, take a full adaptive test, and get your score breakdown the moment you finish.</p>
+        <a href="/" class="btn y">Start practicing</a>
+      </div>
+    </div>
+  </section>
+</main>
+<footer><div class="wrap"><span>© 2026 SAT Studio · Made in Uzbekistan</span><span>Not affiliated with College Board.</span></div></footer>
+
+<script>
+(function(){
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+  const qm = document.getElementById('qm'); [...Array(22)].forEach((_, i) => { const e = document.createElement('i'); if ([6,14,19].includes(i)) e.className = 'x'; qm.appendChild(e); });
+  function count(el, to, dur){ const st = performance.now(); (function f(n){ const k = clamp((n - st) / dur, 0, 1), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(to * e); if (k < 1) requestAnimationFrame(f); })(st); }
+  const io = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; e.target.classList.add('in'); io.unobserve(e.target);
+    if (!reduce) e.target.querySelectorAll('.count').forEach(c => count(c, +c.dataset.to, 1600)); }), { threshold:.15 });
+  document.querySelectorAll('.sr, .io').forEach(el => io.observe(el));
+  /* calculator */
+  const cc = document.getElementById('calc'), g = cc.getContext('2d'); let gs = null;
+  (function calc(now){
+    const r = cc.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2);
+    if (cc.width !== Math.round(r.width * d)){ cc.width = r.width * d; cc.height = r.height * d; }
+    g.setTransform(d,0,0,d,0,0); const w = r.width, h = r.height, X = x => (x + 2) / 12 * w, Y = y => h - (y + 4) / 40 * h;
+    if (!gs && r.top < innerHeight && r.bottom > 0) gs = now;
+    const k = gs ? (reduce ? 1 : clamp((now - gs) / 1700, 0, 1)) : 0, xe = -2 + 12 * (1 - Math.pow(1 - k, 3));
+    g.clearRect(0,0,w,h); g.strokeStyle = 'rgba(20,22,26,.06)'; g.lineWidth = 1;
+    for (let x = -2; x <= 10; x++){ g.beginPath(); g.moveTo(X(x),0); g.lineTo(X(x),h); g.stroke(); }
+    for (let y = -4; y <= 36; y += 4){ g.beginPath(); g.moveTo(0,Y(y)); g.lineTo(w,Y(y)); g.stroke(); }
+    g.strokeStyle = 'rgba(20,22,26,.3)'; g.beginPath(); g.moveTo(X(0),0); g.lineTo(X(0),h); g.moveTo(0,Y(0)); g.lineTo(w,Y(0)); g.stroke();
+    g.strokeStyle = 'rgba(20,22,26,.45)'; g.setLineDash([4,5]); g.beginPath(); g.moveTo(0,Y(25)); g.lineTo(X(xe),Y(25)); g.stroke(); g.setLineDash([]);
+    g.strokeStyle = '#c9a227'; g.lineWidth = 2.4; g.beginPath(); g.moveTo(X(-2),Y(1)); g.lineTo(X(xe),Y(3*xe+7)); g.stroke();
+    if (xe >= 6){ const p = 5 + Math.sin(now / 300) * 2; g.fillStyle = 'rgba(242,211,75,.35)'; g.beginPath(); g.arc(X(6),Y(25),p + 6,0,7); g.fill();
+      g.fillStyle = '#14161a'; g.beginPath(); g.arc(X(6),Y(25),4,0,7); g.fill(); g.font = '11px "Geist Mono", monospace'; g.fillText('(6, 25)', X(6) + 10, Y(25) + 18); }
+    requestAnimationFrame(calc);
+  })(performance.now());
+})();
+</script>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const hero = document.getElementById('hero'), cv = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+const scene = new THREE.Scene();
+const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromScene(new RoomEnvironment(), .04).texture;
+const cam = new THREE.PerspectiveCamera(30, 1, .1, 200);
+
+scene.add(new THREE.HemisphereLight(0xeef3fa, 0x6f7784, 1.1));
+const key = new THREE.DirectionalLight(0xfff1dc, 2.6); key.position.set(-4, 6, 5); scene.add(key);
+const rim = new THREE.DirectionalLight(0xcfe0ff, 2.2); rim.position.set(3, 2, -6); scene.add(rim);
+
+/* fabric texture (fine weave) */
+const tc = document.createElement('canvas'); tc.width = tc.height = 256; const tx = tc.getContext('2d');
+tx.fillStyle = '#808080'; tx.fillRect(0,0,256,256);
+for (let y = 0; y < 256; y += 2) for (let x = 0; x < 256; x += 2){ const v = 110 + ((x + y) % 4 ? 40 : 0) + Math.random() * 30; tx.fillStyle = `rgb(${v},${v},${v})`; tx.fillRect(x, y, 2, 2); }
+const weave = new THREE.CanvasTexture(tc); weave.wrapS = weave.wrapT = THREE.RepeatWrapping; weave.repeat.set(6, 6);
+
+const fabric = new THREE.MeshPhysicalMaterial({ color: 0x15171b, roughness: .72, roughnessMap: weave, bumpMap: weave, bumpScale: .004, sheen: 1, sheenColor: new THREE.Color(0x5a6070), sheenRoughness: .5 });
+const fabricIn = new THREE.MeshStandardMaterial({ color: 0x0c0d10, roughness: .9, side: THREE.DoubleSide });
+const gold = new THREE.MeshStandardMaterial({ color: 0xd8b24a, metalness: .85, roughness: .32 });
+const goldThread = new THREE.MeshStandardMaterial({ color: 0xe3bf55, metalness: .55, roughness: .45 });
+
+const cap = new THREE.Group(); scene.add(cap);
+const board = new THREE.Mesh(new RoundedBoxGeometry(2.5, .07, 2.5, 4, .03), fabric); cap.add(board);
+const prof = []; for (let i = 0; i <= 12; i++){ const k = i / 12; prof.push(new THREE.Vector2(.86 + .06 * Math.sin(k * Math.PI * .5) + .02 * k, -k * .62)); }
+const skull = new THREE.Mesh(new THREE.LatheGeometry(prof, 96), fabric); skull.position.y = -.03; cap.add(skull);
+const skullIn = new THREE.Mesh(new THREE.LatheGeometry(prof.map(p => new THREE.Vector2(p.x - .015, p.y)), 96), fabricIn); skullIn.position.y = -.03; cap.add(skullIn);
+const band = new THREE.Mesh(new THREE.TorusGeometry(.94, .018, 12, 96), fabric); band.rotation.x = Math.PI / 2; band.position.y = -.65; cap.add(band);
+const button = new THREE.Mesh(new THREE.CylinderGeometry(.1, .11, .05, 40), gold); button.position.y = .06; cap.add(button);
+
+/* tassel: spring-driven cord + fringe */
+const EDGE = new THREE.Vector3(1.25, .045, .25);
+const tEnd = new THREE.Vector3(1.32, -.9, .25), tVel = new THREE.Vector3();
+let cord = new THREE.Mesh(new THREE.BufferGeometry(), goldThread); cap.add(cord);
+const knot = new THREE.Mesh(new THREE.SphereGeometry(.06, 24, 16), gold); cap.add(knot);
+const fringe = new THREE.Group(); cap.add(fringe);
+const fr = new THREE.Mesh(new THREE.CylinderGeometry(.05, .12, .42, 36, 6, true), goldThread); fr.position.y = -.24; fringe.add(fr);
+for (let i = 0; i < 36; i++){ const a = i / 36 * Math.PI * 2; const s = new THREE.Mesh(new THREE.CylinderGeometry(.006, .006, .44, 4), goldThread); s.position.set(Math.cos(a) * .095, -.25, Math.sin(a) * .095); s.rotation.z = Math.cos(a) * .14; s.rotation.x = -Math.sin(a) * .14; fringe.add(s); }
+const tmpQ = new THREE.Quaternion(), gLocal = new THREE.Vector3(), desired = new THREE.Vector3(), up = new THREE.Vector3(0, 1, 0);
+function updateTassel(dt){
+  tmpQ.copy(cap.quaternion).invert(); gLocal.set(0, -1, 0).applyQuaternion(tmpQ);
+  desired.copy(EDGE).addScaledVector(gLocal, .95);
+  if (desired.y > EDGE.y - .2) desired.y = EDGE.y - .2;
+  const k = 70, damp = Math.exp(-4.2 * dt);
+  tVel.addScaledVector(desired.clone().sub(tEnd), k * dt); tVel.multiplyScalar(damp); tEnd.addScaledVector(tVel, dt);
+  const pts = [new THREE.Vector3(0, .075, 0), new THREE.Vector3(.5, .085, .1), new THREE.Vector3(1.05, .07, .22), EDGE.clone().add(new THREE.Vector3(.06, -.02, 0)),
+    EDGE.clone().lerp(tEnd, .5).add(new THREE.Vector3(.04, 0, 0)), tEnd.clone()];
+  const curve = new THREE.CatmullRomCurve3(pts);
+  cord.geometry.dispose(); cord.geometry = new THREE.TubeGeometry(curve, 48, .016, 8, false);
+  knot.position.copy(tEnd); fringe.position.copy(tEnd);
+  const dir = curve.getTangent(1).normalize(); fringe.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), dir);
+}
+
+/* soft contact shadow under landing spot */
+const sc = document.createElement('canvas'); sc.width = sc.height = 128; const sx = sc.getContext('2d');
+const gr = sx.createRadialGradient(64,64,0,64,64,64); gr.addColorStop(0,'rgba(40,50,70,.35)'); gr.addColorStop(1,'rgba(40,50,70,0)'); sx.fillStyle = gr; sx.fillRect(0,0,128,128);
+const shadow = new THREE.Mesh(new THREE.PlaneGeometry(4, 4), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sc), transparent: true, depthWrite: false }));
+shadow.rotation.x = -Math.PI / 2; scene.add(shadow);
+
+/* layout */
+let finalPos = new THREE.Vector3(), narrow = false;
+function layout(){
+  const w = cv.clientWidth, h = cv.clientHeight; renderer.setSize(w, h, false); cam.aspect = w / h;
+  narrow = w < 820;
+  cam.fov = narrow ? 42 : 30; cam.updateProjectionMatrix();
+  cam.position.set(0, .7, 10); cam.lookAt(0, .2, 0);
+  finalPos.set(narrow ? 0 : 1.35, narrow ? 1.25 : .15, 0);
+  shadow.position.set(finalPos.x, finalPos.y - 1.6, finalPos.z);
+}
+layout(); addEventListener('resize', layout);
+
+/* flight: cubic bezier path + eased rotation, plays once then idles */
+const bez = (a, b, c, d, t) => { const u = 1 - t; return a.clone().multiplyScalar(u*u*u).add(b.clone().multiplyScalar(3*u*u*t)).add(c.clone().multiplyScalar(3*u*t*t)).add(d.clone().multiplyScalar(t*t*t)); };
+const easeOut = t => t >= 1 ? 1 : 1 - Math.pow(2, -9 * t) * (1 - t * .02);
+const smooth = t => t * t * t * (t * (t * 6 - 15) + 10);
+const FLY = 3.0;
+let start = performance.now(), landed = false, last = start;
+const ptr = { x: 0, y: 0, sx: 0, sy: 0 };
+addEventListener('pointermove', e => { ptr.x = e.clientX / innerWidth - .5; ptr.y = e.clientY / innerHeight - .5; }, { passive: true });
+document.getElementById('replay').addEventListener('click', () => { start = performance.now(); landed = false; hero.classList.remove('landed'); tEnd.set(1.32, -.9, .25); tVel.set(0,0,0); });
+
+function frame(now){
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  const t = reduce ? 99 : (now - start) / 1000;
+  const k = Math.min(1, t / FLY), e = easeOut(k), er = smooth(Math.min(1, t / (FLY * .92)));
+  const P0 = new THREE.Vector3(finalPos.x - 7, finalPos.y + 6, -46), P1 = new THREE.Vector3(finalPos.x - 3, finalPos.y + 4.5, -18), P2 = new THREE.Vector3(finalPos.x + 2.6, finalPos.y + 1.4, -3);
+  const p = bez(P0, P1, P2, finalPos, e);
+  // landing settle: tiny damped bounce after arrival
+  const after = Math.max(0, t - FLY * .78);
+  const settle = Math.exp(-after * 3.2) * Math.sin(after * 7) * .045 * (t > FLY * .78 ? 1 : 0);
+  ptr.sx += (ptr.x - ptr.sx) * .04; ptr.sy += (ptr.y - ptr.sy) * .04;
+  const idle = Math.max(0, t - FLY);
+  const fl = Math.min(1, idle / 1.5);
+  cap.position.set(p.x, p.y + settle + Math.sin(idle * 1.1) * .06 * fl, p.z);
+  const rx = THREE.MathUtils.lerp(1.25, .44, er) + settle * 1.4 + ptr.sy * .18 * fl;
+  const ry = THREE.MathUtils.lerp(-.5 - Math.PI * 4, -.5, er) + Math.sin(idle * .5) * .08 * fl + ptr.sx * .4 * fl;
+  const rz = THREE.MathUtils.lerp(.7, -.1, er) + Math.sin(idle * .8) * .025 * fl;
+  cap.rotation.set(rx, ry, rz);
+  updateTassel(dt);
+  shadow.material.opacity = Math.min(1, e * e) * (1 - Math.min(.35, Math.abs(cap.position.y - finalPos.y) * .2));
+  cam.position.x = ptr.sx * .35 * fl; cam.position.y = .7 - ptr.sy * .25 * fl; cam.lookAt(0, .2, 0);
+  if (!landed && t > FLY * .82){ landed = true; hero.classList.add('landed'); }
+  const r = hero.getBoundingClientRect(); if (r.bottom > 0) renderer.render(scene, cam);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+
+</body>
+</html>
