@@ -8,6 +8,7 @@
 <meta property="og:title" content="SAT Studio · Aim for the top">
 <meta property="og:description" content="Free adaptive Digital SAT practice tests, scored instantly.">
 <meta property="og:type" content="website">
+<meta name="author" content="Xurshid Jo’rayev">
 <meta name="theme-color" content="#dfe6ee">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
@@ -177,8 +178,11 @@ em.s{font-family:var(--f-serif);font-style:italic}
 .cta .inner{position:relative}
 .cta h2{font-family:var(--f-serif);font-size:clamp(2.6rem,6vw,5rem);line-height:.95;letter-spacing:-.02em;margin:14px 0 16px}
 .cta h2 em{color:#5d6675}
+.cta .by{margin:22px 0 0;font-size:.9rem;color:var(--dim)}
+.cta .by em{font-size:1.25em;color:var(--ink)}
 .cta p{color:var(--ink2);opacity:.8;margin:0 auto 26px;max-width:28rem}
 footer{padding-block:44px calc(32px + env(safe-area-inset-bottom,0px));color:var(--dim);font-size:.84rem}
+footer .owner{font-weight:500;color:var(--ink)}
 footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;border-top:1px solid var(--line);padding-top:26px}
 
 .js .sr{opacity:0;transform:translateY(20px);filter:blur(6px);transition:opacity 1s var(--ease),transform 1s var(--ease),filter 1s var(--ease)}
@@ -207,7 +211,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;
     <div class="clouds front" aria-hidden="true"><i></i><i></i></div>
     <div class="hero-ui">
       <div class="wrap">
-        <span class="tag mono rv">Adaptive Digital SAT practice</span>
+        <span class="tag mono rv">Adaptive Digital SAT practice · by Xurshid Jo’rayev</span>
         <button class="replay rv" id="replay" type="button">↻ Replay</button>
         <div class="hl">
           <h1 class="rv d1">Aim for<br><em>the top.</em></h1>
@@ -311,11 +315,12 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;
         <h2>Sit your first test <em>tonight.</em></h2>
         <p>Sign in, take a full adaptive test, and get your score breakdown the moment you finish.</p>
         <a href="/" class="btn y">Start practicing</a>
+        <p class="by">Created by <em class="s">Xurshid Jo’rayev</em></p>
       </div>
     </div>
   </section>
 </main>
-<footer><div class="wrap"><span>© 2026 SAT Studio · Made in Uzbekistan</span><span>Not affiliated with College Board.</span></div></footer>
+<footer><div class="wrap"><span>© 2026 SAT Studio · Created by <b class="owner">Xurshid Jo’rayev</b> · Made in Uzbekistan</span><span>Not affiliated with College Board.</span></div></footer>
 
 <script>
 (function(){

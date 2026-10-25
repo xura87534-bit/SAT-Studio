@@ -80,6 +80,8 @@
 #pfGate .pf-msg.err{color:var(--pf-red)}#pfGate .pf-msg.ok{color:#2f7a3d}
 #pfGate .pf-off{display:block;margin:14px auto 0;border:0;background:transparent;color:var(--pf-dim);font:500 .82rem inherit;font-family:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 #pfGate .pf-off:hover{color:var(--pf-ink)}
+#pfGate .pf-by{margin:18px 0 0;padding-top:14px;border-top:1px solid var(--pf-line);text-align:center;font-size:.78rem;color:var(--pf-dim)}
+#pfGate .pf-by em{font:400 1.15em "Instrument Serif",Georgia,serif;color:var(--pf-ink)}
 #pfGate .pf-spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(20,22,26,.25);border-top-color:var(--pf-ink);animation:pfSpin .7s linear infinite}
 @keyframes pfSpin{to{transform:rotate(360deg)}}
 #pfGate :focus-visible{outline:2px solid var(--pf-ink);outline-offset:2px}
@@ -131,6 +133,7 @@
           <p class="pf-msg" id="pfMsg" role="status" aria-live="polite"></p>
         </form>
         <button class="pf-off" type="button" id="pfOff">Use offline on this device instead</button>
+        <p class="pf-by">Created by <em>Xurshid Jo’rayev</em></p>
       </div>`;
     document.body.appendChild(g);
     const $ = (id) => g.querySelector("#" + id);
