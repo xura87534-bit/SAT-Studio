@@ -1,0 +1,53 @@
+{
+  "start_date": "2026-11-02",
+  "end_date":   "2026-12-01",
+  "end_card":   "logo + 'More in bio'  (1.0 s)",
+  "voice":      "Google AI Studio voice Finn, hooks <8 s",
+  "resolution": "1080x1920 @ 30fps",
+  "slots": [
+    {"n":1,"kind":"value","style":"90% get this wrong"},
+    {"n":2,"kind":"value","style":"Trap answer exposed"},
+    {"n":3,"kind":"value","style":"Solve this in 30 seconds"},
+    {"n":4,"kind":"value","style":"600 vs 800 scorer same question"},
+    {"n":5,"kind":"value","style":"Desmos/shortcut on paper"},
+    {"n":6,"kind":"value","style":"Hands-only overhead lo-fi"},
+    {"n":7,"kind":"value","style":"Day X of 1 hard SAT question (series)"},
+    {"n":8,"kind":"bridge","style":"Hook then 'your Module 2 depends on this' bridge"},
+    {"n":9,"kind":"value","style":"Myth-vs-fact OR kinetic grammar rule"},
+    {"n":10,"kind":"direct","style":"Talking-head story (text+photo stand-in)"}
+  ],
+  "days": [
+    {"d":1, "slot":1,  "hook":"90% get this wrong.",                               "scene":"Compound interest 20% then p%, total 50%. Expose trap p=30, reveal p=25 via 1.2(1+p/100)=1.5.",     "tags":"A"},
+    {"d":2, "slot":2,  "hook":"Why do SO many pick B?",                            "scene":"Linear word problem. Big arrows track the misread of 'at least' (>= not <=). Correct answer slides in.", "tags":"B"},
+    {"d":3, "slot":3,  "hook":"Solve this in 30 seconds.",                         "scene":"Hard geometry: inscribed-angle question. 30 s ring timer. One-line shortcut reveal.",                "tags":"B"},
+    {"d":4, "slot":4,  "hook":"600 vs 800 scorer on the same question.",          "scene":"Split screen. Left: 2 min algebra. Right: one Desmos line. Same answer, synced clocks.",          "tags":"B"},
+    {"d":5, "slot":5,  "hook":"Stop solving this the long way.",                   "scene":"Overhead paper. Draw inscribed angle = half the arc shortcut, warm lamp lighting.",                 "tags":"A"},
+    {"d":6, "slot":6,  "hook":"(pen touches page, no words)",                      "scene":"Overhead ASMR solve of a full SAT algebra problem. Boxed final answer. Lo-fi music only.",         "tags":"C"},
+    {"d":7, "slot":7,  "hook":"Day 1 of 1 hard SAT question.",                     "scene":"Series opener. Extreme-tier quadratic. 20-s solve. Blue 'Day 1' chip in corner. Template defined.", "tags":"B"},
+    {"d":8, "slot":8,  "hook":"Your Module 2 is decided before you finish Module 1.", "scene":"Two glowing doors (Easy/Hard). Score counter fills, Hard door opens at 15/22. Bridge line.",      "tags":"A"},
+    {"d":9, "slot":9,  "hook":"Myth: you need to memorize geometry formulas.",     "scene":"Reference sheet appears, formulas scroll. Then 4 you actually need: slope, vertex, %, exp growth.", "tags":"A"},
+    {"d":10,"slot":10, "hook":"I'm a teacher. My students kept running out of real practice.", "scene":"Text+photo story, 3 beats: problem, what I tried, what I built.",                              "tags":"A"},
+
+    {"d":11,"slot":1,  "hook":"99% miss this.",                                    "scene":"R&W transition: however vs therefore vs furthermore. Countdown + colour-coded arrows reveal.",      "tags":"B"},
+    {"d":12,"slot":2,  "hook":"Trap: the answer that LOOKS right.",                "scene":"Percent: shirt $40 after 20% off. $48 crossed out. $50 boxed via 40/0.8.",                           "tags":"B"},
+    {"d":13,"slot":3,  "hook":"5 questions. 5 seconds each. Go.",                  "scene":"Speed round. Shrinking bar. Score counter. Final 5/5.",                                             "tags":"B"},
+    {"d":14,"slot":4,  "hook":"Same question. Panicker vs Planner.",               "scene":"Split screen 2 characters. Panicker guesses, Planner uses shortcut. Jump cuts.",                   "tags":"D"},
+    {"d":15,"slot":5,  "hook":"Stop graphing by hand.",                            "scene":"Overhead paper. Bad parabola freehand, then vertex-form shortcut y=a(x-h)^2+k.",                   "tags":"A"},
+    {"d":16,"slot":6,  "hook":"(hand slides a formula sheet in)",                  "scene":"ASMR overhead solve of a trigonometry problem using the SAT reference sheet.",                      "tags":"C"},
+    {"d":17,"slot":7,  "hook":"Day 2 of 1 hard SAT question.",                     "scene":"Series continues. New Extreme question, same template.",                                           "tags":"B"},
+    {"d":18,"slot":8,  "hook":"I couldn't find unlimited hard SAT questions, so I built a tool for it.", "scene":"10 s handwritten story then short honest screen clip of the question bank filtered to Advanced.", "tags":"A"},
+    {"d":19,"slot":9,  "hook":"3 SAT words that keep showing up.",                 "scene":"Kinetic typography: ambivalent/mitigate/corroborate. Each with SAT sentence + Uzbek meaning.",      "tags":"C"},
+    {"d":20,"slot":10, "hook":"Everyone starts somewhere. My first practice test was a 1050.", "scene":"Calm desk, rain, yellow text. 3 beats: wrong, changed, happened. No app shown.",                 "tags":"A"},
+
+    {"d":21,"slot":1,  "hook":"Even top scorers get this wrong at first.",         "scene":"x^2 + bx + 16 = 0 has one real solution. Trap b=4. Reveal b=8 via discriminant.",                 "tags":"B"},
+    {"d":22,"slot":2,  "hook":"The trap in 'at least one'.",                       "scene":"Probability question. Complement shortcut 1 - P(none) circled on paper.",                          "tags":"B"},
+    {"d":23,"slot":3,  "hook":"Can you beat my time? 0:41.",                       "scene":"f(a)=15 with f(x)=2x^2-3. You vs me layout. Reveal a=3.",                                           "tags":"B"},
+    {"d":24,"slot":4,  "hook":"Rushed vs reviewed.",                               "scene":"Split screen same test. Left: no review. Right: 10 min review. Score bars.",                       "tags":"D"},
+    {"d":25,"slot":5,  "hook":"Stop solving systems with substitution.",            "scene":"Overhead paper: y=2x-1 and x+y=5. Add equations method. Point (2,3).",                             "tags":"A"},
+    {"d":26,"slot":6,  "hook":"(finger taps first number, no words)",              "scene":"ASMR overhead solve of a reading-data question using the chart.",                                   "tags":"C"},
+    {"d":27,"slot":7,  "hook":"Day 3 of 1 hard SAT question.",                     "scene":"Series finale. Hardest one yet. Same template.",                                                    "tags":"B"},
+    {"d":28,"slot":8,  "hook":"You got this one right? Here are 50 more at your exact level.", "scene":"Medium question solved. Bridge line to Advanced-level unlock.",                                   "tags":"A"},
+    {"d":29,"slot":9,  "hook":"The hardest SAT question ever written.",            "scene":"Dark cinematic thriller: glitch cuts, deep bass. Dramatic voiceover reads slowly. Clean reveal.",   "tags":"B"},
+    {"d":30,"slot":10, "hook":"What happened when 20 students used adaptive practice for 2 weeks.", "scene":"Honest story, text + chart of avg point change. End 'season 2 starts tomorrow'.",                 "tags":"A"}
+  ]
+}
