@@ -8,7 +8,6 @@
 <meta name="theme-color" content="#090C16">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
-<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
 <link rel="icon" href="/icons/icon-96.png" type="image/png" sizes="96x96">
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
 <meta property="og:site_name" content="SAT Studio">
@@ -5277,7 +5276,7 @@ function shell(content){
   const nav=[["home","Home",ICON.home],["tests","Math",ICON.tests,"Math"],["english","Reading & Writing",ICON.book,"R&W"],["words","Word bank",ICON.wb,"Words"],["book","Book Tests",ICON.bk,"Book"],["strength","Strength",ICON.chart,"Power"],["feedback","Feedback",ICON.fb,"Feedback"],["progress","Progress",ICON.chart],["history","History",ICON.clock]].concat(ME.owner?[["students","Students",ICON.chart]]:[]);
   const ns=Object.keys(SESSIONS).length;
   app.innerHTML=`<div class="shell"><nav class="side" aria-label="Main">
-    <div class="brand"><span class="logo">∑</span>SAT Studio</div>
+    <div class="brand"><img class="logo" src="/icons/logo-sm.png" alt="" width="34" height="34" style="background:none;object-fit:cover">SAT Studio</div>
     ${nav.map(([k,l,i,sh])=>`<button class="nav${view===k?" on":""}" data-nav="${k}"${view===k?' aria-current="page"':""}>${i}<span class="${sh?"lg":""}">${esc(l)}</span>${sh?`<span class="sm">${esc(sh)}</span>`:""}${k==="home"&&ns?`<em aria-label="${ns} saved">${ns}</em>`:""}</button>`).join("")}
     <div class="sidefoot"><i class="${AI?"on":""}"></i>${!BOOTED&&window.claude?"Syncing your progress…":AI?"Claude connected":"Built-in questions"}</div>${!AI&&(BOOTED||!window.claude)&&!(window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn)?`<button class="sidesync connai" data-connai>${window.SAT_PLATFORM?(window.SAT_PLATFORM.ai?"Sign in for Claude":"Sign in to sync"):"Connect Claude"}</button>`:""}${window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn?`<button class="sidesync" data-signout>Sign out</button>`:""}<button class="sidesync" id="syncOpen">Backup &amp; sync</button><span class="appver owner">Created by Xurshid Jo’rayev</span><span class="appver">${window._vl||(window._vl=(()=>{let h=0;const a=BANK.concat(RWBANK);for(const x of a){const d=String(x.id)+":"+(x.lv|0);for(let i=0;i<d.length;i++)h=(h*31+d.charCodeAt(i))|0}return "Build "+a.length.toLocaleString("en-US")+" Q · "+(h>>>0).toString(36).toUpperCase().slice(0,4)})())}${window.claude?"":" · downloaded copy"}</span>
   </nav><main class="main">${content}</main></div>`;
