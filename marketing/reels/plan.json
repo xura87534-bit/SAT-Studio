@@ -1,53 +1,228 @@
 {
-  "start_date": "2026-11-02",
-  "end_date":   "2026-12-01",
-  "end_card":   "logo + 'More in bio'  (1.0 s)",
-  "voice":      "Google AI Studio voice Finn, hooks <8 s",
-  "resolution": "1080x1920 @ 30fps",
-  "slots": [
-    {"n":1,"kind":"value","style":"90% get this wrong"},
-    {"n":2,"kind":"value","style":"Trap answer exposed"},
-    {"n":3,"kind":"value","style":"Solve this in 30 seconds"},
-    {"n":4,"kind":"value","style":"600 vs 800 scorer same question"},
-    {"n":5,"kind":"value","style":"Desmos/shortcut on paper"},
-    {"n":6,"kind":"value","style":"Hands-only overhead lo-fi"},
-    {"n":7,"kind":"value","style":"Day X of 1 hard SAT question (series)"},
-    {"n":8,"kind":"bridge","style":"Hook then 'your Module 2 depends on this' bridge"},
-    {"n":9,"kind":"value","style":"Myth-vs-fact OR kinetic grammar rule"},
-    {"n":10,"kind":"direct","style":"Talking-head story (text+photo stand-in)"}
-  ],
+  "source": "Xurshid's 30 Reel Scripts (2 Nov 2026) — follow scene-by-scene",
+  "day1_date": "2026-11-02",
+  "post_time": "19:30 Asia/Tashkent",
+  "resolution": "1080x1920 @30fps",
+  "voice": "Xurshid generates VO in Google AI Studio (Finn) and lays it under the animation. The builder BURNS THE VO LINE IN as a bottom caption so the reel reads muted, and leaves audio headroom (music bed + SFX only, no speech).",
+  "close": "Every reel ends on the wordmark + 'Link in bio' (common.endcard_bio).",
+  "palettes": ["Midnight Teal","Soft Slate","Forest Terminal","Ice Minimal","Brick Red","Olive Stone","Dusty Clay","Warm Gold"],
+  "app_named_on_days": [1,9,14,19,22,25,27,30],
+  "no_camera_note": "The guide's preamble says nothing needs a camera. Days 22-29 are phrased as if filmed ('you hold', 'straight to camera'). Build those as animated/typographic equivalents: handwriting, held-card graphics, illustrated desk scenes. Never fake a photoreal person.",
+  "tagsets": {
+    "A": "#sat #satprep #digitalsat #studymotivation #studygram #studytips #satapp",
+    "B": "#satmath #satquestions #mathchallenge #digitalsat #studywithme #exam #satapp",
+    "C": "#uzbekistan #toshkent #satuzbekistan #talaba #digitalsat #studying #satapp",
+    "D": "#studentlife #studentmemes #satprep #highschool #collegeadmissions #studying #satapp"
+  },
   "days": [
-    {"d":1, "slot":1,  "hook":"90% get this wrong.",                               "scene":"Compound interest 20% then p%, total 50%. Expose trap p=30, reveal p=25 via 1.2(1+p/100)=1.5.",     "tags":"A"},
-    {"d":2, "slot":2,  "hook":"Why do SO many pick B?",                            "scene":"Linear word problem. Big arrows track the misread of 'at least' (>= not <=). Correct answer slides in.", "tags":"B"},
-    {"d":3, "slot":3,  "hook":"Solve this in 30 seconds.",                         "scene":"Hard geometry: inscribed-angle question. 30 s ring timer. One-line shortcut reveal.",                "tags":"B"},
-    {"d":4, "slot":4,  "hook":"600 vs 800 scorer on the same question.",          "scene":"Split screen. Left: 2 min algebra. Right: one Desmos line. Same answer, synced clocks.",          "tags":"B"},
-    {"d":5, "slot":5,  "hook":"Stop solving this the long way.",                   "scene":"Overhead paper. Draw inscribed angle = half the arc shortcut, warm lamp lighting.",                 "tags":"A"},
-    {"d":6, "slot":6,  "hook":"(pen touches page, no words)",                      "scene":"Overhead ASMR solve of a full SAT algebra problem. Boxed final answer. Lo-fi music only.",         "tags":"C"},
-    {"d":7, "slot":7,  "hook":"Day 1 of 1 hard SAT question.",                     "scene":"Series opener. Extreme-tier quadratic. 20-s solve. Blue 'Day 1' chip in corner. Template defined.", "tags":"B"},
-    {"d":8, "slot":8,  "hook":"Your Module 2 is decided before you finish Module 1.", "scene":"Two glowing doors (Easy/Hard). Score counter fills, Hard door opens at 15/22. Bridge line.",      "tags":"A"},
-    {"d":9, "slot":9,  "hook":"Myth: you need to memorize geometry formulas.",     "scene":"Reference sheet appears, formulas scroll. Then 4 you actually need: slope, vertex, %, exp growth.", "tags":"A"},
-    {"d":10,"slot":10, "hook":"I'm a teacher. My students kept running out of real practice.", "scene":"Text+photo story, 3 beats: problem, what I tried, what I built.",                              "tags":"A"},
+    {"d":1,"title":"The test that changes halfway","palette":"Midnight Teal","cut":"Glitch cut","sec":24,"app":true,"tags":"A","beats":[
+      {"t":"0-2","anim":"the word ADAPTIVE assembles from glitching fragments","vo":"The SAT changes halfway through."},
+      {"t":"2-10","anim":"a single path splits into two routes, one easy one hard, labels sliding in","text":"Module 1 decides Module 2"},
+      {"t":"10-18","anim":"the hard route lights up, a score range climbing beside it","vo":"Harder second module means a higher ceiling."},
+      {"t":"18-22","anim":"routes collapse into the app wordmark","vo":"SAT Studio builds that second module the same way."},
+      {"t":"22-24","anim":"wordmark holds","text":"Link in bio"}]},
 
-    {"d":11,"slot":1,  "hook":"99% miss this.",                                    "scene":"R&W transition: however vs therefore vs furthermore. Countdown + colour-coded arrows reveal.",      "tags":"B"},
-    {"d":12,"slot":2,  "hook":"Trap: the answer that LOOKS right.",                "scene":"Percent: shirt $40 after 20% off. $48 crossed out. $50 boxed via 40/0.8.",                           "tags":"B"},
-    {"d":13,"slot":3,  "hook":"5 questions. 5 seconds each. Go.",                  "scene":"Speed round. Shrinking bar. Score counter. Final 5/5.",                                             "tags":"B"},
-    {"d":14,"slot":4,  "hook":"Same question. Panicker vs Planner.",               "scene":"Split screen 2 characters. Panicker guesses, Planner uses shortcut. Jump cuts.",                   "tags":"D"},
-    {"d":15,"slot":5,  "hook":"Stop graphing by hand.",                            "scene":"Overhead paper. Bad parabola freehand, then vertex-form shortcut y=a(x-h)^2+k.",                   "tags":"A"},
-    {"d":16,"slot":6,  "hook":"(hand slides a formula sheet in)",                  "scene":"ASMR overhead solve of a trigonometry problem using the SAT reference sheet.",                      "tags":"C"},
-    {"d":17,"slot":7,  "hook":"Day 2 of 1 hard SAT question.",                     "scene":"Series continues. New Extreme question, same template.",                                           "tags":"B"},
-    {"d":18,"slot":8,  "hook":"I couldn't find unlimited hard SAT questions, so I built a tool for it.", "scene":"10 s handwritten story then short honest screen clip of the question bank filtered to Advanced.", "tags":"A"},
-    {"d":19,"slot":9,  "hook":"3 SAT words that keep showing up.",                 "scene":"Kinetic typography: ambivalent/mitigate/corroborate. Each with SAT sentence + Uzbek meaning.",      "tags":"C"},
-    {"d":20,"slot":10, "hook":"Everyone starts somewhere. My first practice test was a 1050.", "scene":"Calm desk, rain, yellow text. 3 beats: wrong, changed, happened. No app shown.",                 "tags":"A"},
+    {"d":2,"title":"The 11 PM group chat","palette":"Soft Slate","cut":"Whip pan","sec":22,"app":false,"tags":"D","beats":[
+      {"t":"0-2","anim":"phone chat bubbles, timestamp 11:04","text":"studied 3 hrs. remember nothing"},
+      {"t":"2-9","anim":"reply bubbles land one by one, each whipping in","text":"same  ·  what do i even study"},
+      {"t":"9-17","anim":"the chat dissolves; three lines type themselves out","text":"1. One topic   2. 20 questions   3. Write every mistake"},
+      {"t":"17-20","anim":"the three lines compress into a single card","vo":"That's the whole system. There isn't more."},
+      {"t":"20-22","anim":"loop back to the 11:04 bubble","text":"Link in bio"}]},
 
-    {"d":21,"slot":1,  "hook":"Even top scorers get this wrong at first.",         "scene":"x^2 + bx + 16 = 0 has one real solution. Trap b=4. Reveal b=8 via discriminant.",                 "tags":"B"},
-    {"d":22,"slot":2,  "hook":"The trap in 'at least one'.",                       "scene":"Probability question. Complement shortcut 1 - P(none) circled on paper.",                          "tags":"B"},
-    {"d":23,"slot":3,  "hook":"Can you beat my time? 0:41.",                       "scene":"f(a)=15 with f(x)=2x^2-3. You vs me layout. Reveal a=3.",                                           "tags":"B"},
-    {"d":24,"slot":4,  "hook":"Rushed vs reviewed.",                               "scene":"Split screen same test. Left: no review. Right: 10 min review. Score bars.",                       "tags":"D"},
-    {"d":25,"slot":5,  "hook":"Stop solving systems with substitution.",            "scene":"Overhead paper: y=2x-1 and x+y=5. Add equations method. Point (2,3).",                             "tags":"A"},
-    {"d":26,"slot":6,  "hook":"(finger taps first number, no words)",              "scene":"ASMR overhead solve of a reading-data question using the chart.",                                   "tags":"C"},
-    {"d":27,"slot":7,  "hook":"Day 3 of 1 hard SAT question.",                     "scene":"Series finale. Hardest one yet. Same template.",                                                    "tags":"B"},
-    {"d":28,"slot":8,  "hook":"You got this one right? Here are 50 more at your exact level.", "scene":"Medium question solved. Bridge line to Advanced-level unlock.",                                   "tags":"A"},
-    {"d":29,"slot":9,  "hook":"The hardest SAT question ever written.",            "scene":"Dark cinematic thriller: glitch cuts, deep bass. Dramatic voiceover reads slowly. Clean reveal.",   "tags":"B"},
-    {"d":30,"slot":10, "hook":"What happened when 20 students used adaptive practice for 2 weeks.", "scene":"Honest story, text + chart of avg point change. End 'season 2 starts tomorrow'.",                 "tags":"A"}
+    {"d":3,"title":"The notebook that writes itself","palette":"Forest Terminal","cut":"Speed ramp","sec":23,"app":false,"tags":"A","beats":[
+      {"t":"0-2","anim":"handwriting: a wrong answer appears, then gets crossed out","vo":"One notebook. Only mistakes."},
+      {"t":"2-10","anim":"beneath it, the reason writes itself in","text":"Wrong answer + why"},
+      {"t":"10-17","anim":"speed ramp: pages flip past, filling up","vo":"Same mistake twice means you never understood it."},
+      {"t":"17-21","anim":"one page holds; a repeated pattern circles itself in red","text":"The pattern: rushing the setup"},
+      {"t":"21-23","anim":"page closes","text":"Link in bio"}]},
+
+    {"d":4,"title":"The desk, built piece by piece","palette":"Ice Minimal","cut":"Scroll wipe","sec":22,"app":false,"tags":"A","beats":[
+      {"t":"0-2","anim":"an empty isometric desk","text":"Practice test setup"},
+      {"t":"2-11","anim":"each object drops in and labels itself: timer, water, pencil, blank paper","text":"item names"},
+      {"t":"11-17","anim":"a phone slides off the desk into a drawer, which shuts","text":"Phone: away"},
+      {"t":"17-20","anim":"the timer starts counting on the desk","vo":"Test day feels normal if practice looks like test day."},
+      {"t":"20-22","anim":"scene holds","text":"Link in bio"}]},
+
+    {"d":5,"title":"The gap between practice and test day","palette":"Brick Red","cut":"Zoom punch","sec":25,"app":false,"tags":"A","beats":[
+      {"t":"0-2","anim":"two bars, 1400 and 1280, the gap flashing red","vo":"You practice at 1400 and score 1280."},
+      {"t":"2-10","anim":"cause 1 animates: a clock icon pulsing over every question","text":"You watch the timer"},
+      {"t":"10-17","anim":"cause 2: an untimed practice page, no clock anywhere","text":"You never practiced under pressure"},
+      {"t":"17-22","anim":"the two bars slide together and merge","vo":"One full timed test a week. Even a bad one."},
+      {"t":"22-25","anim":"merged bar holds","text":"Link in bio"}]},
+
+    {"d":6,"title":"The morning, drawn on a clock","palette":"Olive Stone","cut":"Match cut","sec":23,"app":false,"tags":"A","beats":[
+      {"t":"0-3","anim":"a clock face, hand sweeping to 7:00","text":"7:00 AM"},
+      {"t":"3-11","anim":"icons arc around the dial in sequence: water, breakfast, five warm-up questions","vo":"I don't study. I warm up."},
+      {"t":"11-17","anim":"a phone icon greys out and drops off the dial","text":"No phone until the test ends"},
+      {"t":"17-21","anim":"the hand reaches start time, the dial turns into a timer","vo":"Same routine every time."},
+      {"t":"21-23","anim":"timer holds","text":"Link in bio"}]},
+
+    {"d":7,"title":"Three words that move the answer","palette":"Dusty Clay","cut":"Kinetic typography","sec":24,"app":false,"tags":"B","beats":[
+      {"t":"0-3","anim":"'at least' slams onto screen, letter by letter","text":"at least"},
+      {"t":"3-10","anim":"a > symbol morphs into ≥ beside it","text":"≥ not >"},
+      {"t":"10-17","anim":"'no more than' and 'exactly' drop in, each with its symbol","text":"≤  ·  ="},
+      {"t":"17-22","anim":"all three stack, then the wrong symbols shatter away","vo":"Most wrong answers are reading mistakes."},
+      {"t":"22-24","anim":"three correct symbols hold","text":"Link in bio"}]},
+
+    {"d":8,"title":"Six weeks, drawn as a line","palette":"Warm Gold","cut":"Light leak flash","sec":24,"app":false,"tags":"A","beats":[
+      {"t":"0-3","anim":"an empty chart, axis labels fading in","vo":"Six practice tests. Including the bad one."},
+      {"t":"3-11","anim":"the line draws itself week by week, each point landing with a light flash","text":"score at each point"},
+      {"t":"11-17","anim":"the line dips at week four; the dip circles itself","text":"Week 4: it dropped"},
+      {"t":"17-21","anim":"the cause types in beneath","vo":"I'd stopped doing the easy questions."},
+      {"t":"21-24","anim":"the full line holds","text":"Link in bio"}]},
+
+    {"d":9,"title":"25 minutes, one topic","palette":"Midnight Teal","cut":"Hard cut on beat","sec":22,"app":true,"tags":"B","beats":[
+      {"t":"0-2","anim":"a countdown ring snaps to 25:00","text":"25:00","sfx":"single click"},
+      {"t":"2-11","anim":"the ring drains while tally marks stack up on the beat","sfx":"beat per mark"},
+      {"t":"11-17","anim":"ring hits zero; the tally resolves into a count","text":"18 questions. 4 wrong."},
+      {"t":"17-20","anim":"the 4 wrong peel off into a separate pile","vo":"The four wrong ones are tomorrow's session. SAT Studio sorts them."},
+      {"t":"20-22","anim":"pile holds","text":"Link in bio"}]},
+
+    {"d":10,"title":"How do you even study for this?","palette":"Soft Slate","cut":"Match cut","sec":23,"app":false,"tags":"D","beats":[
+      {"t":"0-2","anim":"one chat bubble arrives","text":"how do you even study for this"},
+      {"t":"2-11","anim":"three reply bubbles land, each match-cutting into an icon: test, notebook, repeat arrow","text":"Test. Mistakes. Repeat."},
+      {"t":"11-17","anim":"the three icons loop in a cycle","vo":"There's no trick. It's just reps."},
+      {"t":"17-21","anim":"a final bubble arrives","text":"that's it??"},
+      {"t":"21-23","anim":"the cycle keeps turning","text":"Link in bio"}]},
+
+    {"d":11,"title":"A problem, written out","palette":"Forest Terminal","cut":"Macro zoom","sec":24,"app":false,"tags":"B","beats":[
+      {"t":"0-3","anim":"handwriting: a problem appears line by line, no voice","sfx":"paper and graphite only"},
+      {"t":"3-12","anim":"each step writes itself, macro zoom following the pen","text":"none"},
+      {"t":"12-18","anim":"the answer circles itself","sfx":"single tap"},
+      {"t":"18-22","anim":"the whole worked page pulls back into view","vo":"Writing it out is slower. You get more right."},
+      {"t":"22-24","anim":"page holds","text":"Link in bio"}]},
+
+    {"d":12,"title":"Calculator or pencil","palette":"Brick Red","cut":"Hard cut","sec":24,"app":false,"tags":"B","beats":[
+      {"t":"0-2","anim":"a calculator icon and a pencil icon face off","vo":"Half of you are using this wrong."},
+      {"t":"2-11","anim":"task cards fly into the calculator column","text":"Graphs · Systems · Messy numbers"},
+      {"t":"11-18","anim":"more cards fly to the pencil column","text":"Setup · Small numbers · Word problems"},
+      {"t":"18-22","anim":"the pencil column pulses once","vo":"Set the problem up by hand first. Always."},
+      {"t":"22-24","anim":"both columns hold","text":"Link in bio"}]},
+
+    {"d":13,"title":"One page, reorganized","palette":"Ice Minimal","cut":"Scroll wipe","sec":22,"app":false,"tags":"A","beats":[
+      {"t":"0-3","anim":"a chaotic page, work scattered everywhere","text":"Before"},
+      {"t":"3-12","anim":"the scattered pieces slide into four labeled rows","text":"Topic · Date · Mistake · Fix"},
+      {"t":"12-18","anim":"three more pages wipe past in the same format","vo":"Same notebook. Now I can actually review it."},
+      {"t":"18-20","anim":"the four-row template holds alone","text":"Copy this format"},
+      {"t":"20-22","anim":"hold","text":"Link in bio"}]},
+
+    {"d":14,"title":"44 minutes, 22 questions","palette":"Midnight Teal","cut":"Hard cut on countdown","sec":24,"app":true,"tags":"B","beats":[
+      {"t":"0-2","anim":"a 44:00 bar fills the screen","text":"44 minutes"},
+      {"t":"2-10","anim":"the bar slices into 22 equal blocks, each stamped 1:35","text":"1:35 each"},
+      {"t":"10-18","anim":"one block stretches past 2:00 and turns red","text":"Past 2:00? Mark it and move."},
+      {"t":"18-22","anim":"the red block lifts out of the row","vo":"My app flags the ones that took too long."},
+      {"t":"22-24","anim":"row holds","text":"Link in bio"}]},
+
+    {"d":15,"title":"Three wasted weeks, as cards","palette":"Dusty Clay","cut":"Whip pan","sec":25,"app":false,"tags":"A","beats":[
+      {"t":"0-2","anim":"a card flips up, stamped","text":"Wasted: week 1"},
+      {"t":"2-10","anim":"card 1 whips in: a play button looping with no pencil beside it","text":"I watched. I didn't practice."},
+      {"t":"10-17","anim":"card 2: easy questions greyed out, hard ones highlighted","text":"I ignored free points"},
+      {"t":"17-22","anim":"card 3: a blank notebook, nothing recorded","text":"No record. Same mistakes forever."},
+      {"t":"22-25","anim":"three cards fan out together","text":"Link in bio"}]},
+
+    {"d":16,"title":"Cards built from mistakes","palette":"Warm Gold","cut":"Morph","sec":23,"app":false,"tags":"A","beats":[
+      {"t":"0-3","anim":"a blank index card slides in","vo":"These come from my mistakes, not a textbook."},
+      {"t":"3-11","anim":"handwriting fills the front, then the card flips and the back writes itself","text":"Front: the trap. Back: the fix."},
+      {"t":"11-18","anim":"the card morphs into a stack of forty, flipping through","vo":"Forty cards. All mine."},
+      {"t":"18-21","anim":"two cards lift out and flip","text":"2 minutes a day"},
+      {"t":"21-23","anim":"stack holds","text":"Link in bio"}]},
+
+    {"d":17,"title":"Never leave a blank","palette":"Forest Terminal","cut":"Scroll wipe","sec":23,"app":false,"tags":"B","beats":[
+      {"t":"0-2","anim":"a bubble sheet with empty rows","vo":"There's no penalty for guessing."},
+      {"t":"2-10","anim":"blanks fill in one by one, a counter rising","text":"25%"},
+      {"t":"10-17","anim":"one choice greys out and the counter jumps","text":"33%"},
+      {"t":"17-21","anim":"a second greys out, counter jumps again","vo":"Cross out one, and a guess is worth a lot more."},
+      {"t":"21-23","anim":"counter holds at 50%","text":"Link in bio"}]},
+
+    {"d":18,"title":"Where 40 minutes hides","palette":"Dusty Clay","cut":"Light leak flash","sec":25,"app":false,"tags":"A","beats":[
+      {"t":"0-3","anim":"a 24-hour bar across the screen","text":"Your actual day"},
+      {"t":"3-11","anim":"school, travel and sleep block out in grey, one after another","vo":"Nobody gets three free hours."},
+      {"t":"11-18","anim":"one 40-minute slot stays lit","text":"40 minutes beats 3 distracted hours"},
+      {"t":"18-22","anim":"the slot repeats across seven days","vo":"Every day. Small amounts."},
+      {"t":"22-25","anim":"week holds","text":"Link in bio"}]},
+
+    {"d":19,"title":"Read the question last","palette":"Olive Stone","cut":"Zoom punch","sec":24,"app":true,"tags":"B","beats":[
+      {"t":"0-2","anim":"a dense word problem fills the frame","vo":"Stop reading these top to bottom."},
+      {"t":"2-10","anim":"the final question line lifts out and docks at the top","text":"Question first"},
+      {"t":"10-17","anim":"only the numbers it needs light up; the rest dims","vo":"You stop holding information you don't need."},
+      {"t":"17-22","anim":"the solved line writes itself in","vo":"Most of the word problems in my app are built this way."},
+      {"t":"22-24","anim":"hold","text":"Link in bio"}]},
+
+    {"d":20,"title":"Four weeks, filling in","palette":"Midnight Teal","cut":"Morph","sec":23,"app":false,"tags":"A","beats":[
+      {"t":"0-3","anim":"an empty four-week calendar grid","text":"4 weeks. Start here."},
+      {"t":"3-11","anim":"each week fills and labels itself in turn","text":"W1 basics · W2 drills · W3 timed · W4 full tests"},
+      {"t":"11-18","anim":"week 4 tries to jump to the front and snaps back","vo":"You can't time something you can't do yet."},
+      {"t":"18-21","anim":"the finished grid settles","text":"Copy this one"},
+      {"t":"21-23","anim":"grid holds","text":"Link in bio"}]},
+
+    {"d":21,"title":"Sixty seconds between modules","palette":"Brick Red","cut":"Hard cut on timer","sec":23,"app":false,"tags":"A","beats":[
+      {"t":"0-3","anim":"a 60-second ring starts draining","text":"Between modules"},
+      {"t":"3-11","anim":"a breathing circle expands and contracts inside the ring","vo":"Water. Shoulders down. Don't look back."},
+      {"t":"11-18","anim":"'Module 1' fades out of frame entirely","text":"Module 1 is finished. Leave it there."},
+      {"t":"18-21","anim":"ring hits zero, a fresh page slides in","vo":"Sixty seconds. That's all it takes."},
+      {"t":"21-23","anim":"page holds","text":"Link in bio"}]},
+
+    {"d":22,"title":"Six weeks of scores, said out loud","palette":"Warm Gold","cut":"Speed ramp","sec":24,"app":true,"tags":"A","camera_in_script":true,"beats":[
+      {"t":"0-3","anim":"a handwritten score sheet rises into frame (held-card graphic, no person)","vo":"Six tests. Here's every score, including the bad one."},
+      {"t":"3-11","anim":"scores write themselves in order, including the week it dropped","text":"each score written by hand"},
+      {"t":"11-18","anim":"the dip circles itself and the cause writes in","vo":"It dropped when I stopped doing the easy questions."},
+      {"t":"18-22","anim":"app named once over the finished sheet","vo":"All of it tracked in SAT Studio."},
+      {"t":"22-24","anim":"hold","text":"Link in bio"}]},
+
+    {"d":23,"title":"Desk tour, no SAT talk","palette":"Forest Terminal","cut":"Hard cut on beat","sec":22,"app":false,"tags":"C","camera_in_script":true,"beats":[
+      {"t":"0-2","anim":"wide illustrated desk scene, music starts","text":"none"},
+      {"t":"2-12","anim":"beat-matched push-ins across the desk: lamp, notebook, headphones, a plant","sfx":"music only"},
+      {"t":"12-18","anim":"the lamp clicks on and warms the scene","vo":"This is where everything happens."},
+      {"t":"18-20","anim":"a last slow pan across the desk","text":"What's on your desk?"},
+      {"t":"20-22","anim":"hold","text":"Link in bio"}]},
+
+    {"d":24,"title":"Five things that waste your study time","palette":"Olive Stone","cut":"Zoom punch","sec":25,"app":false,"tags":"D","camera_in_script":true,"beats":[
+      {"t":"0-2","anim":"five tally strokes slam on at once","vo":"Number one is the one everyone does."},
+      {"t":"2-8","anim":"5: rewriting neat notes","text":"5. Pretty notes"},
+      {"t":"8-14","anim":"4 and 3: watching lessons on 2x, studying with your phone out","text":"4. Passive videos · 3. Phone nearby"},
+      {"t":"14-21","anim":"2 and 1: no timer, and never reviewing mistakes","text":"2. No timer · 1. No review"},
+      {"t":"21-25","anim":"hold","text":"Link in bio"}]},
+
+    {"d":25,"title":"Start here if you're at zero","palette":"Brick Red","cut":"Glitch cut","sec":24,"app":true,"tags":"A","camera_in_script":true,"beats":[
+      {"t":"0-2","anim":"cold open, text slams straight in, no setup","vo":"If you've never opened an SAT question, start here."},
+      {"t":"2-10","anim":"step 1 card: take one untimed practice test to find your level","text":"1. One test. Untimed."},
+      {"t":"10-17","anim":"step 2 card: pick your two weakest topics only","text":"2. Two topics. Not ten."},
+      {"t":"17-22","anim":"step 3, with the app named","vo":"Then practise those two until they're boring. My app sorts them for you."},
+      {"t":"22-24","anim":"hold","text":"Link in bio"}]},
+
+    {"d":26,"title":"The night before test day","palette":"Ice Minimal","cut":"Zoom punch","sec":23,"app":false,"tags":"A","camera_in_script":true,"beats":[
+      {"t":"0-3","anim":"an open bag illustrated on a bed","text":"The night before"},
+      {"t":"3-11","anim":"each item drops in and labels itself: ID, pencils, calculator, water, snack","text":"item names"},
+      {"t":"11-18","anim":"a closed book greys out and slides away","vo":"No studying tonight. It won't help."},
+      {"t":"18-21","anim":"lights out, bag by the door","text":"Sleep is the last strategy"},
+      {"t":"21-23","anim":"hold","text":"Link in bio"}]},
+
+    {"d":27,"title":"Why I built this","palette":"Warm Gold","cut":"Whip pan","sec":25,"app":true,"tags":"A","camera_in_script":true,"beats":[
+      {"t":"0-3","anim":"honest typed opening line on a plain field","vo":"I built an SAT app because I couldn't find one I liked."},
+      {"t":"3-11","anim":"the problem: question banks that didn't match the real test, shown as two mismatched cards","vo":"The questions were close. Not the same."},
+      {"t":"11-19","anim":"what was made instead, described in words, nothing shown","text":"Real formats. Adaptive second module."},
+      {"t":"19-22","anim":"the name lands once","vo":"It's called SAT Studio."},
+      {"t":"22-25","anim":"hold","text":"Link in bio"}]},
+
+    {"d":28,"title":"Answering the question I get most","palette":"Dusty Clay","cut":"Match cut","sec":23,"app":false,"tags":"D","camera_in_script":true,"beats":[
+      {"t":"0-3","anim":"a comment card on screen","text":"How many hours a day?"},
+      {"t":"3-11","anim":"the answer types in with the caveat","vo":"One hour, every day. Not five hours on Sunday."},
+      {"t":"11-18","anim":"seven small blocks spread across a week vs one tall Sunday block","text":"7 hours spread out beats 7 hours at once"},
+      {"t":"18-21","anim":"the week version holds alone","vo":"That's the whole answer."},
+      {"t":"21-23","anim":"hold","text":"Link in bio"}]},
+
+    {"d":29,"title":"Your question, answered","palette":"Soft Slate","cut":"Whip pan","sec":24,"app":false,"tags":"B","camera_in_script":true,"beats":[
+      {"t":"0-3","anim":"a follower's question card arrives","text":"the question, as they wrote it"},
+      {"t":"3-11","anim":"the answer works itself out on paper, handwriting animation","vo":"your answer"},
+      {"t":"11-18","anim":"the part most people get wrong highlights itself","text":"The part people miss"},
+      {"t":"18-22","anim":"an empty comment box invites the next one","vo":"Ask me the next one in the comments."},
+      {"t":"22-24","anim":"hold","text":"Link in bio"}]},
+
+    {"d":30,"title":"30 days of posting","palette":"Midnight Teal","cut":"Light leak flash","sec":25,"app":true,"tags":"A","beats":[
+      {"t":"0-3","anim":"a fast montage of the month's title cards","vo":"Thirty days. Here's what actually helped."},
+      {"t":"3-11","anim":"lesson 1 and 2, said plainly","text":"1. Easy questions are points · 2. Write every mistake"},
+      {"t":"11-18","anim":"lesson 3","text":"3. One timed test a week"},
+      {"t":"18-22","anim":"the app is named and the next step given","vo":"Everything I used is in SAT Studio."},
+      {"t":"22-25","anim":"loop to the Day 1 ADAPTIVE frame","text":"Link in bio"}]}
   ]
 }

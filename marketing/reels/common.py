@@ -75,3 +75,74 @@ def endcard(img,p,line1=None,line2=None):
         lg=LOGO.resize((s,s)); img.alpha_composite(lg,((W-s)//2,760-s//2))
     b=ease((p-0.25)/0.4)
     ctext(d,1180,"More in bio",font("InterDisplay-Black.otf",96),GOLD,b)
+
+# ---------- per-day palettes from the script guide ----------
+PALETTES = {
+ "Midnight Teal":   {"bg":(8,22,30),  "bg2":(12,42,52),  "ink":(226,244,246), "accent":(64,224,208), "warn":(255,110,120), "dim":(96,126,136)},
+ "Soft Slate":      {"bg":(24,26,34), "bg2":(40,44,58),  "ink":(232,234,244), "accent":(150,170,255), "warn":(255,138,150), "dim":(124,130,152)},
+ "Forest Terminal": {"bg":(10,20,14), "bg2":(16,36,24),  "ink":(222,240,226), "accent":(86,222,130), "warn":(255,150,100), "dim":(98,130,108)},
+ "Ice Minimal":     {"bg":(238,242,248),"bg2":(255,255,255),"ink":(22,28,40), "accent":(44,112,220), "warn":(214,64,80),  "dim":(132,146,170)},
+ "Brick Red":       {"bg":(26,12,12), "bg2":(52,20,20),  "ink":(248,232,228), "accent":(232,88,72),  "warn":(255,196,96), "dim":(146,100,94)},
+ "Olive Stone":     {"bg":(22,24,16), "bg2":(40,44,28),  "ink":(238,238,224), "accent":(186,196,90), "warn":(246,160,92), "dim":(130,134,104)},
+ "Dusty Clay":      {"bg":(28,20,18), "bg2":(52,36,30),  "ink":(246,236,228), "accent":(224,146,104),"warn":(255,206,120),"dim":(150,120,106)},
+ "Warm Gold":       {"bg":(22,18,10), "bg2":(44,34,16),  "ink":(248,240,224), "accent":(246,190,94), "warn":(255,130,110),"dim":(146,128,96)},
+}
+def pal(name): return PALETTES[name]
+
+def gradbg(P, t=0.0):
+    """Soft radial gradient background for a palette."""
+    y=np.linspace(0,1,H)[:,None]; x=np.linspace(0,1,W)[None,:]
+    r=np.hypot(x-0.5,(y-0.40)*1.5)
+    g=np.clip(1-r*1.25,0,1)[...,None]
+    base=np.array(P["bg"])+(np.array(P["bg2"])-np.array(P["bg"]))*g
+    img=Image.fromarray(base.astype(np.uint8)).convert("RGBA")
+    return img
+
+def glitch(img, amt):
+    """RGB split + horizontal slice displacement. amt 0..1."""
+    if amt<=0.001: return img
+    a=np.array(img)
+    sh=int(14*amt)
+    if sh>0:
+        a[:,sh:,0]=a[:,:-sh,0]            # red left
+        a[:,:-sh,2]=a[:,sh:,2]            # blue right
+    rng=np.random.RandomState(int(amt*9173)%2048)
+    for _ in range(int(10*amt)+1):
+        y0=rng.randint(0,H-8); hgt=rng.randint(6,60); dx=rng.randint(-90,90)
+        y1=min(H,y0+hgt)
+        a[y0:y1]=np.roll(a[y0:y1],dx,axis=1)
+    return Image.fromarray(a)
+
+def scanlines(d, alpha=26, step=4):
+    for y in range(0,H,step): d.line([(0,y),(W,y)],fill=(0,0,0,alpha))
+
+def softglow(img, draw_fn, blur=26, passes=1):
+    """Draw once into a layer, blur it, composite as glow, then draw sharp on top."""
+    gl=Image.new("RGBA",(W,H),(0,0,0,0)); gd=ImageDraw.Draw(gl,"RGBA")
+    draw_fn(gd)
+    for _ in range(passes): gl=gl.filter(ImageFilter.GaussianBlur(blur))
+    img.alpha_composite(gl)
+    draw_fn(ImageDraw.Draw(img,"RGBA"))
+
+def cap(d, text, P, y=1620, size=54, alpha=1.0, box=True):
+    """Bottom caption bar carrying the VO line so the reel reads muted."""
+    if alpha<=0: return
+    f=font("Inter-SemiBold.otf",size)
+    lines=wrap(d,text,f,900)
+    hgt=len(lines)*(size+14)+36
+    if box:
+        d.rounded_rectangle([60,y-20,W-60,y-20+hgt],radius=28,
+                            fill=(0,0,0,int(150*alpha)))
+    for i,ln in enumerate(lines):
+        ctext(d,y+i*(size+14),ln,f,P["ink"],alpha)
+
+def endcard_bio(img,p,P):
+    """Script's close: wordmark holds + 'Link in bio'."""
+    d=ImageDraw.Draw(img,"RGBA")
+    s=int(300*back(p))
+    if s>10:
+        lg=LOGO.resize((s,s)); img.alpha_composite(lg,((W-s)//2,720-s//2))
+    a=ease((p-0.18)/0.35)
+    ctext(d,980,"SAT STUDIO",font("InterDisplay-Black.otf",92),P["ink"],a)
+    b=ease((p-0.42)/0.35)
+    ctext(d,1140,"Link in bio",font("InterDisplay-Bold.otf",68),P["accent"],b)
