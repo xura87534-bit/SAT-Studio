@@ -863,6 +863,7 @@ const CSS = `
 .critem.cur{border-color:var(--primary);background:var(--sel)}
 .critem .crs{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--surface2);color:var(--muted);font:700 13px var(--ui)}
 .critem.ok .crs{background:var(--ok-bg);color:var(--ok)}
+.critem{box-shadow:none!important}
 .critem.cur .crs{background:var(--primary);color:var(--primary-ink)}
 .critem .crs svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .critem b{display:block;font-weight:700}
@@ -875,7 +876,7 @@ const CSS = `
 .crx{font:700 1.02rem/1.5 var(--ui);background:var(--sel);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:12px 0;text-align:center}
 .crex{border-left:4px solid var(--primary);background:var(--surface2);border-radius:0 12px 12px 0;padding:12px 16px;margin:12px 0}
 .crex b{display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--primary);margin-bottom:4px}
-.crtip{border-left:4px solid var(--sun);background:rgba(246,190,94,.10);border-radius:0 12px 12px 0;padding:12px 16px;margin:14px 0}
+.crtip{border-left:4px solid #C08A3E;background:rgba(242,231,216,.55);border-radius:0 12px 12px 0;padding:12px 16px;margin:14px 0}
 .crtbl{border-collapse:collapse;margin:10px 0 14px;font-size:.95rem;max-width:100%;display:block;overflow-x:auto}
 .crtbl th,.crtbl td{border:1px solid var(--line);padding:7px 11px;text-align:left}
 .crtbl th{background:var(--surface2);font-weight:700}
