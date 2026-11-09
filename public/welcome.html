@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "SAT Studio", "alternateName": ["SATStudio", "SAT Studio Uzbekistan"], "url": "https://sat-studio-rust.vercel.app/welcome", "applicationCategory": "EducationalApplication", "operatingSystem": "Web, Android, iOS, Windows, macOS", "description": "Free adaptive Digital SAT practice: full Math and Reading & Writing tests where Module 2 is built from your Module 1 answers, with a graphing calculator and instant 400–1600 score reports.", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "creator": {"@type": "Person", "name": "Xurshid Jo’rayev"}, "inLanguage": ["en", "uz"]}</script>
 <meta name="author" content="Xurshid Jo’rayev">
-<meta name="theme-color" content="#dfe6ee">
+<meta name="theme-color" content="#F2E7D8">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/icons/icon-96.png" type="image/png" sizes="96x96">
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
@@ -30,9 +30,9 @@
 <style>
 /* Layout: "altitude". Misty sky hero where a 3D graduation cap flies in and lands; ghost 1600 behind; then light product sections on paper. Ink + one warm gold accent. */
 :root{
-  --sky1:#dfe6ee; --sky2:#c9d3de; --mist:#eef1f5; --paper:#f7f8fa; --white:#ffffff;
-  --ink:#14161a; --ink2:#2a2e35; --dim:#677080; --dim2:#98a0ad; --line:rgba(20,22,26,.09); --line2:rgba(20,22,26,.16);
-  --gold:#f2d34b; --gold-d:#c9a227; --red:#e0705f;
+  --sky1:#F2E7D8; --sky2:#E7D8C3; --mist:#F7F0E6; --paper:#FBF7F1; --white:#ffffff;
+  --ink:#1D1D1F; --ink2:#2C2C2E; --dim:#677080; --dim2:#98a0ad; --line:rgba(20,22,26,.09); --line2:rgba(20,22,26,.16);
+  --gold:#1D3F73; --gold-d:#1D3F73; --red:#e0705f;
   --f-sans:"Geist",ui-sans-serif,system-ui,-apple-system,sans-serif;
   --f-serif:"Instrument Serif",Georgia,"Times New Roman",serif;
   --f-mono:"Geist Mono",ui-monospace,Menlo,Consolas,monospace;
@@ -50,9 +50,9 @@ h1,h2,h3{margin:0;font-weight:400;text-wrap:balance}
 em.s{font-family:var(--f-serif);font-style:italic}
 :focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:6px}
 .btn{display:inline-flex;align-items:center;gap:8px;font-weight:500;font-size:.88rem;padding:11px 18px;border-radius:999px;transition:transform .4s var(--ease),box-shadow .4s var(--ease),background .3s}
-.btn.y{background:var(--gold);color:var(--ink);box-shadow:0 10px 30px -12px rgba(201,162,39,.8)}
-.btn.y:hover{transform:translateY(-2px);box-shadow:0 16px 36px -12px rgba(201,162,39,.9)}
-.btn.k{background:var(--ink);color:var(--white)}
+.btn.y{background:var(--gold);color:#fff;box-shadow:0 10px 30px -12px rgba(29,63,115,.55)}
+.btn.y:hover{transform:translateY(-2px);box-shadow:0 16px 36px -12px rgba(29,63,115,.6)}
+.btn.k{background:#1D3F73;color:var(--white)}
 .btn.k:hover{transform:translateY(-2px)}
 .btn.t{color:var(--ink2)}
 .btn.t span{transition:transform .4s var(--ease)}.btn.t:hover span{transform:translateX(4px)}
@@ -71,8 +71,8 @@ em.s{font-family:var(--f-serif);font-style:italic}
 /* hero */
 .hero{position:relative;height:100svh;min-height:640px;max-height:1100px;overflow:hidden;background:
   radial-gradient(120% 70% at 70% 0%,#f4f6f9 0%,transparent 60%),
-  radial-gradient(90% 60% at 20% 100%,#b8c4d2 0%,transparent 70%),
-  linear-gradient(180deg,var(--sky1) 0%,#d3dbe4 55%,var(--sky2) 100%)}
+  radial-gradient(90% 60% at 20% 100%,#E2D0B6 0%,transparent 70%),
+  linear-gradient(180deg,var(--sky1) 0%,#EDE0CD 55%,var(--sky2) 100%)}
 .clouds{position:absolute;inset:0;pointer-events:none}
 .clouds i{position:absolute;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.95),rgba(255,255,255,0));filter:blur(8px);will-change:transform}
 .back i:nth-child(1){width:70vw;height:30vh;left:-10vw;top:12vh;animation:drift 38s linear infinite}
@@ -137,13 +137,13 @@ em.s{font-family:var(--f-serif);font-style:italic}
 @keyframes dash{to{stroke-dashoffset:-20}}
 .node{position:absolute;transform:translate(-50%,-50%);background:var(--white);border:1px solid var(--line2);border-radius:10px;padding:7px 11px;font-size:.76rem;white-space:nowrap;box-shadow:0 8px 20px -14px rgba(20,30,50,.4)}
 .node small{display:block;font-family:var(--f-mono);font-size:.58rem;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
-.node.hub{background:var(--ink);color:#fff;border-color:var(--ink)}.node.hub small{color:#9aa2ae}
-.node.on{border-color:var(--gold-d);background:#fffbea}
+.node.hub{background:#1D3F73;color:#fff;border-color:#1D3F73}.node.hub small{color:#9aa2ae}
+.node.on{border-color:var(--gold-d);background:rgba(29,63,115,.06)}
 .node.off{opacity:.5;border-style:dashed}
 .rows{display:grid;gap:12px}
 .row{display:grid;grid-template-columns:8.5rem minmax(0,1fr) 2.6rem;gap:12px;align-items:center;font-size:.82rem}
 .row .t{height:6px;border-radius:4px;background:var(--mist);overflow:hidden}
-.row .t i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--gold-d),var(--gold));width:0;transition:width 1.4s var(--ease)}
+.row .t i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#1D3F73,#6A93CB);width:0;transition:width 1.4s var(--ease)}
 .in .row .t i{width:var(--w)}
 .row em{font-style:normal;font-family:var(--f-mono);font-size:.72rem;color:var(--dim);text-align:right}
 .calc{height:200px;border-radius:14px;background:var(--mist);border:1px solid var(--line);position:relative;overflow:hidden}
@@ -231,7 +231,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;
         </div>
         <div class="stats-float">
           <div class="sf rv d3"><span class="k">Module 1</span><div class="qm" id="qm"></div><span class="v">19/22</span></div>
-          <div class="sf rv d4"><span class="k">Projected</span><svg viewBox="0 0 120 34" preserveAspectRatio="none" aria-hidden="true"><path d="M0 30 L20 27 L40 24 L60 25 L80 16 L100 10 L120 4" fill="none" stroke="#f2d34b" stroke-width="2"/></svg><span class="v">1440</span></div>
+          <div class="sf rv d4"><span class="k">Projected</span><svg viewBox="0 0 120 34" preserveAspectRatio="none" aria-hidden="true"><path d="M0 30 L20 27 L40 24 L60 25 L80 16 L100 10 L120 4" fill="none" stroke="#1D3F73" stroke-width="2"/></svg><span class="v">1440</span></div>
         </div>
       </div>
     </div>
@@ -355,7 +355,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;
     for (let y = -4; y <= 36; y += 4){ g.beginPath(); g.moveTo(0,Y(y)); g.lineTo(w,Y(y)); g.stroke(); }
     g.strokeStyle = 'rgba(20,22,26,.3)'; g.beginPath(); g.moveTo(X(0),0); g.lineTo(X(0),h); g.moveTo(0,Y(0)); g.lineTo(w,Y(0)); g.stroke();
     g.strokeStyle = 'rgba(20,22,26,.45)'; g.setLineDash([4,5]); g.beginPath(); g.moveTo(0,Y(25)); g.lineTo(X(xe),Y(25)); g.stroke(); g.setLineDash([]);
-    g.strokeStyle = '#c9a227'; g.lineWidth = 2.4; g.beginPath(); g.moveTo(X(-2),Y(1)); g.lineTo(X(xe),Y(3*xe+7)); g.stroke();
+    g.strokeStyle = '#1D3F73'; g.lineWidth = 2.4; g.beginPath(); g.moveTo(X(-2),Y(1)); g.lineTo(X(xe),Y(3*xe+7)); g.stroke();
     if (xe >= 6){ const p = 5 + Math.sin(now / 300) * 2; g.fillStyle = 'rgba(242,211,75,.35)'; g.beginPath(); g.arc(X(6),Y(25),p + 6,0,7); g.fill();
       g.fillStyle = '#14161a'; g.beginPath(); g.arc(X(6),Y(25),4,0,7); g.fill(); g.font = '11px "Geist Mono", monospace'; g.fillText('(6, 25)', X(6) + 10, Y(25) + 18); }
     requestAnimationFrame(calc);

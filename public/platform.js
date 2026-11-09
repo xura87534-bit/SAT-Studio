@@ -41,9 +41,9 @@
      (no email is sent when "Confirm email" is off). Google appears only when the
      provider is actually enabled in Supabase, so students never see a dead button. */
   const GATE_CSS = `
-#pfGate{--pf-ink:#14161a;--pf-ink2:#2a2e35;--pf-dim:#677080;--pf-line:rgba(20,22,26,.12);--pf-gold:#f2d34b;--pf-gold-d:#c9a227;--pf-red:#c2412f;
+#pfGate{--pf-ink:#1D1D1F;--pf-ink2:#2C2C2E;--pf-dim:#677080;--pf-line:rgba(20,22,26,.12);--pf-gold:#1D3F73;--pf-gold-d:#16335E;--pf-red:#c2412f;
   position:fixed;inset:0;z-index:400;overflow:auto;color:var(--pf-ink);font:15px/1.5 "Geist",ui-sans-serif,system-ui,-apple-system,sans-serif;
-  background:radial-gradient(120% 70% at 70% 0%,#f4f6f9 0%,transparent 60%),radial-gradient(90% 60% at 20% 100%,#b8c4d2 0%,transparent 70%),linear-gradient(180deg,#dfe6ee 0%,#d3dbe4 55%,#c9d3de 100%);
+  background:radial-gradient(120% 70% at 70% 0%,#FBF7F1 0%,transparent 60%),radial-gradient(90% 60% at 20% 100%,#E2D0B6 0%,transparent 70%),linear-gradient(180deg,#F2E7D8 0%,#EDE0CD 55%,#E7D8C3 100%);
   display:grid;place-items:center;padding:max(24px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));-webkit-font-smoothing:antialiased}
 #pfGate *{box-sizing:border-box}
 #pfGate .pf-cloud{position:fixed;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.9),rgba(255,255,255,0));filter:blur(8px);pointer-events:none;animation:pfDrift 40s linear infinite}
@@ -68,7 +68,7 @@
 #pfGate .pf-eye:hover{color:var(--pf-ink);background:rgba(20,22,26,.05)}
 #pfGate .pf-hint{font-size:.76rem;color:var(--pf-dim);margin-top:6px}
 #pfGate .pf-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:0;border-radius:999px;padding:13px 18px;font:600 .95rem inherit;font-family:inherit;cursor:pointer;transition:transform .3s cubic-bezier(.16,1,.3,1),box-shadow .3s,opacity .2s}
-#pfGate .pf-primary{background:var(--pf-gold);color:var(--pf-ink);box-shadow:0 10px 30px -12px rgba(201,162,39,.85);margin-top:6px}
+#pfGate .pf-primary{background:var(--pf-gold);color:#fff;box-shadow:0 10px 30px -12px rgba(29,63,115,.55);margin-top:6px}
 #pfGate .pf-primary:hover{transform:translateY(-1px)}
 #pfGate .pf-primary[disabled]{opacity:.6;cursor:progress;transform:none}
 #pfGate .pf-google{background:#fff;color:var(--pf-ink);border:1px solid var(--pf-line)}
