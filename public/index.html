@@ -1336,6 +1336,7 @@ body::before{background:
 <div id="app"></div>
 <script src="/config.js"></script>
 <script src="/vendor/supabase.js"></script>
+<script src="/course.js"></script>
 <script src="/platform.js"></script>
 <script>
 "use strict";
@@ -6917,7 +6918,7 @@ function chart(h){
 function shell(content){
   if(calcOpen())toggleCalc(false);toggleRef(false);toggleDir(false);
   screen=view;
-  const nav=[["home","Home",ICON.home],["quick","Quick Practice",ICON.quick,"Quick"],["tests","Math",ICON.tests,"Math"],["english","Reading & Writing",ICON.book,"R&W"],["videos","Watch & learn",ICON.vid,"Videos"],["words","Word bank",ICON.wb,"Words"],["book","Book Tests",ICON.bk,"Book"],["feedback","Feedback",ICON.fb,"Feedback"],["progress","Progress",ICON.chart],["history","History",ICON.clock]].concat(ME.owner?[["students","Students",ICON.chart]]:[]);
+  const nav=[["home","Home",ICON.home],["course","90-Day Course",window.CR_ICON||ICON.book,"Course"],["quick","Quick Practice",ICON.quick,"Quick"],["tests","Math",ICON.tests,"Math"],["english","Reading & Writing",ICON.book,"R&W"],["videos","Watch & learn",ICON.vid,"Videos"],["words","Word bank",ICON.wb,"Words"],["book","Book Tests",ICON.bk,"Book"],["feedback","Feedback",ICON.fb,"Feedback"],["progress","Progress",ICON.chart],["history","History",ICON.clock]].concat(ME.owner?[["students","Students",ICON.chart]]:[]);
   const ns=Object.keys(SESSIONS).length;
   app.innerHTML=`<div class="shell"><nav class="side" aria-label="Main">
     <div class="brand"><img class="logo" src="/icons/logo-sm.png" alt="" width="34" height="34" style="background:none;object-fit:cover">SAT Studio</div>
@@ -6926,7 +6927,7 @@ function shell(content){
   </nav><main class="main">${content}</main></div>`;
   $$("[data-nav]").forEach(b=>b.onclick=()=>go(b.dataset.nav));
 }
-function go(v){lxStop();ASKR=null;setTimeout(askSync,0);view=v;qClock=null;({quick:renderQuick,lessons:renderLessons,feedback:renderFeedback,words:renderWords,home:renderHome,tests:renderTests,english:renderEnglish,book:renderBook,plan:renderPlan,progress:renderProgress,history:renderHistory,students:renderStudents,videos:renderVideos})[v]();window.scrollTo(0,0)}
+function go(v){lxStop();ASKR=null;setTimeout(askSync,0);view=v;qClock=null;({course:()=>window.renderCourse(),quick:renderQuick,lessons:renderLessons,feedback:renderFeedback,words:renderWords,home:renderHome,tests:renderTests,english:renderEnglish,book:renderBook,plan:renderPlan,progress:renderProgress,history:renderHistory,students:renderStudents,videos:renderVideos})[v]();window.scrollTo(0,0)}
 function resumeStrip(s){
   const i=sessionInfo(s);
   return `<div class="resume"><div class="info"><b>${esc(i.title)}</b><div class="muted" style="font-size:.9rem">${i.where}, ${i.ans} of ${i.n} answered, ${i.left}. Saved ${esc(fmtDate(s.savedAt))}</div><div class="mini"><i style="width:${pct(i.ans,i.n)}%"></i></div></div>
@@ -6962,6 +6963,7 @@ function renderHome(){
     </div>
   </section>
   ${(()=>{const mm=mistakePool("math").length,mr=mistakePool("rw").length;return mm||mr?`<section class="resume redo"><div class="info"><b>Mistakes to redo</b><div class="muted" style="font-size:.9rem">Math ${mm}, Reading &amp; Writing ${mr}. Each one leaves the list when you answer it correctly.</div></div><div class="actions">${mm?`<button class="btn sm" data-open="redo">Redo Math</button>`:""}${mr?`<button class="btn sm" data-open="rwredo">Redo R&amp;W</button>`:""}</div></section>`:""})()}
+  ${window.courseHomeStrip?window.courseHomeStrip():""}
   ${mathVideoHelp()}
   ${ss.length?`<section><h2>Continue where you left off</h2><div class="stack" style="gap:12px">${ss.map(resumeStrip).join("")}</div></section>`:""}
   <section class="tiles">

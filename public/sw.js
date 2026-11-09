@@ -1,6 +1,6 @@
 // Offline support: the app shell is cached; pages load network-first so updates arrive right away.
-const CACHE = "sat-studio-v3";
-const SHELL = ["/", "/platform.js", "/config.js", "/vendor/supabase.js", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png"];
+const CACHE = "sat-studio-v4";
+const SHELL = ["/", "/platform.js", "/course.js", "/config.js", "/vendor/supabase.js", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
