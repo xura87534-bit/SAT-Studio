@@ -17,7 +17,7 @@ try { const c = JSON.parse(localStorage.getItem(CACHE) || "null"); if (c) { S.un
 const enabled = () => !!CFG.billing;                       // BILLING=on in Vercel: limits and the page go live
 const isOwner = () => { try { return !!ME.owner; } catch (e) { return false; } };
 const isPro = () => S.admin || isOwner() || S.until > Date.now();
-const visible = () => enabled() || isOwner();              // the owner can preview before launch
+const visible = () => true;                                // prices are always public; limits and payments wait for BILLING=on
 const signedIn = () => !!PF.signedIn;
 const priceOf = p => P.founding ? p.price : p.list;
 const money = n => Number(n).toLocaleString("en-US").replace(/,/g, " ") + " " + P.currency;
@@ -168,12 +168,12 @@ function planCard(p) {
   <div class="was">${off ? `<s>${money(p.list)}</s><em>Save ${off}%</em>` : ""}</div>
   <div class="per">${p.months > 1 ? `${money(perMonth)} a month · ` : ""}${p.months * 30} days of Pro</div>
   <p class="blurb">${esc(p.blurb || "")}</p>
-  <button class="btn${p.best ? "" : " ghost"}" data-buy="${p.code}">${isPro() && !isOwner() ? "Add " + esc(p.name.toLowerCase()) : "Get " + esc(p.name)}</button></article>`;
+  <button class="btn${p.best ? "" : " ghost"}" data-buy="${p.code}">${!enabled() ? "Opens soon" : isPro() && !isOwner() ? "Add " + esc(p.name.toLowerCase()) : "Get " + esc(p.name)}</button></article>`;
 }
 function ownerCard() {
   if (!isOwner()) return "";
-  const ok = [[S.dbOk === true, "Database: run supabase/billing-2026-11.sql in the Supabase SQL editor"], [!!PAY.card || !!PAY.link, "Vercel: set PAY_CARD and PAY_NAME (or PAY_LINK) so students know where to pay"], [!!PAY.telegram, "Vercel: set PAY_TELEGRAM so students can send receipts"], [enabled(), "Vercel: set BILLING=on and redeploy to switch limits on for students"]];
-  return `<section class="card"><div class="toolbar"><h2 style="margin:0">Launch checklist</h2><span class="chip">${enabled() ? "Billing is live" : "Billing is off: only you see this page"}</span></div>
+  const ok = [[S.dbOk === true, "Database: run supabase/billing-2026-11.sql in the Supabase SQL editor"], [!!PAY.card || !!PAY.link, "Vercel: set PAY_CARD and PAY_NAME (or PAY_LINK) so students know where to pay"], [!!PAY.telegram, "Vercel: set PAY_TELEGRAM so students can send receipts"], [enabled(), "Vercel: set BILLING=on and redeploy to switch limits and payments on for students"]];
+  return `<section class="card"><div class="toolbar"><h2 style="margin:0">Launch checklist</h2><span class="chip">${enabled() ? "Billing is live" : "Students see prices, but nothing is locked or sold yet"}</span></div>
   <ul class="blcheck">${ok.map(([y, t]) => `<li class="${y ? "y" : ""}">${esc(t)}</li>`).join("")}</ul>
   <p class="fine" style="margin-top:10px">Payment requests and manual Pro grants are on the Students page.</p></section>`;
 }
@@ -192,7 +192,7 @@ function renderBilling() {
   <section class="blhero"><span class="chip">SAT Studio Pro</span>
     <h1>Every test, every drill, a tutor on every question.</h1>
     <p class="muted">Sitting the SAT costs about $111 each time. Pro is the practice that makes one sitting enough: ${n} full adaptive section tests, unlimited drills, and Claude explaining every question you miss.</p></section>
-  ${ownerCard()}${statusCard()}
+  ${ownerCard()}${enabled() ? statusCard() : `<section class="card blstat ok"><div class="grow"><b>Free during launch</b><span class="muted">Right now everything in SAT Studio is open to everyone at no cost. These are the prices for when Pro opens; the free plan below stays free after that.</span></div></section>`}
   <section><div class="blplans">${P.plans.map(planCard).join("")}</div>
     <p class="blnote">${P.founding ? esc(P.foundingNote) + ". " : ""}One payment, no auto-renewal, nothing to cancel.${g ? ` Not for you? Tell us within ${g} days and we send the money back.` : ""}</p></section>
   <section class="card"><h2>Free and Pro, side by side</h2>
@@ -213,6 +213,11 @@ function renderBilling() {
 async function buy(code) {
   const p = P.plans.find(x => x.code === code); if (!p) return;
   const pr = priceOf(p);
+  if (!enabled()) {
+    sheet(`<span class="chip">${esc(p.name)} · ${money(pr)}</span><h2 id="shT" style="margin-top:12px">Pro isn't open yet</h2><p class="muted">You don't need it today: every test, drill and lesson is free during launch. When Pro opens, this is the price you'll see here.</p>
+    <div class="actions"><button class="btn" id="blNo">Keep practicing</button></div>`);
+    $("#blNo").onclick = closeSheet; return;
+  }
   if (!signedIn()) {
     sheet(`<h2 id="shT">Create your free account first</h2><p class="muted">Pro is attached to your account, so it follows you to every device. It takes ten seconds.</p>
     <div class="actions"><button class="btn" id="blIn">Sign in or create account</button><button class="btn link" id="blNo">Cancel</button></div>`);
@@ -265,7 +270,7 @@ function resultStrip(rec) {
   return `<section class="resume"><div class="info"><b>You missed ${missed.length} questions across ${skills} skill${skills === 1 ? "" : "s"}</b><div class="muted" style="font-size:.9rem">Pro turns that list into practice: unlimited drills on each skill, AI-written questions on your weakest ones, and ${P.pro.aiPerDay} Claude explanations a day.</div></div><div class="actions"><button class="btn sm" data-bill>See Pro</button></div></section>`;
 }
 const lockBadge = l => { const w = lockOf(l); return w === "drills" ? `<span class="lockb">Back tomorrow</span>` : w ? `<span class="lockb">Pro</span>` : ""; };
-const navItem = () => visible() ? [["billing", isPro() && !isOwner() ? "Pro plan" : "Go Pro", ICON_PRO, isPro() && !isOwner() ? "Pro" : "Go Pro"]] : [];
+const navItem = () => { const pro = enabled() && isPro() && !isOwner(), l = !enabled() ? "Pricing" : pro ? "Pro plan" : "Go Pro"; return [["billing", l, ICON_PRO, pro ? "Pro" : l]]; };
 const ICON_PRO = '<svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.8z"/></svg>';
 
 /* ---------- Admin: payments on the Students page ---------- */

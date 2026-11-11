@@ -384,11 +384,11 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;
 
 <script src="/config.js"></script>
 <script src="/plans.js"></script>
-<script>(function(){var C=window.SAT_CONFIG||{},P=window.SAT_PLANS;if(!C.billing||!P)return;
+<script>(function(){var C=window.SAT_CONFIG||{},P=window.SAT_PLANS;if(!P)return;
 var m=function(n){return Number(n).toLocaleString("en-US").replace(/,/g," ")};
 document.getElementById("pgrid").innerHTML='<div class="pcard"><h3>Free</h3><div class="amt">0 <small>'+P.currency+'</small></div><div class="was"></div><p>Two full tests per section, a Full SAT, '+P.free.drillsPerDay+' drills a day and '+P.free.aiPerDay+' Claude answers a day.</p><a href="/" class="btn t">Start free <span>→</span></a></div>'+P.plans.map(function(p){var pr=P.founding?p.price:p.list,off=P.founding&&p.list>p.price?Math.round(100*(1-p.price/p.list)):0;
 return '<div class="pcard'+(p.best?" best":"")+'">'+(p.best?'<span class="tag">Most popular</span>':"")+'<h3>'+p.name+'</h3><div class="amt">'+m(pr)+' <small>'+P.currency+'</small></div><div class="was">'+(off?'<s>'+m(p.list)+'</s><b>Save '+off+'%</b>':"")+'</div><p>'+(p.blurb||"")+'</p><a href="/" class="btn '+(p.best?"y":"t")+'">Get '+p.name+'</a></div>'}).join("");
-document.getElementById("pnote").textContent=(P.founding?P.foundingNote+". ":"")+"Pay from Payme, Click, Uzum or any bank app."+(P.guaranteeDays?" "+P.guaranteeDays+"-day money-back promise.":"");
+document.getElementById("pnote").textContent=(C.billing?"":"Free during launch: everything is open to everyone right now. These are the prices for when Pro opens. ")+(P.founding?P.foundingNote+". ":"")+"Pay from Payme, Click, Uzum or any bank app."+(P.guaranteeDays?" "+P.guaranteeDays+"-day money-back promise.":"");
 document.getElementById("pricing").hidden=false;document.getElementById("navPrice").hidden=false})();</script>
 <script type="importmap">{"imports":{"three":"/lib/three/three.module.js","three/addons/":"/lib/three/addons/"}}</script>
 <script type="module">
