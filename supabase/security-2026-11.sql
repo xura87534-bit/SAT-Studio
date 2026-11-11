@@ -47,3 +47,39 @@ create index if not exists ai_usage_day on public.ai_usage (day);
 revoke all on table public.admins from anon, authenticated;
 revoke all on table public.ai_usage from anon, authenticated;
 revoke all on function public.docs_row_cap() from public, anon, authenticated;
+
+-- 5. Admin = a specific account (user id), not just an email address.
+--    Before: anyone who registered an admin email that hadn't signed up yet became admin
+--    (email confirmation is off). Now existing admin accounts are pinned by id on this run;
+--    email rows with no matching account grant nothing.
+alter table public.admins add column if not exists user_id uuid references auth.users on delete cascade;
+update public.admins a set user_id = u.id
+  from auth.users u where a.user_id is null and lower(u.email) = lower(a.email);
+create or replace function public.is_admin() returns boolean
+language sql stable security definer set search_path = '' as $$
+  select auth.uid() is not null and exists (select 1 from public.admins a where a.user_id = auth.uid());
+$$;
+-- To add an admin later (they must have signed in once first):
+--   insert into public.admins (email, user_id) select email, id from auth.users where email = 'teacher@gmail.com';
+
+-- 6. Keep the Students page numbers believable (a student could otherwise post a fake 1600 / 9999 tests).
+create or replace function public.students_sanity() returns trigger
+language plpgsql set search_path = '' as $$
+declare d jsonb := new.data;
+begin
+  if jsonb_typeof(d) <> 'object' then raise exception 'bad student data'; end if;
+  if char_length(coalesce(d->>'name', '')) > 80 then raise exception 'name too long'; end if;
+  if coalesce((d->>'best')::numeric, 0) not between 0 and 1600
+     or coalesce((d->>'tests')::numeric, 0) not between 0 and 100000
+     or coalesce((d->>'full')::numeric, 0) > coalesce((d->>'tests')::numeric, 0)
+     or coalesce((d->>'c')::numeric, 0) > coalesce((d->>'q')::numeric, 0)
+     or coalesce((d->>'q')::numeric, 0) not between 0 and 10000000 then
+    raise exception 'student stats out of range';
+  end if;
+  return new;
+exception when invalid_text_representation then raise exception 'bad student data';
+end;
+$$;
+drop trigger if exists students_sanity on public.students;
+create trigger students_sanity before insert or update on public.students for each row execute function public.students_sanity();
+revoke all on function public.students_sanity() from public, anon, authenticated;

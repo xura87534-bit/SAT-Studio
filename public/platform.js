@@ -92,7 +92,8 @@
     if (m.includes("invalid login credentials")) return "That email and password don't match. Check them or create an account.";
     if (m.includes("email not confirmed")) return "This account still needs email confirmation. Ask your teacher to turn off email confirmation, then try again.";
     if (m.includes("already registered") || m.includes("already been registered")) return "An account with this email already exists. Switch to Sign in.";
-    if (m.includes("password") && (m.includes("at least") || m.includes("short") || m.includes("weak"))) return "Use a password with at least 6 characters.";
+    if (m.includes("password") && (m.includes("at least") || m.includes("short") || m.includes("weak"))) return "Use a longer password (at least 8 characters, mixing letters and numbers).";
+    if (m.includes("captcha")) return "The \"I'm human\" check failed or expired. Try it again.";
     if (m.includes("valid email") || m.includes("invalid email") || m.includes("unable to validate email")) return "Enter a valid email address, like name@gmail.com.";
     if (m.includes("rate limit") || m.includes("too many")) return "Too many attempts. Wait a minute and try again.";
     if (m.includes("provider is not enabled")) return "Google sign-in isn't available yet. Use email and password.";
@@ -128,7 +129,8 @@
         <form id="pfForm" novalidate>
           <div class="pf-field" id="pfNameRow" hidden><label for="pfName">Your name</label><input id="pfName" type="text" autocomplete="name" placeholder="Ali Karimov"></div>
           <div class="pf-field"><label for="pfEmail">Email</label><input id="pfEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@gmail.com" required></div>
-          <div class="pf-field"><label for="pfPass">Password</label><input id="pfPass" type="password" autocomplete="current-password" placeholder="At least 6 characters" required minlength="6"><button class="pf-eye" type="button" id="pfEye" aria-label="Show password">Show</button></div>
+          <div class="pf-field"><label for="pfPass">Password</label><input id="pfPass" type="password" autocomplete="current-password" placeholder="Your password" required minlength="6"><button class="pf-eye" type="button" id="pfEye" aria-label="Show password">Show</button></div>
+          <div id="pfCaptcha" style="margin:4px 0 10px;min-height:0"></div>
           <button class="pf-btn pf-primary" type="submit" id="pfSubmit">Sign in</button>
           <p class="pf-msg" id="pfMsg" role="status" aria-live="polite"></p>
         </form>
@@ -148,6 +150,7 @@
       $("pfSub").textContent = up ? "Create a free account. It takes ten seconds and your progress follows you everywhere." : "Sign in to keep your scores and progress synced on every device.";
       $("pfSubmit").textContent = up ? "Create account" : "Sign in";
       $("pfPass").setAttribute("autocomplete", up ? "new-password" : "current-password");
+      $("pfPass").setAttribute("placeholder", up ? "At least 8 characters" : "Your password");
       msg("");
     }
     $("pfTabIn").onclick = () => setMode("in");
@@ -160,11 +163,13 @@
       const email = $("pfEmail").value.trim(), password = $("pfPass").value, name = $("pfName").value.trim();
       $("pfEmail").removeAttribute("aria-invalid"); $("pfPass").removeAttribute("aria-invalid");
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { $("pfEmail").setAttribute("aria-invalid", "true"); $("pfEmail").focus(); return msg("Enter a valid email address, like name@gmail.com.", "err"); }
-      if (password.length < 6) { $("pfPass").setAttribute("aria-invalid", "true"); $("pfPass").focus(); return msg("Use a password with at least 6 characters.", "err"); }
+      const minLen = mode === "up" ? 8 : 6; // new accounts need 8+; older 6-character passwords still sign in
+      if (password.length < minLen) { $("pfPass").setAttribute("aria-invalid", "true"); $("pfPass").focus(); return msg(`Use a password with at least ${minLen} characters.`, "err"); }
+      if (CFG.turnstileSiteKey && !captchaToken) return msg("Complete the \"I'm human\" check first.", "err");
       busy(true); msg("");
       try {
         if (mode === "up") {
-          const { data, error } = await sb.auth.signUp({ email, password, options: { data: name ? { full_name: name } : {} } });
+          const { data, error } = await sb.auth.signUp({ email, password, options: { data: name ? { full_name: name } : {}, captchaToken: captchaToken || undefined } });
           if (error) throw error;
           if (!data.session) {
             // Email confirmation is still on in Supabase, and the built-in mailer only reaches the project team.
@@ -174,12 +179,35 @@
           }
           msg("Account created. Opening SAT Studio…", "ok");
         } else {
-          const { error } = await sb.auth.signInWithPassword({ email, password });
+          const { error } = await sb.auth.signInWithPassword({ email, password, options: { captchaToken: captchaToken || undefined } });
           if (error) throw error;
           msg("Signed in. Opening SAT Studio…", "ok");
         }
-      } catch (er) { busy(false); msg(friendly(er), "err"); }
+      } catch (er) { busy(false); msg(friendly(er), "err"); resetCaptcha(); }
     };
+
+    // Optional CAPTCHA (Cloudflare Turnstile). Active only when TURNSTILE_SITE_KEY is set in Vercel
+    // and the matching secret is enabled in Supabase -> Authentication -> Attack Protection.
+    let captchaToken = "", captchaId = null;
+    function resetCaptcha() { captchaToken = ""; try { if (captchaId != null) window.turnstile.reset(captchaId); } catch (e) {} }
+    if (CFG.turnstileSiteKey) {
+      const draw = () => {
+        try {
+          captchaId = window.turnstile.render($("pfCaptcha"), {
+            sitekey: CFG.turnstileSiteKey,
+            callback: (t) => { captchaToken = t; },
+            "expired-callback": () => { captchaToken = ""; },
+            "error-callback": () => { captchaToken = ""; },
+          });
+        } catch (e) {}
+      };
+      if (window.turnstile) draw();
+      else {
+        const sc = document.createElement("script");
+        sc.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+        sc.async = true; sc.onload = draw; document.head.appendChild(sc);
+      }
+    }
 
     $("pfGoogle").onclick = async () => {
       const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + location.pathname } });
