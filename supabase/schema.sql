@@ -47,16 +47,4 @@ create table if not exists public.ai_usage (
 );
 alter table public.ai_usage enable row level security;
 
-create or replace function public.use_ai_credit(p_limit int) returns boolean
-language plpgsql security definer set search_path = '' as $$
-declare n int;
-begin
-  if auth.uid() is null then return false; end if;
-  insert into public.ai_usage (user_id, day, calls) values (auth.uid(), current_date, 1)
-  on conflict (user_id, day) do update set calls = public.ai_usage.calls + 1
-  returning calls into n;
-  return n <= p_limit;
-end;
-$$;
-revoke all on function public.use_ai_credit(int) from public, anon;
-grant execute on function public.use_ai_credit(int) to authenticated;
+-- The use_ai_credit() function, size caps and row caps live in security-2026-11.sql: run it right after this file.
