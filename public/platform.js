@@ -339,7 +339,12 @@
       if (e && e.name === "AbortError") throw e;
       throw err("network", "Can't reach the server. Check your connection.");
     }
-    if (res.status === 429) throw err("rate_limited", (await res.text()) || "Daily Claude limit reached.");
+    if (res.status === 429) {
+      const text = (await res.text()) || "Daily Claude limit reached.";
+      // The billing layer turns a free-plan limit into an upgrade prompt.
+      try { dispatchEvent(new CustomEvent("sat:ailimit", { detail: { message: text, plan: res.headers.get("x-sat-plan") || "" } })); } catch (e) {}
+      throw err("rate_limited", text);
+    }
     if (res.status === 401) throw err("not_granted", "Sign in again to use Claude.");
     if (!res.ok || !res.body) throw err("server", (await res.text().catch(() => "")) || "Claude request failed.");
     const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
@@ -389,7 +394,14 @@
   }
 
   if (hasBackend) window.claude = { use };
-  window.SAT_PLATFORM = { signOut, signIn, hasBackend, getSession, ai: !!CFG.ai, signedIn: false };
+  // rpc: billing.js reads the plan and files payment requests through database functions.
+  const rpc = async (name, args) => {
+    if (!sb) throw err("no_backend");
+    const { data, error } = await sb.rpc(name, args || {});
+    if (error) throw err(error.code || "db_error", error.message);
+    return data;
+  };
+  window.SAT_PLATFORM = { signOut, signIn, hasBackend, getSession, rpc, ai: !!CFG.ai, signedIn: false };
   if (sb) sb.auth.getSession().then(({ data }) => { window.SAT_PLATFORM.signedIn = !!data.session; }, () => {});
 
   /* ---------- PWA ---------- */

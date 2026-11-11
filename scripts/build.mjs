@@ -9,6 +9,14 @@ const cfg = {
   supabaseAnonKey: process.env.SUPABASE_ANON_KEY || "",
   ai: !!process.env.ANTHROPIC_API_KEY, // Claude features stay hidden until a key is added
   turnstileSiteKey: process.env.TURNSTILE_SITE_KEY || "", // optional CAPTCHA on sign-in / sign-up
+  billing: /^(on|true|1)$/i.test(process.env.BILLING || ""), // free limits + the Billing page go live for students
+  // Where students send money (shown on the Billing page). Until PAY_CARD is set, "Go Pro" says payments open soon.
+  pay: {
+    card: process.env.PAY_CARD || "", // card number students transfer to (Uzcard / Humo)
+    name: process.env.PAY_NAME || "", // cardholder name exactly as banks show it, so students can check it
+    telegram: (process.env.PAY_TELEGRAM || "").replace(/^@/, ""), // username that receives receipts
+    link: /^https:\/\//.test(process.env.PAY_LINK || "") ? process.env.PAY_LINK : "", // optional Payme / Click payment link
+  },
 };
 if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) console.warn("SUPABASE_URL / SUPABASE_ANON_KEY not set: the app will run in offline-only mode.");
 writeFileSync("public/config.js", `window.SAT_CONFIG=${JSON.stringify(cfg)};\n`);

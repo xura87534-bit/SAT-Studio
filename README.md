@@ -50,6 +50,30 @@ If Supabase isn't configured, or a student picks **Use offline on this device**,
 2. To try it: open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked**, and choose the `extension` folder.
 3. To publish: zip the `extension` folder and upload it in the [Chrome Web Store developer dashboard](https://chrome.google.com/webstore/devconsole). There's a one-time $5 developer fee.
 
+## Billing (SAT Studio Pro)
+
+Students pay by card transfer (Payme, Click, Uzum or any bank app), press **I've paid**, and you approve the payment on the **Students** page. No merchant account is needed.
+
+| Piece | Where | What it does |
+|---|---|---|
+| Prices and free limits | `public/plans.js` | The one place to change a price or a limit |
+| Billing page, paywalls, admin panel | `public/billing.js` | Go Pro page, lock badges, payment sheet, Payments panel on Students |
+| Plans and payments | `supabase/billing-2026-11.sql` | Who has Pro and until when; payment requests; Claude allowance by plan |
+
+To switch it on:
+
+1. Supabase **SQL Editor**: paste `supabase/billing-2026-11.sql` and run it.
+2. Vercel environment variables:
+   - `PAY_CARD` (the card students transfer to) and `PAY_NAME` (the cardholder name banks show)
+   - `PAY_TELEGRAM` (username that receives receipts); optional `PAY_LINK` (a Payme or Click payment link)
+   - Optional: `FREE_DAILY_AI_LIMIT` (default 10), `CLAUDE_MODEL_FREE` and `CLAUDE_MODEL_PRO` (default: `CLAUDE_MODEL` for both)
+3. Sign in as an admin and open **Go Pro**: the launch checklist shows what is still missing. Only admins see the page at this stage.
+4. Set `BILLING=on` and redeploy. Free limits, the Go Pro page and the pricing section on `/welcome` are now live for students.
+
+Each day, check **Students → Payments**, match each request to a transfer in your bank app, and press **Approve**. To give Pro without a request (cash, a prize), use **Give Pro days** on the same panel.
+
+Built-in tests and drills are limited in the browser, so a determined student can get around those limits. The Claude allowance is enforced on the server.
+
 ## Costs
 
 - **Supabase and Vercel**: the free tiers cover a class-sized group.

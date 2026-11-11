@@ -1,11 +1,16 @@
 // POST /api/claude  { prompt: string, json: boolean }
 // Streams Claude's reply back as plain text. Only signed-in users may call it,
-// and each user gets a daily request allowance (DAILY_AI_LIMIT).
+// and each user gets a daily request allowance by plan: FREE_DAILY_AI_LIMIT on the
+// free plan, DAILY_AI_LIMIT on Pro (see supabase/billing-2026-11.sql).
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 
 const MODEL = process.env.CLAUDE_MODEL || "claude-opus-5-5";
-const DAILY_LIMIT = Number(process.env.DAILY_AI_LIMIT || 150);
+const DAILY_LIMIT = Number(process.env.DAILY_AI_LIMIT || 150); // Pro
+const FREE_DAILY_LIMIT = Number(process.env.FREE_DAILY_AI_LIMIT || 10);
+// Optional: a different model per plan. Unset = CLAUDE_MODEL for everyone.
+const MODEL_FREE = process.env.CLAUDE_MODEL_FREE || MODEL;
+const MODEL_PRO = process.env.CLAUDE_MODEL_PRO || MODEL;
 // Ceiling across ALL users per UTC day, so a wave of throwaway accounts can't drain the API budget.
 const GLOBAL_DAILY_LIMIT = Number(process.env.GLOBAL_DAILY_AI_LIMIT || 3000);
 const MAX_PROMPT_CHARS = 60000;
@@ -33,21 +38,39 @@ export async function POST(request) {
   if (!prompt.trim() || prompt.length > MAX_PROMPT_CHARS) return new Response("Prompt missing or too long.", { status: 400 });
 
   // Counts this call against the user's allowance; runs as the user, so RLS keys it to them.
-  const { data: allowed, error: rateErr } = await supabase.rpc("use_ai_credit", { p_limit: DAILY_LIMIT, p_global: GLOBAL_DAILY_LIMIT });
-  if (rateErr) { console.error("use_ai_credit failed", rateErr); return new Response("Couldn't check your Claude allowance.", { status: 500 }); }
-  if (allowed === "global") return new Response("Claude is at capacity for today. Try again tomorrow.", { status: 429 });
-  if (allowed !== "ok") return new Response(`You've used today's ${DAILY_LIMIT} Claude requests. They reset at midnight UTC.`, { status: 429 });
+  let plan = "pro", limit = DAILY_LIMIT, status;
+  const { data: credit, error: planErr } = await supabase.rpc("use_ai_credit_plan", { p_free: FREE_DAILY_LIMIT, p_pro: DAILY_LIMIT, p_global: GLOBAL_DAILY_LIMIT });
+  if (!planErr && credit) {
+    ({ status, plan, limit } = credit);
+  } else if (planErr && (planErr.code === "PGRST202" || planErr.code === "42883")) {
+    // billing-2026-11.sql hasn't been run yet: keep the one-limit-for-everyone behaviour.
+    const { data: allowed, error: rateErr } = await supabase.rpc("use_ai_credit", { p_limit: DAILY_LIMIT, p_global: GLOBAL_DAILY_LIMIT });
+    if (rateErr) { console.error("use_ai_credit failed", rateErr); return new Response("Couldn't check your Claude allowance.", { status: 500 }); }
+    status = allowed;
+  } else {
+    console.error("use_ai_credit_plan failed", planErr);
+    return new Response("Couldn't check your Claude allowance.", { status: 500 });
+  }
+  if (status === "global") return new Response("Claude is at capacity for today. Try again tomorrow.", { status: 429 });
+  if (status !== "ok") {
+    const msg = plan === "free"
+      ? `You've used today's ${limit} free Claude answers. Go Pro for ${DAILY_LIMIT} a day, or come back tomorrow.`
+      : `You've used today's ${limit} Claude requests. They reset at midnight UTC.`;
+    return new Response(msg, { status: 429, headers: { "x-sat-plan": plan } });
+  }
 
+  const model = plan === "free" ? MODEL_FREE : MODEL_PRO;
+  // Haiku has no server-side refusal fallback, and rejects a fallback list.
+  const fallback = /haiku/.test(model) ? {} : { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" };
   const json = !!body.json;
   const stream = anthropic.beta.messages.stream(
     {
-      model: MODEL,
+      model,
       max_tokens: json ? 32000 : 4000,
       system: json ? JSON_SYSTEM : CHAT_SYSTEM,
       output_config: { effort: json ? "medium" : "low" },
       messages: [{ role: "user", content: prompt }],
-      betas: ["server-side-fallback-2026-07-01"],
-      fallbacks: "default", // a declined request is retried on Anthropic's recommended fallback model
+      ...fallback, // a declined request is retried on Anthropic's recommended fallback model
     },
     { signal: request.signal },
   );
