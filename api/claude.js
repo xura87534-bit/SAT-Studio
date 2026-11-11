@@ -6,6 +6,8 @@ import { createClient } from "@supabase/supabase-js";
 
 const MODEL = process.env.CLAUDE_MODEL || "claude-opus-5-5";
 const DAILY_LIMIT = Number(process.env.DAILY_AI_LIMIT || 150);
+// Ceiling across ALL users per UTC day, so a wave of throwaway accounts can't drain the API budget.
+const GLOBAL_DAILY_LIMIT = Number(process.env.GLOBAL_DAILY_AI_LIMIT || 3000);
 const MAX_PROMPT_CHARS = 60000;
 
 const anthropic = new Anthropic(); // reads ANTHROPIC_API_KEY
@@ -31,9 +33,10 @@ export async function POST(request) {
   if (!prompt.trim() || prompt.length > MAX_PROMPT_CHARS) return new Response("Prompt missing or too long.", { status: 400 });
 
   // Counts this call against the user's allowance; runs as the user, so RLS keys it to them.
-  const { data: allowed, error: rateErr } = await supabase.rpc("use_ai_credit", { p_limit: DAILY_LIMIT });
-  if (rateErr) return new Response("Couldn't check your Claude allowance.", { status: 500 });
-  if (!allowed) return new Response(`You've used today's ${DAILY_LIMIT} Claude requests. They reset at midnight UTC.`, { status: 429 });
+  const { data: allowed, error: rateErr } = await supabase.rpc("use_ai_credit", { p_limit: DAILY_LIMIT, p_global: GLOBAL_DAILY_LIMIT });
+  if (rateErr) { console.error("use_ai_credit failed", rateErr); return new Response("Couldn't check your Claude allowance.", { status: 500 }); }
+  if (allowed === "global") return new Response("Claude is at capacity for today. Try again tomorrow.", { status: 429 });
+  if (allowed !== "ok") return new Response(`You've used today's ${DAILY_LIMIT} Claude requests. They reset at midnight UTC.`, { status: 429 });
 
   const json = !!body.json;
   const stream = anthropic.beta.messages.stream(
