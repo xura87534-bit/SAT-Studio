@@ -101,6 +101,24 @@
     return (error && error.message) || "Something went wrong. Try again.";
   }
 
+  // Catches common email-domain typos (gmail.con, icloud.co, mail.r ...) before an account is created with them.
+  const DOMAINS = ["gmail.com", "icloud.com", "mail.ru", "yandex.ru", "yandex.com", "outlook.com", "hotmail.com", "yahoo.com", "me.com", "inbox.ru", "list.ru", "bk.ru", "mail.com"];
+  function editDist(a, b) {
+    const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+    for (let j = 1; j <= b.length; j++) d[0][j] = j;
+    for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return d[a.length][b.length];
+  }
+  function emailTypo(email) {
+    const at = email.lastIndexOf("@"); if (at < 0) return null;
+    const dom = email.slice(at + 1).toLowerCase();
+    if (DOMAINS.includes(dom)) return null;
+    let best = null, bd = 3;
+    for (const d of DOMAINS) { const x = editDist(dom, d); if (x < bd) { bd = x; best = d; } }
+    return best && bd <= 2 ? email.slice(0, at + 1) + best : null;
+  }
+
   function showGate(done) {
     if (!document.getElementById("pfGateCss")) {
       const st = document.createElement("style"); st.id = "pfGateCss"; st.textContent = GATE_CSS; document.head.appendChild(st);
@@ -128,7 +146,7 @@
         </div>
         <form id="pfForm" novalidate>
           <div class="pf-field" id="pfNameRow" hidden><label for="pfName">Your name</label><input id="pfName" type="text" autocomplete="name" placeholder="Ali Karimov"></div>
-          <div class="pf-field"><label for="pfEmail">Email</label><input id="pfEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@gmail.com" required></div>
+          <div class="pf-field"><label for="pfEmail">Email</label><input id="pfEmail" type="email" autocomplete="email" inputmode="email" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="you@icloud.com or you@gmail.com" required><div class="pf-hint">Any email works: iCloud, Gmail, Mail.ru, Yandex, Outlook. No Google or Apple sign-in needed.</div></div>
           <div class="pf-field"><label for="pfPass">Password</label><input id="pfPass" type="password" autocomplete="current-password" placeholder="Your password" required minlength="6"><button class="pf-eye" type="button" id="pfEye" aria-label="Show password">Show</button></div>
           <div id="pfCaptcha" style="margin:4px 0 10px;min-height:0"></div>
           <button class="pf-btn pf-primary" type="submit" id="pfSubmit">Sign in</button>
@@ -140,6 +158,9 @@
     document.body.appendChild(g);
     const $ = (id) => g.querySelector("#" + id);
     let mode = "in";
+    const HAS_ACCT = "satstudio_has_account";
+    const knownUser = (() => { try { return localStorage.getItem(HAS_ACCT) === "1"; } catch (e) { return false; } })();
+    const markKnown = () => { try { localStorage.setItem(HAS_ACCT, "1"); } catch (e) {} };
     const msg = (t, kind) => { const m = $("pfMsg"); m.textContent = t || ""; m.className = "pf-msg" + (kind ? " " + kind : ""); };
     function setMode(m) {
       mode = m;
@@ -154,10 +175,12 @@
       msg("");
     }
     $("pfTabIn").onclick = () => setMode("in");
+    if (!knownUser) setTimeout(() => setMode("up"), 0);
     $("pfTabUp").onclick = () => setMode("up");
     $("pfEye").onclick = () => { const p = $("pfPass"), show = p.type === "password"; p.type = show ? "text" : "password"; $("pfEye").textContent = show ? "Hide" : "Show"; $("pfEye").setAttribute("aria-label", show ? "Hide password" : "Show password"); };
     const busy = (on) => { const b = $("pfSubmit"); b.disabled = on; b.innerHTML = on ? '<span class="pf-spin"></span>' + (mode === "up" ? "Creating account" : "Signing in") : (mode === "up" ? "Create account" : "Sign in"); };
 
+    let confirmedTypo = "";
     $("pfForm").onsubmit = async (e) => {
       e.preventDefault();
       const email = $("pfEmail").value.trim(), password = $("pfPass").value, name = $("pfName").value.trim();
@@ -166,6 +189,12 @@
       const minLen = mode === "up" ? 8 : 6; // new accounts need 8+; older 6-character passwords still sign in
       if (password.length < minLen) { $("pfPass").setAttribute("aria-invalid", "true"); $("pfPass").focus(); return msg(`Use a password with at least ${minLen} characters.`, "err"); }
       if (CFG.turnstileSiteKey && !captchaToken) return msg("Complete the \"I'm human\" check first.", "err");
+      const fix = emailTypo(email);
+      if (fix && confirmedTypo !== email) {
+        confirmedTypo = email;
+        $("pfEmail").setAttribute("aria-invalid", "true");
+        return msg(`Did you mean ${fix}? Fix it, or press the button again if ${email} is right.`, "err");
+      }
       busy(true); msg("");
       try {
         if (mode === "up") {
@@ -177,13 +206,21 @@
             busy(false);
             return msg("Account created, but it needs email confirmation before you can sign in. Ask your teacher to turn it off, or use offline mode for now.", "err");
           }
-          msg("Account created. Opening SAT Studio…", "ok");
+          markKnown(); msg("Account created. Opening SAT Studio…", "ok");
         } else {
           const { error } = await sb.auth.signInWithPassword({ email, password, options: { captchaToken: captchaToken || undefined } });
           if (error) throw error;
-          msg("Signed in. Opening SAT Studio…", "ok");
+          markKnown(); msg("Signed in. Opening SAT Studio…", "ok");
         }
-      } catch (er) { busy(false); msg(friendly(er), "err"); resetCaptcha(); }
+      } catch (er) {
+        busy(false); resetCaptcha();
+        const m = String((er && er.message) || "").toLowerCase();
+        if (mode === "in" && m.includes("invalid login credentials")) {
+          msg("No account with that email and password. New here? Tap \"Create account\" above. It's free.", "err");
+        } else if (mode === "up" && (m.includes("already registered") || m.includes("already been registered"))) {
+          setMode("in"); $("pfEmail").value = email; msg("You already have an account with this email. Enter your password to sign in.", "err");
+        } else msg(friendly(er), "err");
+      }
     };
 
     // Optional CAPTCHA (Cloudflare Turnstile). Active only when TURNSTILE_SITE_KEY is set in Vercel
