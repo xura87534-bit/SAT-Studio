@@ -8,7 +8,7 @@ window.SAT_PLANS = {
   founding: true,
   foundingNote: "Founding price for our first 100 students",
   plans: [
-    { code: "m1", months: 1, name: "1 month", price: 49000, list: 69000, blurb: "Try Pro before a test date." },
+    { code: "m1", months: 1, name: "1 month", price: 49000, list: 99000, blurb: "Try Pro before a test date." },
     { code: "m3", months: 3, name: "90-Day Pass", price: 99000, list: 149000, best: true, blurb: "Covers the whole 90-Day Course." },
     { code: "m6", months: 6, name: "6 months", price: 179000, list: 249000, blurb: "For two test dates and a retake." },
   ],
