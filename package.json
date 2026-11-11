@@ -7,7 +7,7 @@
     "dev": "vercel dev"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "0.133.0",
+    "@anthropic-ai/sdk": "1.6.0",
     "@supabase/supabase-js": "2.117.3"
   }
 }
