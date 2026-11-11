@@ -28,15 +28,21 @@ drop function if exists public.use_ai_credit(int);
 drop function if exists public.use_ai_credit(int, int);
 create or replace function public.use_ai_credit(p_limit int, p_global int default 3000) returns text
 language plpgsql security definer set search_path = '' as $$
-declare n int; total int;
+-- Limits are clamped here: signed-in users can call this RPC directly, so it must not trust
+-- p_limit / p_global, and a user who is out of credits must not keep growing the site total.
+declare n int; total int; mine int;
+  v_limit int := least(greatest(coalesce(p_limit, 0), 0), 500);
+  v_global int := least(greatest(coalesce(p_global, 0), 0), 20000);
 begin
   if auth.uid() is null then return 'user'; end if;
+  select coalesce(calls, 0) into mine from public.ai_usage where user_id = auth.uid() and day = current_date;
+  if coalesce(mine, 0) >= v_limit then return 'user'; end if;
   select coalesce(sum(calls), 0) into total from public.ai_usage where day = current_date;
-  if total >= p_global then return 'global'; end if;
+  if total >= v_global then return 'global'; end if;
   insert into public.ai_usage (user_id, day, calls) values (auth.uid(), current_date, 1)
   on conflict (user_id, day) do update set calls = public.ai_usage.calls + 1
   returning calls into n;
-  return case when n <= p_limit then 'ok' else 'user' end;
+  return case when n <= v_limit then 'ok' else 'user' end;
 end;
 $$;
 revoke all on function public.use_ai_credit(int, int) from public, anon;
@@ -83,3 +89,12 @@ $$;
 drop trigger if exists students_sanity on public.students;
 create trigger students_sanity before insert or update on public.students for each row execute function public.students_sanity();
 revoke all on function public.students_sanity() from public, anon, authenticated;
+
+-- 7. Only signed-in users may ask "am I admin?"; Supabase's RLS helper isn't an API endpoint.
+revoke execute on function public.is_admin() from public, anon;
+grant execute on function public.is_admin() to authenticated;
+do $$ begin
+  if exists (select 1 from pg_proc where proname = 'rls_auto_enable' and pronamespace = 'public'::regnamespace) then
+    revoke execute on function public.rls_auto_enable() from public, anon, authenticated;
+  end if;
+end $$;
