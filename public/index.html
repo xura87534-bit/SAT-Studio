@@ -6777,7 +6777,7 @@ function shell(content){
   app.innerHTML=`<div class="shell"><nav class="side" aria-label="Main">
     <div class="brand"><img class="logo" src="/icons/logo-sm.png" alt="" width="34" height="34" style="background:none;object-fit:cover">SAT Studio</div>
     ${nav.map(([k,l,i,sh])=>`<button class="nav${view===k?" on":""}" data-nav="${k}"${view===k?' aria-current="page"':""}>${i}<span class="${sh?"lg":""}">${esc(l)}</span>${sh?`<span class="sm">${esc(sh)}</span>`:""}${k==="home"&&ns?`<em aria-label="${ns} saved">${ns}</em>`:""}</button>`).join("")}
-    <div class="sidefoot"><i class="${AI?"on":""}"></i>${!BOOTED&&window.claude?"Syncing your progress…":AI?"Claude connected":"Built-in questions"}</div>${!AI&&(BOOTED||!window.claude)&&!(window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn)?`<button class="sidesync connai" data-connai>${window.SAT_PLATFORM?(window.SAT_PLATFORM.ai?"Sign in for Claude":"Sign in to sync"):"Connect Claude"}</button>`:""}${window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn?`<button class="sidesync" data-signout>Sign out</button>`:""}<button class="sidesync" id="syncOpen">Backup &amp; sync</button><span class="appver owner">Created by Xurshid Jo’rayev</span><span class="appver">${window._vl||(window._vl=(()=>{let h=0;const a=BANK.concat(RWBANK);for(const x of a){const d=String(x.id)+":"+(x.lv|0);for(let i=0;i<d.length;i++)h=(h*31+d.charCodeAt(i))|0}return "Build "+a.length.toLocaleString("en-US")+" Q · "+(h>>>0).toString(36).toUpperCase().slice(0,4)})())}${window.claude?"":" · downloaded copy"}</span>
+    <div class="sidefoot"><i class="${AI?"on":""}"></i>${!BOOTED&&window.claude?"Syncing your progress…":AI?"Claude connected":"Built-in questions"}</div>${!AI&&(BOOTED||!window.claude)&&!(window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn)?`<button class="sidesync connai" data-connai>${window.SAT_PLATFORM?"Sign in or sign up free":"Connect Claude"}</button>`:""}${window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn?`<button class="sidesync" data-signout>Sign out</button>`:""}<button class="sidesync" id="syncOpen">Backup &amp; sync</button><span class="appver owner">Created by Xurshid Jo’rayev</span><span class="appver">${window._vl||(window._vl=(()=>{let h=0;const a=BANK.concat(RWBANK);for(const x of a){const d=String(x.id)+":"+(x.lv|0);for(let i=0;i<d.length;i++)h=(h*31+d.charCodeAt(i))|0}return "Build "+a.length.toLocaleString("en-US")+" Q · "+(h>>>0).toString(36).toUpperCase().slice(0,4)})())}${window.claude?"":" · downloaded copy"}</span>
   </nav><main class="main">${content}</main></div>`;
   $$("[data-nav]").forEach(b=>b.onclick=()=>go(b.dataset.nav));
 }
@@ -6808,15 +6808,16 @@ function renderHome(){
   const ws=weakSkills(5);const wTarget=ws.length&&RW_DOM[ws[0][1].d]?"rwweak":"weak";
   shell(`<div class="stack">
   <section class="mhead mhome" id="mhome"><div>${(h=>motiveHTML([h[0]],h[2],h[1]))(homeHeadline(lm,lr))}</div>${levelPanel(lm,lr)}</section>
-  <section class="hero two">
+  <section class="hero two"${HISTORY.length||guestTried()?"":' style="order:-1"'}>
     <div class="duo">${gauge(lm?.score,"Math",false)}${gauge(lr?.score,"Reading & Writing",false)}</div>
     <div>
       <h1>${total?`Your SAT estimate: ${total}`:lm||lr?"Keep the climb going.":"Find your starting scores."}</h1>
       <p style="margin-top:10px">${total?`Math ${lm.score} + Reading and Writing ${lr.score}, on the 400 to 1600 scale.${rg?` Likely range ${rg[0]}–${rg[1]}.`:""} Your best so far: Math ${bm}, R&amp;W ${br}.`:lm||lr?`Take a full test in ${lm?"Reading and Writing":"Math"} to see your total score out of 1600.`:"Each section has two adaptive modules, just like the real Digital SAT. Take one of each to get a total score."}</p>
-      <div class="actions" style="margin-top:18px"><button class="btn" data-open="${(LIB.find(l=>l.kind==="sat"&&!HISTORY.some(r=>r.sat===l.id))||LIBID.sat1).id}">Full SAT, Bluebook format</button><button class="btn sun" data-open="${nextM.id}">Start ${esc(nextM.title)}</button><button class="btn sun" data-open="${nextR.id}">Start ${esc(nextR.title)}</button></div>
+      <div class="actions" style="margin-top:18px">${HISTORY.length||guestTried()?"":`<button class="btn" data-go="quick">Warm up: 10 quick questions</button>`}<button class="btn${HISTORY.length||guestTried()?"":" sun"}" data-open="${(LIB.find(l=>l.kind==="sat"&&!HISTORY.some(r=>r.sat===l.id))||LIBID.sat1).id}">Full SAT, Bluebook format</button><button class="btn sun" data-open="${nextM.id}">Start ${esc(nextM.title)}</button><button class="btn sun" data-open="${nextR.id}">Start ${esc(nextR.title)}</button></div>
     </div>
   </section>
   ${(()=>{const mm=mistakePool("math").length,mr=mistakePool("rw").length;return mm||mr?`<section class="resume redo"><div class="info"><b>Mistakes to redo</b><div class="muted" style="font-size:.9rem">Math ${mm}, Reading &amp; Writing ${mr}. Each one leaves the list when you answer it correctly.</div></div><div class="actions">${mm?`<button class="btn sm" data-open="redo">Redo Math</button>`:""}${mr?`<button class="btn sm" data-open="rwredo">Redo R&amp;W</button>`:""}</div></section>`:""})()}
+  ${guestStrip()}
   ${window.courseHomeStrip?window.courseHomeStrip():""}
   ${window.BILL?BILL.homeStrip():""}
   ${mathVideoHelp()}
@@ -6862,6 +6863,14 @@ function renderVideos(){
 function skillList(ws){
   if(!ws.length)return `<p class="muted">Skills you miss will be listed here, weakest first.</p>`;
   return `<ul class="skills">${ws.map(([k,v])=>`<li><span class="dot" style="background:var(--d${v.d})"></span>${esc(k)}<span class="n">${v.c}/${v.t}</span></li>`).join("")}</ul>`;
+}
+
+/* Guests practice without an account; once they have something to lose, offer to save it. */
+function guestTried(){try{return Object.values(qpLoad()||{}).some(x=>x&&x.n)}catch(e){return false}}
+function guestStrip(){
+  const P=window.SAT_PLATFORM;
+  if(!P||!P.hasBackend||P.signedIn||!navigator.onLine||!(HISTORY.length||guestTried()))return "";
+  return `<section class="resume"><div class="info"><b>Save your progress</b><div class="muted" style="font-size:.9rem">Your scores live only in this browser for now. A free account keeps them safe and syncs every device${P.ai?", and it switches on the Claude tutor":""}. It takes ten seconds.</div></div><div class="actions"><button class="btn sm" data-connai>Create free account</button></div></section>`;
 }
 
 /* ---------- Tests library ---------- */
@@ -7625,6 +7634,7 @@ function renderResults(rec,fresh){
   shell(`<div class="stack">
   <div class="toolbar"><button class="btn link" id="backH">Back to history</button><span class="muted">${esc(fmtDate(rec.done||rec.date))}</span></div>
   <section class="mhead">${(c=>motiveHTML(c,"cheer "+(c[2]||"")))(cheerOf(rec))}</section>
+  ${fresh?guestStrip():""}
   <section class="card"><div class="rhero">
     <div>${full?gauge(adj(rec),rw?"Reading & Writing":"Math",fresh)+(rangeOf(rec)?`<p class="range">Likely range ${rangeOf(rec)[0]}–${rangeOf(rec)[1]}</p>`:""):`<div class="bigpct">${rec.m1}/${rec.total}</div><p class="muted">${rec.score}% correct</p>`}</div>
     <div><h1>${esc(rec.title||"Full test")}</h1>

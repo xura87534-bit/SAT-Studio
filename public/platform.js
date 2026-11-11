@@ -1,11 +1,14 @@
 /* SAT Studio platform layer.
    The app was built for the claude.ai runtime and asks for features through
    window.claude.use(name). This file provides the same interface on our own stack:
-     user   -> Supabase Auth (Google or email magic link)
+     user   -> Supabase Auth (email + password, Google when enabled)
      db     -> Supabase Postgres tables "docs" and "students" (row-level security)
      sample -> /api/claude, a Vercel function that calls the Claude API
    Anything that fails (offline, signed out) resolves to null and the app falls
-   back to saving in this browser, which it already supports. */
+   back to saving in this browser, which it already supports.
+
+   Nobody has to sign up to practice: a new visitor starts as a guest, and the app
+   invites them to create an account once they have a score worth saving. */
 (function () {
   "use strict";
   const CFG = window.SAT_CONFIG || {};
@@ -15,7 +18,10 @@
         auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" },
       })
     : null;
-  const OFFLINE_KEY = "satstudio_offline_mode";
+  const OFFLINE_KEY = "satstudio_offline_mode"; // "1" = this student closed the sign-in screen; don't show it again unasked
+  const HAS_ACCT = "satstudio_has_account";     // "1" = someone has signed in on this browser before
+  const WANT_KEY = "satstudio_signin";          // set for one reload when the student presses a sign-in button
+  const flag = (store, k) => { try { return store.getItem(k) === "1"; } catch (e) { return false; } };
   const err = (code, message) => Object.assign(new Error(message || code), { code });
 
   /* ---------- Sign-in gate ---------- */
@@ -29,8 +35,11 @@
     let s = null;
     try { s = (await sb.auth.getSession()).data.session; } catch (e) {}
     if (s) return s;
-    try { if (localStorage.getItem(OFFLINE_KEY) === "1") return null; } catch (e) {}
     if (!navigator.onLine) return null;
+    // The sign-in screen opens only when asked for, or for a returning student whose session ran out.
+    const asked = flag(sessionStorage, WANT_KEY);
+    try { sessionStorage.removeItem(WANT_KEY); } catch (e) {}
+    if (!asked && !(flag(localStorage, HAS_ACCT) && !flag(localStorage, OFFLINE_KEY))) return null;
     return new Promise((resolve) => {
       const done = (v) => { gate && gate.remove(); resolve(v); };
       const gate = showGate(done);
@@ -152,14 +161,13 @@
           <button class="pf-btn pf-primary" type="submit" id="pfSubmit">Sign in</button>
           <p class="pf-msg" id="pfMsg" role="status" aria-live="polite"></p>
         </form>
-        <button class="pf-off" type="button" id="pfOff">Use offline on this device instead</button>
+        <button class="pf-off" type="button" id="pfOff">Not now, keep practicing without an account</button>
         <p class="pf-by">Created by <em>Xurshid Jo’rayev</em></p>
       </div>`;
     document.body.appendChild(g);
     const $ = (id) => g.querySelector("#" + id);
     let mode = "in";
-    const HAS_ACCT = "satstudio_has_account";
-    const knownUser = (() => { try { return localStorage.getItem(HAS_ACCT) === "1"; } catch (e) { return false; } })();
+    const knownUser = flag(localStorage, HAS_ACCT);
     const markKnown = () => { try { localStorage.setItem(HAS_ACCT, "1"); } catch (e) {} };
     const msg = (t, kind) => { const m = $("pfMsg"); m.textContent = t || ""; m.className = "pf-msg" + (kind ? " " + kind : ""); };
     function setMode(m) {
@@ -168,7 +176,7 @@
       $("pfTabIn").setAttribute("aria-selected", String(!up)); $("pfTabUp").setAttribute("aria-selected", String(up));
       $("pfNameRow").hidden = !up;
       $("pfTitle").innerHTML = up ? "Start <em>here.</em>" : "Welcome <em>back.</em>";
-      $("pfSub").textContent = up ? "Create a free account. It takes ten seconds and your progress follows you everywhere." : "Sign in to keep your scores and progress synced on every device.";
+      $("pfSub").textContent = up ? "Create a free account. It takes ten seconds, and the practice you've already done on this device is saved to it." : "Sign in to keep your scores and progress synced on every device.";
       $("pfSubmit").textContent = up ? "Create account" : "Sign in";
       $("pfPass").setAttribute("autocomplete", up ? "new-password" : "current-password");
       $("pfPass").setAttribute("placeholder", up ? "At least 8 characters" : "Your password");
@@ -385,11 +393,12 @@
     // Clear this browser's copy so the next person to sign in doesn't inherit (and upload) it.
     try {
       Object.keys(localStorage).filter((k) => /^(satmath_|satstudio_)/.test(k)).forEach((k) => localStorage.removeItem(k));
+      sessionStorage.setItem(WANT_KEY, "1"); // signing out lands on the sign-in screen, as before
     } catch (e) {}
     location.reload();
   }
   function signIn() {
-    try { localStorage.removeItem(OFFLINE_KEY); } catch (e) {}
+    try { localStorage.removeItem(OFFLINE_KEY); sessionStorage.setItem(WANT_KEY, "1"); } catch (e) {}
     location.reload();
   }
 

@@ -17,7 +17,7 @@ It ships in two forms:
 | Database | `supabase/schema.sql` | Tables and row-level security: students see only their own data, admins see the student summaries |
 | Offline | `public/sw.js` | Caches the app so it opens without a connection. Progress saves locally and syncs when back online |
 
-If Supabase isn't configured, or a student picks **Use offline on this device**, the app runs entirely in the browser, as the downloaded copy did before.
+Nobody has to sign up to practice: a new visitor starts as a guest, with progress saved in their browser, and is invited to create a free account once they have a score to save. The Claude tutor needs an account. If Supabase isn't configured, the app runs entirely in the browser.
 
 ## Setup (about 20 minutes)
 
