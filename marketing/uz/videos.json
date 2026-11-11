@@ -1,0 +1,77 @@
+{
+  "url": "sat-studio-rust.vercel.app",
+  "videos": [
+    {
+      "id": "01_umumiy",
+      "title": "SAT Studio — hammasi bitta ilovada",
+      "voice": "uz-UZ-MadinaNeural",
+      "scenes": [
+        {"type": "hook", "eb": "SAT imtihoni", "h": "Yuqori|ball|<em>kerakmi?</em>", "counter": [1000, 1500],
+         "vo": "SAT imtihonidan yuqori ball olmoqchimisiz?"},
+        {"type": "feature", "shot": "home", "eb": "SAT Studio", "h": "Hammasi <em>bitta ilovada</em>",
+         "vo": "SAT Studio — tayyorgarlik uchun kerak boʻlgan hamma narsa bitta ilovada.",
+         "ring": [16, 412, 398, 330], "chip": {"text": "Taxminiy ball: 1390", "y": 1085, "side": "right"}},
+        {"type": "feature", "shot": "question", "eb": "Haqiqiy format", "h": "Xuddi <em>imtihondagidek</em>",
+         "vo": "Haqiqiy raqamli SAT formatidagi toʻliq testlar, vaqt bilan.",
+         "ring": [38, 412, 354, 66], "zoom": 1.12, "chip": {"text": "Vaqt ketmoqda: 34:58", "y": 1560, "side": "left"}},
+        {"type": "feature", "shot": "adaptive", "eb": "Moslashuvchan test", "h": "2-modul sizga <em>moslashadi</em>",
+         "vo": "Birinchi modulni yaxshi ishlasangiz, ikkinchisi qiyinlashadi.",
+         "ring": [20, 268, 392, 142], "chip": {"text": "Qiyinroq modul ochildi", "y": 1420, "side": "right"}},
+        {"type": "feature", "shot": "calc", "eb": "Ilova ichida", "h": "Grafik <em>kalkulyator</em>",
+         "vo": "Grafik kalkulyator ilovaning oʻzida.",
+         "ring": [22, 398, 388, 244], "chip": {"text": "Grafikni chizing", "y": 1560, "side": "left"}},
+        {"type": "feature", "shot": "results", "eb": "Natija", "h": "Ballingizni <em>darhol</em> biling",
+         "vo": "Test tugashi bilan ballingizni va xatolaringiz tahlilini koʻrasiz.",
+         "ring": [30, 225, 370, 285], "scroll": [0, 150], "chip": {"text": "Yangi rekord: +70", "y": 1480, "side": "right"}},
+        {"type": "feature", "shot": "words", "eb": "Lugʻat", "h": "Soʻzlar <em>oʻzbekcha</em> tarjimasi bilan",
+         "vo": "Notanish soʻzlarni belgilang — ular oʻzbekcha tarjimasi bilan saqlanadi.",
+         "ring": [22, 392, 386, 262], "scroll": [0, 120], "zoom": 1.1, "chip": {"text": "ambiguous — noaniq", "y": 1740, "side": "left"}},
+        {"type": "feature", "shot": "progress", "eb": "Natijalar tarixi", "h": "Oʻsishingizni <em>kuzating</em>",
+         "vo": "Har bir testdan keyin oʻsishingizni kuzatib boring.",
+         "ring": [22, 570, 386, 270], "scroll": [0, 230], "chip": {"text": "Birinchi testdan beri +360", "y": 1500, "side": "right"}},
+        {"type": "end", "tagline": "Raqamli SAT uchun<br>bepul moslashuvchan tayyorgarlik", "pills": ["Toʻliq testlar", "Kalkulyator", "Lugʻat"], "bio": "Havola profilda",
+         "vo": "SAT Studio. Bugunoq bepul boshlang. Havola profilda."}
+      ]
+    },
+    {
+      "id": "02_moslashuvchan",
+      "title": "SAT yarmida oʻzgaradi",
+      "voice": "uz-UZ-SardorNeural",
+      "scenes": [
+        {"type": "hook", "eb": "Bilasizmi?", "h": "SAT|yarmida|<em>oʻzgaradi</em>",
+         "vo": "Bilasizmi? SAT imtihoni yarmida oʻzgaradi."},
+        {"type": "feature", "shot": "adaptive", "eb": "Moslashuvchan test", "h": "1-modul <em>2-modulni</em> belgilaydi",
+         "vo": "Birinchi moduldagi natijangiz ikkinchi modul qiyinligini belgilaydi.",
+         "ring": [20, 268, 392, 142], "chip": {"text": "22 tadan 21 tasi toʻgʻri", "y": 1420, "side": "right"}},
+        {"type": "feature", "shot": "question", "eb": "SAT Studio", "h": "Xuddi shunday <em>mashq qiling</em>",
+         "vo": "SAT Studioda xuddi shunday moslashuvchan testlarni ishlang.",
+         "ring": [38, 412, 354, 66], "zoom": 1.12, "chip": {"text": "22 savol · 35 daqiqa", "y": 1560, "side": "left"}},
+        {"type": "feature", "shot": "results", "eb": "Natija", "h": "Ballingizni <em>oldindan</em> biling",
+         "vo": "Va haqiqiy ballingizni imtihondan oldin bilib oling.",
+         "ring": [30, 225, 370, 285], "scroll": [0, 150], "chip": {"text": "Ehtimoliy oraliq: 700–770", "y": 1480, "side": "right"}},
+        {"type": "end", "tagline": "Raqamli SAT uchun<br>bepul moslashuvchan tayyorgarlik", "pills": ["Toʻliq testlar", "Kalkulyator", "Lugʻat"], "bio": "Havola profilda",
+         "vo": "SAT Studio. Bepul. Havola profilda."}
+      ]
+    },
+    {
+      "id": "03_lugat_va_kurs",
+      "title": "Soʻzlar, zaif mavzular va 90 kunlik kurs",
+      "voice": "uz-UZ-MadinaNeural",
+      "scenes": [
+        {"type": "hook", "eb": "Oʻqish va yozish", "h": "Notanish|soʻz —|<em>yoʻqotilgan</em>|<em>ball</em>",
+         "vo": "Notanish soʻzlar ballingizni pasaytiryaptimi?"},
+        {"type": "feature", "shot": "words", "eb": "Lugʻat", "h": "Bir bosishda <em>oʻzbekcha</em> tarjima",
+         "vo": "SAT Studioda soʻzni bir marta bosing — u oʻzbekcha tarjimasi va misoli bilan saqlanadi.",
+         "ring": [22, 392, 386, 262], "scroll": [0, 120], "zoom": 1.1, "chip": {"text": "8 ta soʻz saqlandi", "y": 1740, "side": "left"}},
+        {"type": "feature", "shot": "quick", "eb": "Tezkor mashq", "h": "Zaif mavzularingizni <em>oʻzi topadi</em>",
+         "vo": "Ilova zaif mavzularingizni oʻzi topadi va aynan shularni mashq qildiradi.",
+         "ring": [22, 440, 386, 330], "scroll": [0, 150], "chip": {"text": "10 ta savol, vaqtsiz", "y": 1500, "side": "right"}},
+        {"type": "feature", "shot": "course", "eb": "90 kunlik kurs", "h": "Matematika <em>noldan</em> boshlab",
+         "vo": "Toʻqson kunlik kurs esa matematikani noldan, qadam-baqadam oʻrgatadi.",
+         "ring": [36, 585, 358, 122], "scroll": [0, 200], "chip": {"text": "Har darsdan keyin test", "y": 1500, "side": "left"}},
+        {"type": "end", "tagline": "Raqamli SAT uchun<br>bepul moslashuvchan tayyorgarlik", "pills": ["Lugʻat", "Tezkor mashq", "90 kunlik kurs"], "bio": "Havola profilda",
+         "vo": "SAT Studio. Bugunoq bepul boshlang. Havola profilda."}
+      ]
+    }
+  ]
+}

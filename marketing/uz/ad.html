@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="uz"><head><meta charset="utf-8">
+<style>
+:root{--navy:#1D3F73;--deep:#10223F;--bg:#F2E7D8;--ink:#1C1B19;--muted:#6D695F;--copper:#C8693F;--sky:#8FB2E3;--mint:#2E9E4F}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--bg)}
+body{font-family:"Inter","Inter Display",sans-serif;color:var(--ink);position:relative}
+.abs{position:absolute}
+.scene{position:absolute;inset:0;opacity:0;overflow:hidden;background:
+  radial-gradient(900px 760px at 12% 8%,rgba(29,63,115,.13),transparent 70%),
+  radial-gradient(820px 720px at 96% 92%,rgba(200,105,63,.15),transparent 70%),var(--bg)}
+.scene.dark{color:#fff;background:
+  radial-gradient(1000px 800px at 20% 12%,rgba(106,147,203,.42),transparent 70%),
+  radial-gradient(900px 800px at 92% 96%,rgba(200,105,63,.34),transparent 70%),var(--deep)}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(29,63,115,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(29,63,115,.06) 1px,transparent 1px);background-size:72px 72px;
+  -webkit-mask:radial-gradient(75% 60% at 50% 40%,#000,transparent)}
+.dark .grid{background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px)}
+.head{position:absolute;left:72px;right:72px;top:104px}
+.eb{font:800 30px "Inter";letter-spacing:.2em;text-transform:uppercase;color:var(--copper)}
+.h{font:800 82px/1.04 "Inter Display","Inter";letter-spacing:-.03em;margin-top:20px;color:var(--deep)}
+.h em{font-style:normal;color:var(--copper)}
+.sub{font:500 38px/1.34 "Inter";color:var(--muted);margin-top:22px;max-width:930px}
+.phone{position:absolute;left:50%;width:640px;height:1340px;margin-left:-320px;top:536px;border-radius:84px;padding:20px;
+  background:linear-gradient(160deg,#2A3550,#0C1322 45%,#1B2740);
+  box-shadow:0 0 0 2px rgba(255,255,255,.14) inset,0 50px 110px rgba(16,34,63,.42),0 10px 30px rgba(16,34,63,.25)}
+.scr{width:600px;height:1300px;border-radius:66px;overflow:hidden;position:relative;background:var(--bg)}
+.shot{position:absolute;left:0;top:0;width:600px;will-change:transform}
+.shot img{width:600px;display:block}
+.ring{position:absolute;border:6px solid var(--copper);border-radius:22px;box-shadow:0 0 0 9999px rgba(16,34,63,.0),0 0 36px rgba(200,105,63,.55);opacity:0}
+.chip{position:absolute;display:inline-flex;align-items:center;gap:14px;padding:20px 30px;border-radius:999px;background:var(--deep);
+  font:800 36px "Inter";color:#fff;box-shadow:0 22px 50px rgba(16,34,63,.45);white-space:nowrap;opacity:0}
+.chip i{width:18px;height:18px;border-radius:50%;background:#F2B56B;box-shadow:0 0 16px #F2B56B}
+/* hook */
+.hook .eb{position:absolute;left:0;right:0;top:470px;text-align:center;color:#F2B56B;font-size:34px}
+.hook .big{position:absolute;left:60px;right:60px;top:560px;text-align:center;font:800 124px/1.02 "Inter Display","Inter";letter-spacing:-.035em}
+.hook .big span{display:inline-block;opacity:0;margin:0 .1em}
+.hook .big em{font-style:normal;color:#F2B56B}
+.hook .num{position:absolute;left:0;right:0;top:1010px;text-align:center;font:800 250px/1 "Inter Display","Inter";letter-spacing:-.05em;font-variant-numeric:tabular-nums;color:#fff;opacity:0}
+.hook .bar{position:absolute;left:200px;right:200px;top:1290px;height:14px;border-radius:9px;background:rgba(255,255,255,.14);overflow:hidden;opacity:0}
+.hook .bar i{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,#8FB2E3,#F2B56B)}
+.hook .sub{position:absolute;left:90px;right:90px;top:1380px;text-align:center;color:rgba(255,255,255,.78);max-width:none;font-size:42px;margin:0}
+.hook.nonum .eb{top:560px}.hook.nonum .big{top:660px}.hook.nonum .sub{top:1180px}
+/* end */
+.end .logo{position:absolute;left:50%;top:400px;width:300px;height:300px;margin-left:-150px;border-radius:72px;overflow:hidden;box-shadow:0 30px 90px rgba(0,0,0,.5),0 0 0 3px rgba(255,255,255,.14)}
+.end .logo img{width:100%;height:100%;display:block}
+.end .name{position:absolute;left:0;right:0;top:760px;text-align:center;font:800 128px "Inter Display","Inter";letter-spacing:-.04em}
+.end .tl{position:absolute;left:80px;right:80px;top:930px;text-align:center;font:600 46px/1.32 "Inter";color:rgba(255,255,255,.8)}
+.end .pills{position:absolute;left:0;right:0;top:1120px;display:flex;justify-content:center;gap:16px}
+.end .pills span{padding:18px 28px;border-radius:999px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.22);font:700 32px "Inter"}
+.end .url{position:absolute;left:0;right:0;top:1280px;text-align:center}
+.end .url span{display:inline-block;padding:28px 46px;border-radius:999px;background:#F2B56B;color:var(--deep);font:800 42px "Inter";box-shadow:0 20px 60px rgba(242,181,107,.4)}
+.end .bio{position:absolute;left:0;right:0;top:1450px;text-align:center;font:800 36px "Inter";letter-spacing:.2em;text-transform:uppercase;color:#F2B56B}
+</style></head>
+<body>
+<div id="stage"></div>
+<script>
+const cl = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const P = (t, a, b) => cl((t - a) / (b - a));
+const eo = x => 1 - Math.pow(1 - x, 3);
+const eio = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const back = x => { const c = 1.6; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const K = 600 / 430, FADE = .32;
+let TL = null, els = [];
+const set = (el, o, tx = 0, ty = 0, sc = 1) => { el.style.opacity = o; el.style.transform = `translate(${tx}px,${ty}px) scale(${sc})`; };
+function el(tag, cls, html, parent) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; if (parent) parent.appendChild(e); return e; }
+
+function build(tl) {
+  TL = tl; const stage = document.getElementById('stage'); stage.innerHTML = ''; els = [];
+  tl.scenes.forEach(s => {
+    const sc = el('div', 'scene ' + s.type + (s.type !== 'feature' ? ' dark' : '') + (s.type === 'hook' && !s.counter ? ' nonum' : ''), null, stage);
+    el('div', 'grid', null, sc); const r = { s, sc };
+    if (s.type === 'hook') {
+      r.eb = el('div', 'eb', s.eb, sc);
+      r.big = el('div', 'big', s.h.split('|').map(w => `<span>${w}</span>`).join(' '), sc);
+      r.num = el('div', 'num', '', sc); r.bar = el('div', 'bar', '<i></i>', sc);
+      r.sub = el('div', 'sub', s.vo, sc);
+    } else if (s.type === 'feature') {
+      const h = el('div', 'head', null, sc);
+      r.eb = el('div', 'eb', s.eb, h); r.h = el('div', 'h', s.h, h); r.sub = el('div', 'sub', s.vo, h);
+      r.phone = el('div', 'phone', null, sc); const scr = el('div', 'scr', null, r.phone);
+      r.shot = el('div', 'shot', `<img src="shots/${s.shot}.jpg">`, scr);
+      if (s.ring) { r.ring = el('div', 'ring', null, r.shot); const [x, y, w, hh] = s.ring.map(v => v * K); Object.assign(r.ring.style, { left: x + 'px', top: y + 'px', width: w + 'px', height: hh + 'px' }); }
+      if (s.chip) { r.chip = el('div', 'chip', `<i></i>${s.chip.text}`, sc); r.chip.style.top = s.chip.y + 'px'; r.chip.style[s.chip.side || 'left'] = '48px'; }
+    } else {
+      r.logo = el('div', 'logo', '<img src="shots/icon.png">', sc);
+      r.name = el('div', 'name', 'SAT Studio', sc); r.tl = el('div', 'tl', s.tagline, sc);
+      r.pills = el('div', 'pills', s.pills.map(x => `<span>${x}</span>`).join(''), sc);
+      r.url = el('div', 'url', `<span>${s.url}</span>`, sc); r.bio = el('div', 'bio', s.bio, sc);
+    }
+    els.push(r);
+  });
+  return Promise.all([document.fonts.ready, ...[...document.images].map(i => i.decode().catch(() => {}))]);
+}
+
+function setT(t) {
+  els.forEach((r, i) => {
+    const s = r.s, a = s.start, b = s.start + s.dur, lt = t - a, D = s.dur;
+    const first = i === 0, last = i === els.length - 1;
+    // the next scene fades in on top, so this one stays solid until it is fully covered
+    const al = t >= b + FADE / 2 && !last ? 0 : (first ? 1 : P(t, a - FADE / 2, a + FADE / 2));
+    r.sc.style.opacity = al; r.sc.style.visibility = al <= 0 ? 'hidden' : 'visible';
+    if (al <= 0) return;
+    if (s.type === 'hook') {
+      set(r.eb, eo(P(lt, .05, .5)), 0, 30 * (1 - eo(P(lt, .05, .5))));
+      [...r.big.children].forEach((w, k) => { const p = P(lt, .15 + k * .14, .55 + k * .14); set(w, eo(p), 0, 50 * (1 - back(p)), .9 + .1 * eo(p)); });
+      if (s.counter) {
+        const p = eo(P(lt, .9, D - .7)); const v = Math.round((s.counter[0] + (s.counter[1] - s.counter[0]) * p) / 10) * 10;
+        r.num.textContent = v; set(r.num, eo(P(lt, .7, 1.1)), 0, 0, .9 + .1 * back(P(lt, .7, 1.2)));
+        r.bar.style.opacity = eo(P(lt, .8, 1.2)); r.bar.firstChild.style.width = (p * 100) + '%';
+      }
+      set(r.sub, eo(P(lt, .6, 1.1)), 0, 24 * (1 - eo(P(lt, .6, 1.1))));
+    } else if (s.type === 'feature') {
+      [r.eb, r.h, r.sub].forEach((e, k) => { const p = eo(P(lt, .05 + k * .1, .5 + k * .1)); set(e, p, 0, 34 * (1 - p)); });
+      const pp = eo(P(lt, .1, .8)); set(r.phone, 1, 0, 160 * (1 - pp) - 10 * P(lt, 0, D), .95 + .05 * pp);
+      const scroll = s.scroll || [0, 0], sp = eio(P(lt, 1.0, Math.max(1.6, D - .7)));
+      const sy = (scroll[0] + (scroll[1] - scroll[0]) * sp) * K;
+      const z = s.zoom || 1, zp = eio(P(lt, .9, 2.0)), zs = 1 + (z - 1) * zp;
+      let ox = 300, oy = sy + 650, pan = 0;
+      if (s.ring) { ox = (s.ring[0] + s.ring[2] / 2) * K; oy = (s.ring[1] + s.ring[3] / 2) * K; pan = (620 - (oy - sy)) * zp * (z > 1 ? .55 : 0); }
+      r.shot.style.transformOrigin = `${ox}px ${oy}px`;
+      r.shot.style.transform = `translate(${(300 - ox) * (zs - 1) * .9}px,${-sy + pan}px) scale(${zs})`;
+      if (r.ring) { const rp = P(lt, s.ringAt || 1.3, (s.ringAt || 1.3) + .45), pulse = 1 + .012 * Math.sin(lt * 5); set(r.ring, eo(rp), 0, 0, (1.12 - .12 * eo(rp)) * pulse); }
+      if (r.chip) { const cp = P(lt, s.chip.at || 1.8, (s.chip.at || 1.8) + .5); set(r.chip, eo(P(lt, s.chip.at || 1.8, (s.chip.at || 1.8) + .25)), 0, 6 * Math.sin(lt * 2.2), .6 + .4 * back(cp)); }
+    } else {
+      const lp = P(lt, .1, .7); set(r.logo, eo(lp), 0, 0, .5 + .5 * back(lp));
+      [r.name, r.tl, r.pills, r.url, r.bio].forEach((e, k) => { const p = eo(P(lt, .35 + k * .16, .85 + k * .16)); set(e, p, 0, 36 * (1 - p), e === r.url ? 1 + .025 * Math.sin(lt * 4) : 1); });
+    }
+  });
+}
+</script>
+</body></html>
