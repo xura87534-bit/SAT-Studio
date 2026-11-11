@@ -182,6 +182,17 @@ em.s{font-family:var(--f-serif);font-style:italic}
 .faq details[open] summary::after{transform:rotate(45deg)}
 .faq details p{color:var(--dim);margin:10px 0 0;max-width:40rem}
 @media (max-width:860px){.faq{grid-template-columns:1fr}}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.pcard{position:relative;display:flex;flex-direction:column;gap:6px;background:var(--white);border:1px solid var(--line);border-radius:22px;padding:26px 24px 24px}
+.pcard.best{border:2px solid var(--gold);box-shadow:0 24px 50px -30px rgba(29,63,115,.6)}
+.pcard .tag{position:absolute;top:-11px;left:22px;background:var(--gold);color:#fff;border-radius:999px;padding:3px 10px;font-family:var(--f-mono);font-size:.64rem;letter-spacing:.06em;text-transform:uppercase}
+.pcard h3{margin:0;font-size:1rem;font-weight:500;color:var(--ink2)}
+.pcard .amt{font-family:var(--f-serif);font-size:2.7rem;line-height:1;letter-spacing:-.02em;margin-top:8px}
+.pcard .amt small{font-family:inherit;font-size:1rem;color:var(--dim);letter-spacing:0}
+.pcard .was{color:var(--dim);font-size:.86rem;min-height:1.3em}.pcard .was b{color:#2f7a3d;font-weight:600;margin-left:8px}
+.pcard p{color:var(--dim);font-size:.92rem;margin:6px 0 16px;flex:1}
+.pcard .btn{justify-content:center}
+.pnote{color:var(--dim);font-size:.88rem;margin:16px 0 0}
 
 .cta{position:relative;border-radius:28px;overflow:hidden;padding:clamp(48px,8vw,96px) clamp(22px,5vw,64px);background:linear-gradient(180deg,var(--sky1),var(--sky2));text-align:center}
 .cta .clouds i:nth-child(1){width:80%;height:60%;left:-20%;bottom:-30%;animation:drift 30s linear infinite}
@@ -209,7 +220,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;
 <header class="nav">
   <div class="wrap">
     <a href="#top" class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#14161a" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M2 9.5 12 5l10 4.5-10 4.5L2 9.5Z"/><path d="M6.5 11.6V16c0 1.3 2.5 2.6 5.5 2.6s5.5-1.3 5.5-2.6v-4.4"/><path d="M21 10v5" stroke-linecap="round"/></svg>SAT STUDIO</a>
-    <ul><li><a href="#product">Product</a></li><li><a href="#how">How it works</a></li><li><a href="#faq">FAQ</a></li></ul>
+    <ul><li><a href="#product">Product</a></li><li><a href="#how">How it works</a></li><li id="navPrice" hidden><a href="#pricing">Pricing</a></li><li><a href="#faq">FAQ</a></li></ul>
     <div class="right"><a href="/" class="btn t">Sign in</a><a href="/" class="btn k">Get access</a></div>
   </div>
 </header>
@@ -306,11 +317,19 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;
     </div>
   </section>
 
+  <section class="sec" id="pricing" style="padding-top:0" hidden>
+    <div class="wrap">
+      <div class="sh"><span class="mono">Pricing</span><h2>Start free. <em>Go Pro when you're ready.</em></h2><p>A free account never expires: two full tests in each section, a Full SAT and daily drills. Pro opens everything, with one payment and no auto-renewal.</p></div>
+      <div class="pgrid" id="pgrid"></div>
+      <p class="pnote" id="pnote"></p>
+    </div>
+  </section>
+
   <section class="sec" id="faq" style="padding-top:0">
     <div class="wrap faq">
       <div class="sh" style="margin:0"><span class="mono">FAQ</span><h2>Questions, <em>answered.</em></h2></div>
       <div>
-        <details open><summary>Is SAT Studio free?</summary><p>Yes. Sign in and take full adaptive practice tests at no cost.</p></details>
+        <details open><summary>Is SAT Studio free?</summary><p>Yes, and you don't need an account to start. Open the app and practice; create a free account later to save your scores.</p></details>
         <details><summary>Does it look like Bluebook?</summary><p>The test screen follows the same layout: timer, question navigator, mark for review and a built-in graphing calculator.</p></details>
         <details><summary>How does the adaptive part work?</summary><p>After Module 1, the app checks how you did on each topic and builds a harder or easier Module 2, the same structure the real Digital SAT uses.</p></details>
         <details><summary>Is Reading &amp; Writing included?</summary><p>Yes, in its own tab, with every question type from the real test.</p></details>
@@ -324,7 +343,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;
       <div class="inner">
         <span class="mono">Free while we grow</span>
         <h2>Sit your first test <em>tonight.</em></h2>
-        <p>Sign in, take a full adaptive test, and get your score breakdown the moment you finish.</p>
+        <p>No sign-up needed. Open the app, take a full adaptive test, and get your score breakdown the moment you finish.</p>
         <a href="/" class="btn y">Start practicing</a>
         <p class="by">Created by <em class="s">Xurshid Jo’rayev</em></p>
       </div>
@@ -363,6 +382,14 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;
 })();
 </script>
 
+<script src="/config.js"></script>
+<script src="/plans.js"></script>
+<script>(function(){var C=window.SAT_CONFIG||{},P=window.SAT_PLANS;if(!C.billing||!P)return;
+var m=function(n){return Number(n).toLocaleString("en-US").replace(/,/g," ")};
+document.getElementById("pgrid").innerHTML='<div class="pcard"><h3>Free</h3><div class="amt">0 <small>'+P.currency+'</small></div><div class="was"></div><p>Two full tests per section, a Full SAT, '+P.free.drillsPerDay+' drills a day and '+P.free.aiPerDay+' Claude answers a day.</p><a href="/" class="btn t">Start free <span>→</span></a></div>'+P.plans.map(function(p){var pr=P.founding?p.price:p.list,off=P.founding&&p.list>p.price?Math.round(100*(1-p.price/p.list)):0;
+return '<div class="pcard'+(p.best?" best":"")+'">'+(p.best?'<span class="tag">Most popular</span>':"")+'<h3>'+p.name+'</h3><div class="amt">'+m(pr)+' <small>'+P.currency+'</small></div><div class="was">'+(off?'<s>'+m(p.list)+'</s><b>Save '+off+'%</b>':"")+'</div><p>'+(p.blurb||"")+'</p><a href="/" class="btn '+(p.best?"y":"t")+'">Get '+p.name+'</a></div>'}).join("");
+document.getElementById("pnote").textContent=(P.founding?P.foundingNote+". ":"")+"Pay from Payme, Click, Uzum or any bank app."+(P.guaranteeDays?" "+P.guaranteeDays+"-day money-back promise.":"");
+document.getElementById("pricing").hidden=false;document.getElementById("navPrice").hidden=false})();</script>
 <script type="importmap">{"imports":{"three":"/lib/three/three.module.js","three/addons/":"/lib/three/addons/"}}</script>
 <script type="module">
 import * as THREE from 'three';

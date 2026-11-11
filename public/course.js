@@ -831,6 +831,7 @@ function prog() { if (!SETTINGS.course || typeof SETTINGS.course !== "object") S
 function save() { try { persist(JSON.parse(JSON.stringify(SETTINGS))); } catch (e) { } }
 const isDone = id => !!(prog()[id] && prog()[id].ok);
 const unlocked = it => it.i === 0 || isDone(C[it.i - 1].id);
+const paywalled = it => !!(window.BILL && window.BILL.courseLocked(it)); // free plan: first week only
 const current = () => C.find(x => !isDone(x.id)) || null;
 function mark(id, data) { const d = prog(); d[id] = Object.assign({}, d[id] || {}, data); save(); }
 
@@ -910,9 +911,9 @@ function renderCourse() {
   css(); view = "course";
   const total = C.length, done = C.filter(x => isDone(x.id)).length, cur = current();
   const row = it => {
-    const ok = isDone(it.id), open = unlocked(it), isCur = cur && cur.id === it.id, best = prog()[it.id];
-    const icon = ok ? CHECK : open ? esc(String(it.day).split("–")[0]) : LOCK;
-    const right = ok ? (it.kind === "task" ? "Done" : "100%") : best && best.best != null ? `Best ${best.best}%` : kindLabel(it);
+    const ok = isDone(it.id), pay = !ok && paywalled(it), open = unlocked(it) || pay, isCur = cur && cur.id === it.id, best = prog()[it.id];
+    const icon = ok ? CHECK : open && !pay ? esc(String(it.day).split("–")[0]) : LOCK;
+    const right = ok ? (it.kind === "task" ? "Done" : "100%") : pay ? "Pro" : best && best.best != null ? `Best ${best.best}%` : kindLabel(it);
     return `<button class="critem${ok ? " ok" : ""}${isCur ? " cur" : ""}" data-cr="${it.id}"${open ? "" : " disabled aria-disabled=\"true\""}><span class="crs" aria-hidden="true">${icon}</span><span><b>Day ${esc(it.day)} · ${esc(it.title)}</b><small>${esc(it.sum || "")}</small></span><span class="crk">${esc(right)}</span></button>`;
   };
   let html = "";
@@ -937,6 +938,7 @@ function next(it) { return C[it.i + 1] || null; }
 
 function openItem(id) {
   css(); const it = BY[id]; if (!it) return renderCourse();
+  if (!isDone(it.id) && paywalled(it)) return window.BILL.paywall("course");
   if (!unlocked(it)) return renderCourse();
   view = "course";
   if (it.kind === "lesson") {

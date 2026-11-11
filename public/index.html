@@ -1190,6 +1190,8 @@ mark.hl{background:rgba(106,147,203,.28)}
 <script src="/vendor/supabase.js"></script>
 <script src="/course.js"></script>
 <script src="/platform.js"></script>
+<script src="/plans.js"></script>
+<script src="/billing.js"></script>
 <script>
 "use strict";
 const DOM={A:"Algebra",M:"Advanced Math",P:"Problem-Solving & Data Analysis",G:"Geometry & Trigonometry"};
@@ -6770,16 +6772,16 @@ function chart(h){
 function shell(content){
   if(calcOpen())toggleCalc(false);toggleRef(false);toggleDir(false);
   screen=view;
-  const nav=[["home","Home",ICON.home],["course","90-Day Course",window.CR_ICON||ICON.book,"Course"],["quick","Quick Practice",ICON.quick,"Quick"],["tests","Math",ICON.tests,"Math"],["english","Reading & Writing",ICON.book,"R&W"],["videos","Watch & learn",ICON.vid,"Videos"],["words","Word bank",ICON.wb,"Words"],["book","Book Tests",ICON.bk,"Book"],["feedback","Feedback",ICON.fb,"Feedback"],["progress","Progress",ICON.chart],["history","History",ICON.clock]].concat(ME.owner?[["students","Students",ICON.chart]]:[]);
+  const nav=[["home","Home",ICON.home],["course","90-Day Course",window.CR_ICON||ICON.book,"Course"],["quick","Quick Practice",ICON.quick,"Quick"],["tests","Math",ICON.tests,"Math"],["english","Reading & Writing",ICON.book,"R&W"],["videos","Watch & learn",ICON.vid,"Videos"],["words","Word bank",ICON.wb,"Words"],["book","Book Tests",ICON.bk,"Book"],["feedback","Feedback",ICON.fb,"Feedback"],["progress","Progress",ICON.chart],["history","History",ICON.clock]].concat(window.BILL?BILL.navItem():[]).concat(ME.owner?[["students","Students",ICON.chart]]:[]);
   const ns=Object.keys(SESSIONS).length;
   app.innerHTML=`<div class="shell"><nav class="side" aria-label="Main">
     <div class="brand"><img class="logo" src="/icons/logo-sm.png" alt="" width="34" height="34" style="background:none;object-fit:cover">SAT Studio</div>
     ${nav.map(([k,l,i,sh])=>`<button class="nav${view===k?" on":""}" data-nav="${k}"${view===k?' aria-current="page"':""}>${i}<span class="${sh?"lg":""}">${esc(l)}</span>${sh?`<span class="sm">${esc(sh)}</span>`:""}${k==="home"&&ns?`<em aria-label="${ns} saved">${ns}</em>`:""}</button>`).join("")}
-    <div class="sidefoot"><i class="${AI?"on":""}"></i>${!BOOTED&&window.claude?"Syncing your progress…":AI?"Claude connected":"Built-in questions"}</div>${!AI&&(BOOTED||!window.claude)&&!(window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn)?`<button class="sidesync connai" data-connai>${window.SAT_PLATFORM?(window.SAT_PLATFORM.ai?"Sign in for Claude":"Sign in to sync"):"Connect Claude"}</button>`:""}${window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn?`<button class="sidesync" data-signout>Sign out</button>`:""}<button class="sidesync" id="syncOpen">Backup &amp; sync</button><span class="appver owner">Created by Xurshid Jo’rayev</span><span class="appver">${window._vl||(window._vl=(()=>{let h=0;const a=BANK.concat(RWBANK);for(const x of a){const d=String(x.id)+":"+(x.lv|0);for(let i=0;i<d.length;i++)h=(h*31+d.charCodeAt(i))|0}return "Build "+a.length.toLocaleString("en-US")+" Q · "+(h>>>0).toString(36).toUpperCase().slice(0,4)})())}${window.claude?"":" · downloaded copy"}</span>
+    <div class="sidefoot"><i class="${AI?"on":""}"></i>${!BOOTED&&window.claude?"Syncing your progress…":AI?"Claude connected":"Built-in questions"}</div>${!AI&&(BOOTED||!window.claude)&&!(window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn)?`<button class="sidesync connai" data-connai>${window.SAT_PLATFORM?"Sign in or sign up free":"Connect Claude"}</button>`:""}${window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn?`<button class="sidesync" data-signout>Sign out</button>`:""}<button class="sidesync" id="syncOpen">Backup &amp; sync</button><span class="appver owner">Created by Xurshid Jo’rayev</span><span class="appver">${window._vl||(window._vl=(()=>{let h=0;const a=BANK.concat(RWBANK);for(const x of a){const d=String(x.id)+":"+(x.lv|0);for(let i=0;i<d.length;i++)h=(h*31+d.charCodeAt(i))|0}return "Build "+a.length.toLocaleString("en-US")+" Q · "+(h>>>0).toString(36).toUpperCase().slice(0,4)})())}${window.claude?"":" · downloaded copy"}</span>
   </nav><main class="main">${content}</main></div>`;
   $$("[data-nav]").forEach(b=>b.onclick=()=>go(b.dataset.nav));
 }
-function go(v){lxStop();ASKR=null;setTimeout(askSync,0);view=v;qClock=null;({course:()=>window.renderCourse(),quick:renderQuick,lessons:renderLessons,feedback:renderFeedback,words:renderWords,home:renderHome,tests:renderTests,english:renderEnglish,book:renderBook,plan:renderPlan,progress:renderProgress,history:renderHistory,students:renderStudents,videos:renderVideos})[v]();window.scrollTo(0,0)}
+function go(v){lxStop();ASKR=null;setTimeout(askSync,0);view=v;qClock=null;({billing:()=>window.BILL?BILL.render():renderHome(),course:()=>window.renderCourse(),quick:renderQuick,lessons:renderLessons,feedback:renderFeedback,words:renderWords,home:renderHome,tests:renderTests,english:renderEnglish,book:renderBook,plan:renderPlan,progress:renderProgress,history:renderHistory,students:renderStudents,videos:renderVideos})[v]();window.scrollTo(0,0)}
 function resumeStrip(s){
   const i=sessionInfo(s);
   return `<div class="resume"><div class="info"><b>${esc(i.title)}</b><div class="muted" style="font-size:.9rem">${i.where}, ${i.ans} of ${i.n} answered, ${i.left}. Saved ${esc(fmtDate(s.savedAt))}</div><div class="mini"><i style="width:${pct(i.ans,i.n)}%"></i></div></div>
@@ -6806,16 +6808,18 @@ function renderHome(){
   const ws=weakSkills(5);const wTarget=ws.length&&RW_DOM[ws[0][1].d]?"rwweak":"weak";
   shell(`<div class="stack">
   <section class="mhead mhome" id="mhome"><div>${(h=>motiveHTML([h[0]],h[2],h[1]))(homeHeadline(lm,lr))}</div>${levelPanel(lm,lr)}</section>
-  <section class="hero two">
+  <section class="hero two"${HISTORY.length||guestTried()?"":' style="order:-1"'}>
     <div class="duo">${gauge(lm?.score,"Math",false)}${gauge(lr?.score,"Reading & Writing",false)}</div>
     <div>
       <h1>${total?`Your SAT estimate: ${total}`:lm||lr?"Keep the climb going.":"Find your starting scores."}</h1>
       <p style="margin-top:10px">${total?`Math ${lm.score} + Reading and Writing ${lr.score}, on the 400 to 1600 scale.${rg?` Likely range ${rg[0]}–${rg[1]}.`:""} Your best so far: Math ${bm}, R&amp;W ${br}.`:lm||lr?`Take a full test in ${lm?"Reading and Writing":"Math"} to see your total score out of 1600.`:"Each section has two adaptive modules, just like the real Digital SAT. Take one of each to get a total score."}</p>
-      <div class="actions" style="margin-top:18px"><button class="btn" data-open="${(LIB.find(l=>l.kind==="sat"&&!HISTORY.some(r=>r.sat===l.id))||LIBID.sat1).id}">Full SAT, Bluebook format</button><button class="btn sun" data-open="${nextM.id}">Start ${esc(nextM.title)}</button><button class="btn sun" data-open="${nextR.id}">Start ${esc(nextR.title)}</button></div>
+      <div class="actions" style="margin-top:18px">${HISTORY.length||guestTried()?"":`<button class="btn" data-go="quick">Warm up: 10 quick questions</button>`}<button class="btn${HISTORY.length||guestTried()?"":" sun"}" data-open="${(LIB.find(l=>l.kind==="sat"&&!HISTORY.some(r=>r.sat===l.id))||LIBID.sat1).id}">Full SAT, Bluebook format</button><button class="btn sun" data-open="${nextM.id}">Start ${esc(nextM.title)}</button><button class="btn sun" data-open="${nextR.id}">Start ${esc(nextR.title)}</button></div>
     </div>
   </section>
   ${(()=>{const mm=mistakePool("math").length,mr=mistakePool("rw").length;return mm||mr?`<section class="resume redo"><div class="info"><b>Mistakes to redo</b><div class="muted" style="font-size:.9rem">Math ${mm}, Reading &amp; Writing ${mr}. Each one leaves the list when you answer it correctly.</div></div><div class="actions">${mm?`<button class="btn sm" data-open="redo">Redo Math</button>`:""}${mr?`<button class="btn sm" data-open="rwredo">Redo R&amp;W</button>`:""}</div></section>`:""})()}
+  ${guestStrip()}
   ${window.courseHomeStrip?window.courseHomeStrip():""}
+  ${window.BILL?BILL.homeStrip():""}
   ${mathVideoHelp()}
   ${ss.length?`<section><h2>Continue where you left off</h2><div class="stack" style="gap:12px">${ss.map(resumeStrip).join("")}</div></section>`:""}
   <section class="tiles">
@@ -6861,6 +6865,14 @@ function skillList(ws){
   return `<ul class="skills">${ws.map(([k,v])=>`<li><span class="dot" style="background:var(--d${v.d})"></span>${esc(k)}<span class="n">${v.c}/${v.t}</span></li>`).join("")}</ul>`;
 }
 
+/* Guests practice without an account; once they have something to lose, offer to save it. */
+function guestTried(){try{return Object.values(qpLoad()||{}).some(x=>x&&x.n)}catch(e){return false}}
+function guestStrip(){
+  const P=window.SAT_PLATFORM;
+  if(!P||!P.hasBackend||P.signedIn||!navigator.onLine||!(HISTORY.length||guestTried()))return "";
+  return `<section class="resume"><div class="info"><b>Save your progress</b><div class="muted" style="font-size:.9rem">Your scores live only in this browser for now. A free account keeps them safe and syncs every device${P.ai?", and it switches on the Claude tutor":""}. It takes ten seconds.</div></div><div class="actions"><button class="btn sm" data-connai>Create free account</button></div></section>`;
+}
+
 /* ---------- Tests library ---------- */
 function libCard(l){
   const s=l.kind==="sat"?null:SESSIONS[l.id];const sp=spec(l);
@@ -6874,7 +6886,7 @@ function libCard(l){
   else if(att.length)status=`<span class="status">${l.kind==="full"||l.kind==="sat"?`Best ${best}`:`Best ${best}%`}, ${att.length} attempt${att.length>1?"s":""}</span>`;
   else if(l.redo)status=disabled?`<span class="status muted">No mistakes to redo right now</span>`:`<span class="status prog">${mistakePool(l.redo).length} mistake${mistakePool(l.redo).length>1?"s":""} waiting</span>`;
   else if(disabled)status=`<span class="status muted">${l.weak&&AI?"Finish any test first to unlock":"Needs Claude, available when opened in Claude"}</span>`;
-  return `<article class="tcard"><div class="top"><span class="sym" style="background:${color}">${sym}</span><h3>${esc(l.title)}</h3>${l.ai?`<span class="badge">AI</span>`:""}</div>
+  return `<article class="tcard"><div class="top"><span class="sym" style="background:${color}">${sym}</span><h3>${esc(l.title)}</h3>${window.BILL&&BILL.lockBadge(l)||(l.ai?`<span class="badge">AI</span>`:"")}</div>
   <p class="desc">${esc(l.desc)}</p><div class="meta">${sp.q} questions, ${sp.min} min</div>${status}
   <div class="actions">${s?`<button class="btn sm" data-resume="${l.id}">Resume</button><button class="btn sm ghost" data-open="${l.id}">Options</button>`:`<button class="btn sm${l.kind==="drill"?" ghost":""}" data-open="${l.id}"${disabled?" disabled":""}>Start</button>`}</div></article>`;
 }
@@ -6896,6 +6908,7 @@ function renderTests(){
 /* ---------- Start sheet ---------- */
 function openSheet(libId){
   const l=LIBID[libId];if(!l)return;const s=SESSIONS[libId];const sp=spec(l);
+  if(window.BILL&&!BILL.guard(l))return;
   closeSheet();
   const ov=document.createElement("div");ov.className="overlay";ov.id="ov";
   ov.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="shT"><h2 id="shT">${esc(l.title)}</h2><p class="muted">${esc(l.desc)}</p>
@@ -7621,6 +7634,7 @@ function renderResults(rec,fresh){
   shell(`<div class="stack">
   <div class="toolbar"><button class="btn link" id="backH">Back to history</button><span class="muted">${esc(fmtDate(rec.done||rec.date))}</span></div>
   <section class="mhead">${(c=>motiveHTML(c,"cheer "+(c[2]||"")))(cheerOf(rec))}</section>
+  ${fresh?guestStrip():""}
   <section class="card"><div class="rhero">
     <div>${full?gauge(adj(rec),rw?"Reading & Writing":"Math",fresh)+(rangeOf(rec)?`<p class="range">Likely range ${rangeOf(rec)[0]}–${rangeOf(rec)[1]}</p>`:""):`<div class="bigpct">${rec.m1}/${rec.total}</div><p class="muted">${rec.score}% correct</p>`}</div>
     <div><h1>${esc(rec.title||"Full test")}</h1>
@@ -7632,6 +7646,7 @@ function renderResults(rec,fresh){
   <section class="card"><h2>By domain</h2>${bars(st.d)}</section>
   ${timingHTML(rec)}
   ${full?`<section class="card report" id="report">${reportHTML(rec)}</section>`:""}
+  ${window.BILL?BILL.resultStrip(rec):""}
   <section class="card"><div class="toolbar"><h2 style="margin:0">Review questions</h2><label class="chk"><input type="checkbox" id="onlyMissed"> Show only missed</label></div>
     ${rec.items.map((it,i)=>itemHTML(it,i,full)).join("")}</section></div>`);
   $("#backH").onclick=()=>go("history");
@@ -10158,8 +10173,8 @@ async function pushStudent(){
 }
 async function renderStudents(){
   view="students";
-  shell(`<div class="pagehead"><div><h1>Students</h1><p class="muted">Who has logged in and how many tests they've done.</p></div><button class="btn sm" id="stRef">Refresh</button></div><div id="stBody" class="muted">Loading…</div>`);
-  $("#stRef").onclick=renderStudents;
+  shell(`<div class="pagehead"><div><h1>Students</h1><p class="muted">Who has logged in and how many tests they've done.</p></div><button class="btn sm" id="stRef">Refresh</button></div><div id="payAdmin"></div><div id="stBody" class="muted">Loading…</div>`);
+  $("#stRef").onclick=renderStudents;if(window.BILL)BILL.adminPanel($("#payAdmin"));
   const body=$("#stBody");
   try{
     const snap=await ME.db.collection("students").get();
