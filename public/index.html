@@ -2937,7 +2937,7 @@ const SETS=(()=>{const used=new Set();const out=[0,1,2].map(i=>{const s=assemble
   for(let i=3;i<10;i++){const s=assemble(BASE,M1MIX,gu,new Set(),rng(101+i),G);s.forEach(q=>gu.add(q.id));out.push(s.map(q=>q.id))}
   const h=assemble(BASE,{1:0,2:4,3:6},gu,new Set(),rng(222),G);out.push(h.map(q=>q.id));return out})();
 const slug=t=>t.toLowerCase().replace(/[^a-z0-9]+/g,"-");
-ORDER.forEach(d=>[...new Set(BANK.filter(q=>q.d===d).map(q=>q.s))].sort().forEach(sk=>{const n=BANK.filter(q=>q.s===sk).length;if(n<8)return;const l={id:"sk-"+slug(sk),kind:"drill",d,skill:sk,title:sk,desc:`${n} questions in the bank. ${DOM[d]}.`};LIB.push(l);LIBID[l.id]=l}));
+ORDER.forEach(d=>[...new Set(BANK.filter(q=>q.d===d).map(q=>q.s))].sort().forEach(sk=>{const n=BANK.filter(q=>q.s===sk).length;if(n<8)return;const l={id:"sk-"+slug(sk),kind:"drill",d,skill:sk,title:sk,desc:`${DOM[d]}.`};LIB.push(l);LIBID[l.id]=l}));
 /* ---------- Reading & Writing bank (original passages; correct choice listed first, shuffled at load) ---------- */
 const RW_DOM={CS:"Craft and Structure",II:"Information and Ideas",SEC:"Standard English Conventions",EOI:"Expression of Ideas"};
 const RW_ORDER=["CS","II","SEC","EOI"];
@@ -6203,7 +6203,7 @@ const RWSETS=(()=>{const used=new Set();const sets=[0,1,2,3,4,5,6,7].map(i=>{con
   add({id:"rwredo",sub:"rw",kind:"drill",redo:"rw",title:"Redo my mistakes",desc:"Every Reading and Writing question you got wrong, including Book Tests, oldest first. Answer one correctly and it leaves the list."});
   add({id:"rwhard",sub:"rw",kind:"drill",title:"Extreme questions only",desc:"10 of the toughest Reading and Writing questions, starting with ones you haven't seen.",hard:true});
   add({id:"rwweak",sub:"rw",kind:"drill",title:"Weak-skill drill",desc:"Claude writes 10 Reading and Writing questions on the skills you miss most.",ai:true,weak:true});
-  RW_SKILLS.forEach(([sk,d])=>add({id:"rws-"+slug(sk),sub:"rw",kind:"drill",d,skill:sk,title:sk,desc:`${RWBANK.filter(q=>q.s===sk).length} questions in the bank. ${RW_DOM[d]}.`}));
+  RW_SKILLS.forEach(([sk,d])=>add({id:"rws-"+slug(sk),sub:"rw",kind:"drill",d,skill:sk,title:sk,desc:`${RW_DOM[d]}.`}));
 })();
 function rich(s){
   let h=esc(String(s??""));
@@ -6309,7 +6309,7 @@ let engFilter="all",progSub="math";
 function renderEnglish(){
   view="english";
   const R=LIB.filter(l=>l.sub==="rw"&&!l.book);
-  shell(`<div class="pagehead"><div><h1>Reading &amp; Writing</h1><p class="muted">Full tests follow the Digital SAT format: two 32-minute modules of 27 questions, each built on a short passage. Module 2 adapts to how you do in Module 1. You can save and exit any test and resume it later.</p><p class="muted" style="margin-top:4px"><b>${RWBANK.length}</b> passage-based questions in the bank across all 11 question types, plus unlimited AI-written ones.</p></div></div>
+  shell(`<div class="pagehead"><div><h1>Reading &amp; Writing</h1><p class="muted">Full tests follow the Digital SAT format: two 32-minute modules of 27 questions, each built on a short passage. Module 2 adapts to how you do in Module 1. You can save and exit any test and resume it later.</p></div></div>
   <div class="chips" role="group" aria-label="Filter tests" style="margin-bottom:18px">${[["all","All"],["full","Full tests"],["drill","Drills"],["skill","Skill drills"]].map(([k,t])=>`<button class="chipbtn" data-ef="${k}" aria-pressed="${engFilter===k}">${t}</button>`).join("")}</div>
   <section class="stack">
   <button class="wbpromo" id="wbOpen">${ICON.wb}<span><b>Word bank</b><small>${wbList().length?`${wbList().length} saved word${wbList().length>1?"s":""} · ${wbList().filter(e=>e.st!=="ok").length} to learn`:"Mark unknown words during tests to save them here with Uzbek translations"}</small></span><i>›</i></button>
@@ -6772,12 +6772,12 @@ function chart(h){
 function shell(content){
   if(calcOpen())toggleCalc(false);toggleRef(false);toggleDir(false);
   screen=view;
-  const nav=[["home","Home",ICON.home],["course","90-Day Course",window.CR_ICON||ICON.book,"Course"],["quick","Quick Practice",ICON.quick,"Quick"],["tests","Math",ICON.tests,"Math"],["english","Reading & Writing",ICON.book,"R&W"],["videos","Watch & learn",ICON.vid,"Videos"],["words","Word bank",ICON.wb,"Words"],["book","Book Tests",ICON.bk,"Book"],["feedback","Feedback",ICON.fb,"Feedback"],["progress","Progress",ICON.chart],["history","History",ICON.clock]].concat(window.BILL?BILL.navItem():[]).concat(ME.owner?[["students","Students",ICON.chart]]:[]);
+  const nav=[["home","Home",ICON.home],["course","90-Day Course",window.CR_ICON||ICON.book,"Course"],["quick","Quick Practice",ICON.quick,"Quick"],["tests","Math",ICON.tests,"Math"],["english","Reading & Writing",ICON.book,"R&W"],["words","Word bank",ICON.wb,"Words"],["book","Book Tests",ICON.bk,"Book"],["feedback","Feedback",ICON.fb,"Feedback"],["progress","Progress",ICON.chart],["history","History",ICON.clock]].concat(window.BILL?BILL.navItem():[]).concat(ME.owner?[["students","Students",ICON.chart]]:[]);
   const ns=Object.keys(SESSIONS).length;
   app.innerHTML=`<div class="shell"><nav class="side" aria-label="Main">
     <div class="brand"><img class="logo" src="/icons/logo-sm.png" alt="" width="34" height="34" style="background:none;object-fit:cover">SAT Studio</div>
     ${nav.map(([k,l,i,sh])=>`<button class="nav${view===k?" on":""}" data-nav="${k}"${view===k?' aria-current="page"':""}>${i}<span class="${sh?"lg":""}">${esc(l)}</span>${sh?`<span class="sm">${esc(sh)}</span>`:""}${k==="home"&&ns?`<em aria-label="${ns} saved">${ns}</em>`:""}</button>`).join("")}
-    <div class="sidefoot"><i class="${AI?"on":""}"></i>${!BOOTED&&window.claude?"Syncing your progress…":AI?"Claude connected":"Built-in questions"}</div>${!AI&&(BOOTED||!window.claude)&&!(window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn)?`<button class="sidesync connai" data-connai>${window.SAT_PLATFORM?"Sign in or sign up free":"Connect Claude"}</button>`:""}${window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn?`<button class="sidesync" data-signout>Sign out</button>`:""}<button class="sidesync" id="syncOpen">Backup &amp; sync</button><span class="appver owner">Created by Xurshid Jo’rayev</span><span class="appver">${window._vl||(window._vl=(()=>{let h=0;const a=BANK.concat(RWBANK);for(const x of a){const d=String(x.id)+":"+(x.lv|0);for(let i=0;i<d.length;i++)h=(h*31+d.charCodeAt(i))|0}return "Build "+a.length.toLocaleString("en-US")+" Q · "+(h>>>0).toString(36).toUpperCase().slice(0,4)})())}${window.claude?"":" · downloaded copy"}</span>
+    <div class="sidefoot"><i class="${AI?"on":""}"></i>${!BOOTED&&window.claude?"Syncing your progress…":AI?"Claude connected":"Built-in questions"}</div>${!AI&&(BOOTED||!window.claude)&&!(window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn)?`<button class="sidesync connai" data-connai>${window.SAT_PLATFORM?"Sign in or sign up free":"Connect Claude"}</button>`:""}${window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn?`<button class="sidesync" data-signout>Sign out</button>`:""}<button class="sidesync" id="syncOpen">Backup &amp; sync</button><span class="appver owner">Created by Xurshid Jo’rayev</span><span class="appver">${window._vl||(window._vl=(()=>{let h=0;const a=BANK.concat(RWBANK);for(const x of a){const d=String(x.id)+":"+(x.lv|0);for(let i=0;i<d.length;i++)h=(h*31+d.charCodeAt(i))|0}return "Build "+(h>>>0).toString(36).toUpperCase().slice(0,4)})())}${window.claude?"":" · downloaded copy"}</span>
   </nav><main class="main">${content}</main></div>`;
   $$("[data-nav]").forEach(b=>b.onclick=()=>go(b.dataset.nav));
 }
@@ -6820,7 +6820,6 @@ function renderHome(){
   ${guestStrip()}
   ${window.courseHomeStrip?window.courseHomeStrip():""}
   ${window.BILL?BILL.homeStrip():""}
-  ${mathVideoHelp()}
   ${ss.length?`<section><h2>Continue where you left off</h2><div class="stack" style="gap:12px">${ss.map(resumeStrip).join("")}</div></section>`:""}
   <section class="tiles">
     <div class="tile"><b>${HISTORY.length}</b><span>Tests completed</span></div>
@@ -6892,7 +6891,7 @@ function libCard(l){
 }
 function renderTests(){
   view="tests";
-  shell(`<div class="pagehead"><div><h1>Math</h1><p class="muted">Full tests follow the Digital SAT format: two 35-minute modules, with Module 2 adapting to Module 1. Drills target one area. You can save and exit any test and resume it later.</p><p class="muted" style="margin-top:4px"><b>${BANK.length}</b> questions in the bank, plus unlimited AI-written ones.</p></div></div>
+  shell(`<div class="pagehead"><div><h1>Math</h1><p class="muted">Full tests follow the Digital SAT format: two 35-minute modules, with Module 2 adapting to Module 1. Drills target one area. You can save and exit any test and resume it later.</p></div></div>
   <div class="chips" role="group" aria-label="Filter tests" style="margin-bottom:18px">${[["all","All"],["full","Full tests"],["drill","Drills"],["book","Book tests"],["skill","Skill drills"]].map(([k,t])=>`<button class="chipbtn" data-tf="${k}" aria-pressed="${testFilter===k}">${t}</button>`).join("")}</div>
   <section class="stack">
   ${testFilter==="all"||testFilter==="full"?`<h2 style="margin:0">Full SAT, Bluebook format <span class="muted" style="font-size:1rem">both sections, one 1600 score</span></h2><div class="lib">${LIB.filter(l=>l.kind==="sat").map(libCard).join("")}</div>`:""}
