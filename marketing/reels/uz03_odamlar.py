@@ -105,6 +105,8 @@ if __name__ == "__main__":
         for t, ts, img in frames(): overlay(img, ts, t); w.add(img); last = img
         for i in range(int(END * FPS)): w.add(endcard(last, i / FPS))
         w.close(); audio("renders/_uz03.wav")
-        mux("renders/_uz03.mp4", "renders/_uz03.wav", "renders/UZ03_odamlar.mp4")
+        # even out the level: the source has one loud thud and quiet voices
+        subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", "renders/_uz03.mp4", "-i", "renders/_uz03.wav", "-map", "0:v", "-map", "1:a", "-c:v", "copy",
+                        "-af", "loudnorm=I=-16:TP=-1.5:LRA=11", "-c:a", "aac", "-b:a", "192k", "renders/UZ03_odamlar.mp4"], check=True)
         os.remove("renders/_uz03.mp4"); os.remove("renders/_uz03.wav")
         print("renders/UZ03_odamlar.mp4", round(DUR, 2), "s")
