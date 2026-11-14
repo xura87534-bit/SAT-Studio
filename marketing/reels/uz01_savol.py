@@ -41,6 +41,12 @@ def text(d, y, s, f, fill, a=1.0, x=None):
     d.text(((W - w) / 2 if x is None else x, y), s, font=f, fill=fill + (int(255 * max(0, min(1, a))),))
     return w
 
+def fit(d, s, name, size, maxw=880):
+    """The font at `size`, or smaller if the line would not fit the card."""
+    f = font(name, size)
+    while d.textlength(s, font=f) > maxw and size > 30: size -= 4; f = font(name, size)
+    return f
+
 def card(d, box, a=1.0, fill=WHITE, outline=None, width=0, r=44):
     x0, y0, x1, y1 = box
     d.rounded_rectangle(box, radius=r, fill=fill + (int(255 * a),), outline=(outline or (224, 216, 204)) + (int(255 * a),), width=width or 3)  # fills replace pixels on RGBA, so the edge is a solid tint
@@ -77,13 +83,13 @@ def frame(t):
             w = d.textlength(n, font=fn); d.text((cx - w / 2, cy - 78 * pulse), n, font=fn, fill=col + (int(255 * a),))
         else:
             p = back((t - T_UP) / 0.35)
-            text(d, cy - 70, "Javob: B", font("InterDisplay-Black.otf", int(120 * max(0.2, p))), GREEN, a * ease((t - T_UP) / 0.2))
+            text(d, cy - 70, "Javob: " + OPTS[RIGHT][0], font("InterDisplay-Black.otf", int(120 * max(0.2, p))), GREEN, a * ease((t - T_UP) / 0.2))
         # card
         card(d, [70, 470 + dy, W - 70, 1010 + dy], a)
         text(d, 510 + dy, "SAT · MATH", font("Inter-SemiBold.otf", 38), BLUE2, a)
-        text(d, 590 + dy, EQ, font("InterDisplay-Bold.otf", 96), INK, a)
-        text(d, 765 + dy, ASK, font("Inter-SemiBold.otf", 46), DIM, a)
-        text(d, 870 + dy, ASK2, font("InterDisplay-Black.otf", 92), BLUE, a)
+        text(d, 590 + dy, EQ, fit(d, EQ, "InterDisplay-Bold.otf", 96), INK, a)
+        text(d, 765 + dy, ASK, fit(d, ASK, "Inter-SemiBold.otf", 46), DIM, a)
+        text(d, 870 + dy, ASK2, fit(d, ASK2, "InterDisplay-Black.otf", 92), BLUE, a)
         # options, 2 x 2
         fo, fl = font("InterDisplay-Bold.otf", 76), font("Inter-SemiBold.otf", 46)
         for i, (L, v) in enumerate(OPTS):
