@@ -215,6 +215,7 @@
             return msg("Account created, but it needs email confirmation before you can sign in. Ask your teacher to turn it off, or use offline mode for now.", "err");
           }
           markKnown(); msg("Account created. Opening SAT Studio…", "ok");
+          try { window.SAT_TRACK && window.SAT_TRACK("signup"); } catch (e) {}
         } else {
           const { error } = await sb.auth.signInWithPassword({ email, password, options: { captchaToken: captchaToken || undefined } });
           if (error) throw error;

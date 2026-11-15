@@ -1187,6 +1187,7 @@ mark.hl{background:rgba(106,147,203,.28)}
 <body><svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="lqwarp" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".008 .012" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="26" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
 <div id="app"></div>
 <script src="/config.js"></script>
+<script src="/track.js"></script>
 <script src="/vendor/supabase.js"></script>
 <script src="/course.js"></script>
 <script src="/platform.js"></script>
@@ -6987,6 +6988,7 @@ function toggleRef(on){
   const b=$("#refBtn");if(b)b.setAttribute("aria-pressed","true");
 }
 function beginTest(l,timed,chain){
+  if(!chain&&window.SAT_TRACK)SAT_TRACK("test_start",l.id);
   if(l.kind==="sat")return beginTest({...LIBID[l.rw],title:l.title+" · Reading & Writing"},timed,{sat:l.id,run:"sat"+Date.now(),math:l.math,title:l.title});
   closeSheet();discardSession(l.id);
   resetCalc();
@@ -7561,7 +7563,7 @@ function finish(){
   const rec={id:test.id,libId:test.libId,sub:test.sub||"math",title:test.title,kind:test.kind,date:test.date,timed:test.timed,
     done:new Date().toISOString(),score:full?sc.score:pct(c1,items.length),lo:sc?sc.lo:null,hi:sc?sc.hi:null,model:4,total:items.length,route:test.route,m1:c1,m2:c2,m1src:test.m1src,m2src:test.m2src,items,bankIds:items.filter(x=>!x.ai).map(x=>x.id),report:null};
   const ch=test.chain;if(ch){rec.sat=ch.sat;rec.satRun=ch.run}
-  discardSession(test.libId);test=null;HISTORY.push(rec);persist(rec);
+  discardSession(test.libId);test=null;HISTORY.push(rec);persist(rec);if(window.SAT_TRACK)SAT_TRACK("test_done",rec.libId);
   if(WBW.length)setTimeout(()=>wbCommit(WBW,WBT),300);
   if(ch){if(rec.sub==="rw")renderBreak(ch,rec.timed);else renderSatResults(ch.run,true);return}
   renderResults(rec,true);
@@ -9656,7 +9658,7 @@ function qpDeck(n,sec,skill){
   }
   return out;
 }
-function qpStart(items,label,sec,skill){QPS={items,i:0,ok:0,pick:null,revealed:false,log:[],extra:0,label:label||"",sec,skill};qpQ()}
+function qpStart(items,label,sec,skill){if(window.SAT_TRACK)SAT_TRACK("quick_start",skill||sec||"");QPS={items,i:0,ok:0,pick:null,revealed:false,log:[],extra:0,label:label||"",sec,skill};qpQ()}
 function renderQuick(){
   view="quick";QPS=null;const sk=qpLoad(),pool=qpPool(QPF.sec),by={};
   pool.forEach(t=>{(by[t.s]=by[t.s]||[]).push(t)});
@@ -9702,6 +9704,7 @@ function qpAnswer(k){
 }
 function qpNext(){const S=QPS;if(!S||!S.revealed)return;S.i++;S.revealed=false;S.pick=null;S.retry=false;S.i>=S.items.length?qpDone():qpQ();window.scrollTo(0,0)}
 function qpDone(){
+  if(window.SAT_TRACK)SAT_TRACK("quick_done");
   const S=QPS,tot=S.log.length,by={};S.log.forEach(l=>{const b=by[l.s]=by[l.s]||{n:0,ok:0};b.n++;if(l.ok)b.ok++});
   const miss=S.log.filter(l=>!l.ok),pc=Math.round(100*S.ok/Math.max(1,tot));
   shell(`<div class="qp"><div class="pagehead"><div><h1>Round done</h1></div></div><div class="stack">
@@ -10172,8 +10175,8 @@ async function pushStudent(){
 }
 async function renderStudents(){
   view="students";
-  shell(`<div class="pagehead"><div><h1>Students</h1><p class="muted">Who has logged in and how many tests they've done.</p></div><button class="btn sm" id="stRef">Refresh</button></div><div id="payAdmin"></div><div id="stBody" class="muted">Loading…</div>`);
-  $("#stRef").onclick=renderStudents;if(window.BILL)BILL.adminPanel($("#payAdmin"));
+  shell(`<div class="pagehead"><div><h1>Students</h1><p class="muted">Who has logged in and how many tests they've done.</p></div><button class="btn sm" id="stRef">Refresh</button></div><div id="visAdmin"></div><div id="payAdmin"></div><div id="stBody" class="muted">Loading…</div>`);
+  $("#stRef").onclick=renderStudents;if(window.SAT_TRACK_ADMIN)SAT_TRACK_ADMIN($("#visAdmin"));if(window.BILL)BILL.adminPanel($("#payAdmin"));
   const body=$("#stBody");
   try{
     const snap=await ME.db.collection("students").get();

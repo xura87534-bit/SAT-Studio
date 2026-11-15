@@ -179,6 +179,7 @@ function ownerCard() {
 }
 function renderBilling() {
   css(); view = "billing";
+  try { window.SAT_TRACK_ONCE && window.SAT_TRACK_ONCE("pricing_view"); } catch (e) { }
   const g = P.guaranteeDays, n = fullCount();
   const rows = [
     ["Full adaptive tests", `Practice Tests 1 and 2 per section, plus Full SAT 1`, `All ${n} section tests and ${satCount()} Full SATs, plus Challenge Test and Fresh mix`],
@@ -212,6 +213,7 @@ function renderBilling() {
 /* ---------- Pay sheet ---------- */
 async function buy(code) {
   const p = P.plans.find(x => x.code === code); if (!p) return;
+  try { window.SAT_TRACK && window.SAT_TRACK("plan_click", code); } catch (e) { }
   const pr = priceOf(p);
   if (!enabled()) {
     sheet(`<span class="chip">${esc(p.name)} · ${money(pr)}</span><h2 id="shT" style="margin-top:12px">Pro isn't open yet</h2><p class="muted">You don't need it today: every test, drill and lesson is free during launch. When Pro opens, this is the price you'll see here.</p>
