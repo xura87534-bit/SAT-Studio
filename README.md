@@ -74,6 +74,16 @@ Each day, check **Students → Payments**, match each request to a transfer in y
 
 Built-in tests and drills are limited in the browser, so a determined student can get around those limits. The Claude allowance is enforced on the server.
 
+## Language
+
+The interface is in Uzbek by default, with an English switch on the first page, at the bottom of the home page and in the sidebar. The choice is remembered in the browser.
+
+- `public/uz.js` holds the translations: `D` for whole phrases and `P` for phrases with numbers in them. A phrase that is not listed stays in English, so adding a screen never breaks anything; add its text to `uz.js` when you want it translated.
+- Kept in English on purpose: SAT questions, answer choices, passages and explanations, SAT skill names, and the test-taking screen, which mirrors the real Bluebook screen.
+- The 90-Day Course lessons, the rules in the Quick Practice cheat sheet and the `/welcome` page are not translated yet.
+
+A brand-new visitor sees a short start page with one main button that opens ten quick questions. The full dashboard appears once they have practiced.
+
 ## Visitor counting
 
 The app counts visits and practice without identifying anyone, so you can see whether people reach the app and what they do there. Each browser gets a random id; the app reports a few named events (visit, practice started, test finished, account created, pricing viewed). No names, emails or IP addresses are stored, and nothing goes to an outside company.

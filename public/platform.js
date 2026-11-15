@@ -175,7 +175,8 @@
       const up = m === "up";
       $("pfTabIn").setAttribute("aria-selected", String(!up)); $("pfTabUp").setAttribute("aria-selected", String(up));
       $("pfNameRow").hidden = !up;
-      $("pfTitle").innerHTML = up ? "Start <em>here.</em>" : "Welcome <em>back.</em>";
+      const UZ = window.UZ || ((uz, en) => en);
+      $("pfTitle").innerHTML = up ? UZ("Shu yerdan <em>boshlang.</em>", "Start <em>here.</em>") : UZ("Xush <em>kelibsiz.</em>", "Welcome <em>back.</em>");
       $("pfSub").textContent = up ? "Create a free account. It takes ten seconds, and the practice you've already done on this device is saved to it." : "Sign in to keep your scores and progress synced on every device.";
       $("pfSubmit").textContent = up ? "Create account" : "Sign in";
       $("pfPass").setAttribute("autocomplete", up ? "new-password" : "current-password");
