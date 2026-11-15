@@ -74,6 +74,16 @@ Each day, check **Students → Payments**, match each request to a transfer in y
 
 Built-in tests and drills are limited in the browser, so a determined student can get around those limits. The Claude allowance is enforced on the server.
 
+## Visitor counting
+
+The app counts visits and practice without identifying anyone, so you can see whether people reach the app and what they do there. Each browser gets a random id; the app reports a few named events (visit, practice started, test finished, account created, pricing viewed). No names, emails or IP addresses are stored, and nothing goes to an outside company.
+
+- Database: run `supabase/tracking-2026-11.sql` once in the Supabase SQL editor.
+- Code: `public/track.js`.
+- Where to look: sign in as an admin and open **Students**. The **Visitors** panel shows the last 14 days, the steps from visit to finished test, and where visitors came from.
+
+To label a link so its visits are counted separately, add `?utm_source=name` to it, for example `https://your-site/?utm_source=telegram`.
+
 ## Costs
 
 - **Supabase and Vercel**: the free tiers cover a class-sized group.

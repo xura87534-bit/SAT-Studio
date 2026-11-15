@@ -1,0 +1,7 @@
+# One web address per line. "python ai.py collect" starts here, follows links,
+# and never leaves the sites listed. Lines starting with # are ignored.
+# Only add sites whose rules allow reading them this way (the crawler checks each site's robots.txt and skips pages it forbids).
+https://uz.wikipedia.org/wiki/Matematika
+https://uz.wikipedia.org/wiki/Algebra
+https://uz.wikipedia.org/wiki/Geometriya
+https://uz.wikipedia.org/wiki/Ta%CA%BClim
