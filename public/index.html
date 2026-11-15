@@ -6821,13 +6821,13 @@ function renderStart(){
   view="home";
   const pt=(t,d)=>`<li><b>${t}</b><span>${d}</span></li>`;
   shell(`<section class="startpg" data-notr>${langToggle()}
-  <span class="chip">${UZ("Bepul · Ro‘yxatdan o‘tish shart emas","Free · No sign-up needed")}</span>
+  <span class="chip">${UZ("Bepul · O‘zbek tilida · Ro‘yxatdan o‘tish shart emas","Free · In Uzbek · No sign-up needed")}</span>
   <h1>${UZ("SAT’ga bugundan tayyorlaning","Start preparing for the SAT today")}</h1>
   <p class="lede">${UZ("Haqiqiy imtihondagidek savollar. Har bir javobdan keyin yechim. Ballingiz darhol chiqadi.","Questions like the real exam. A worked solution after every answer. Your score right away.")}</p>
   <button class="btn startbig" id="stQuick"><span>${UZ("10 ta savol bilan boshlash","Start with 10 questions")}</span><small>${UZ("2 daqiqa · vaqt chegarasi yo‘q","2 minutes · no timer")}</small></button>
   <div class="startalt"><button class="btn ghost" data-open="pt1"><span>${UZ("Matematikadan to‘liq test","Full Math test")}</span><small>${UZ("70 daqiqa","70 min")}</small></button><button class="btn ghost" data-open="rw1"><span>${UZ("O‘qish va yozishdan to‘liq test","Full Reading & Writing test")}</span><small>${UZ("64 daqiqa","64 min")}</small></button></div>
   <ul class="startpts">${pt(UZ("Moslashuvchan testlar","Adaptive tests"),UZ("2-modul natijangizga qarab o‘zgaradi, xuddi haqiqiy SAT’dagidek.","Module 2 changes with how you do in Module 1, like the real SAT."))}${pt(UZ("Ball va tahlil darhol","Score and analysis at once"),UZ("Test tugashi bilan 400–1600 shkaladagi ballingiz va zaif mavzularingizni ko‘rasiz.","The moment you finish you see your 400–1600 score and your weak skills."))}${pt(UZ("90 kunlik kurs","90-Day Course"),UZ("Asoslardan boshlab, kuniga bitta dars va test.","From the basics, one lesson and quiz a day."))}</ul>
-  ${window.SAT_LANG==="en"?"":`<p class="fine">Savollar ingliz tilida, chunki SAT ingliz tilida topshiriladi.</p>`}</section>`);
+  <p class="fine">${UZ("SAT Studio — o‘zbekcha interfeysli sanoqli SAT ilovalaridan biri. Savollar ingliz tilida, chunki SAT ingliz tilida topshiriladi.","SAT Studio is one of the few SAT apps with an Uzbek interface. Questions are in English, because the SAT is taken in English.")}</p></section>`);
   $("#stQuick").onclick=()=>qpStart(qpDeck(10,"both"),"","both",null);
   bindCommon();
 }
