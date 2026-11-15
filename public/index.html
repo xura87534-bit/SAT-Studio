@@ -1073,6 +1073,21 @@ mark.hl{background:rgba(255,213,79,.55);box-shadow:none}
 .lxplayer{border:2px solid var(--edge);box-shadow:var(--pop)}
 .connai{color:#1F7A3A!important}
 .pat .pq .chip,.pq .chip{background:#E4F5E3;color:#1F7A3A;border:2px solid var(--edge);border-radius:12px;padding:6px 12px;font-weight:800;box-shadow:var(--pop-sm)}
+.langsw{display:inline-flex;gap:2px;background:rgba(29,29,31,.06);border-radius:999px;padding:3px;margin-top:10px}
+.langsw button{border:0;background:transparent;border-radius:999px;padding:6px 12px;font:600 .78rem var(--ui);color:var(--muted);cursor:pointer}
+.langsw button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(29,29,31,.15)}
+.startpg{max-width:640px;margin:0 auto;padding:8px 0 24px;display:grid;gap:16px;justify-items:start}
+.startpg .langsw{justify-self:end;margin:0}
+.startpg h1{font-size:clamp(2.1rem,7vw,3.2rem);line-height:1.05;margin:0;letter-spacing:-.03em}
+.startpg .lede{font-size:1.08rem;color:var(--muted);margin:0;max-width:34ch}
+.startpg .btn small{display:block;font:500 .8rem var(--ui);opacity:.78;margin-top:3px}
+.startpg .startbig{width:100%;display:block;text-align:center;padding:20px 22px;border-radius:22px;font-size:1.2rem;margin-top:6px}
+.startalt{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+.startalt .btn{display:block;text-align:left;padding:14px 16px;border-radius:16px;white-space:normal;line-height:1.25}
+.startpts{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:12px;width:100%}
+.startpts li{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.startpts b{display:block}.startpts span{color:var(--muted);font-size:.93rem}
+@media (max-width:480px){.startalt{grid-template-columns:1fr}}
 </style>
 <style id="apple">
 /* ===== Clean theme: Washington blue on ballet white ===== */
@@ -1186,6 +1201,7 @@ mark.hl{background:rgba(106,147,203,.28)}
 </head>
 <body><svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="lqwarp" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".008 .012" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="26" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
 <div id="app"></div>
+<script src="/uz.js"></script>
 <script src="/config.js"></script>
 <script src="/track.js"></script>
 <script src="/vendor/supabase.js"></script>
@@ -6778,7 +6794,7 @@ function shell(content){
   app.innerHTML=`<div class="shell"><nav class="side" aria-label="Main">
     <div class="brand"><img class="logo" src="/icons/logo-sm.png" alt="" width="34" height="34" style="background:none;object-fit:cover">SAT Studio</div>
     ${nav.map(([k,l,i,sh])=>`<button class="nav${view===k?" on":""}" data-nav="${k}"${view===k?' aria-current="page"':""}>${i}<span class="${sh?"lg":""}">${esc(l)}</span>${sh?`<span class="sm">${esc(sh)}</span>`:""}${k==="home"&&ns?`<em aria-label="${ns} saved">${ns}</em>`:""}</button>`).join("")}
-    <div class="sidefoot"><i class="${AI?"on":""}"></i>${!BOOTED&&window.claude?"Syncing your progress…":AI?"Claude connected":"Built-in questions"}</div>${!AI&&(BOOTED||!window.claude)&&!(window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn)?`<button class="sidesync connai" data-connai>${window.SAT_PLATFORM?"Sign in or sign up free":"Connect Claude"}</button>`:""}${window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn?`<button class="sidesync" data-signout>Sign out</button>`:""}<button class="sidesync" id="syncOpen">Backup &amp; sync</button><span class="appver owner">Created by Xurshid Jo’rayev</span><span class="appver">${window._vl||(window._vl=(()=>{let h=0;const a=BANK.concat(RWBANK);for(const x of a){const d=String(x.id)+":"+(x.lv|0);for(let i=0;i<d.length;i++)h=(h*31+d.charCodeAt(i))|0}return "Build "+(h>>>0).toString(36).toUpperCase().slice(0,4)})())}${window.claude?"":" · downloaded copy"}</span>
+    <div class="sidefoot"><i class="${AI?"on":""}"></i>${!BOOTED&&window.claude?"Syncing your progress…":AI?"Claude connected":"Built-in questions"}</div>${!AI&&(BOOTED||!window.claude)&&!(window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn)?`<button class="sidesync connai" data-connai>${window.SAT_PLATFORM?"Sign in or sign up free":"Connect Claude"}</button>`:""}${window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn?`<button class="sidesync" data-signout>Sign out</button>`:""}<button class="sidesync" id="syncOpen">Backup &amp; sync</button>${langToggle()}<span class="appver owner">Created by Xurshid Jo’rayev</span><span class="appver">${window._vl||(window._vl=(()=>{let h=0;const a=BANK.concat(RWBANK);for(const x of a){const d=String(x.id)+":"+(x.lv|0);for(let i=0;i<d.length;i++)h=(h*31+d.charCodeAt(i))|0}return "Build "+(h>>>0).toString(36).toUpperCase().slice(0,4)})())}${window.claude?"":" · downloaded copy"}</span>
   </nav><main class="main">${content}</main></div>`;
   $$("[data-nav]").forEach(b=>b.onclick=()=>go(b.dataset.nav));
 }
@@ -6796,9 +6812,30 @@ function bindCommon(){
   $$("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
 }
 
+/* ---------- Language switch + first page ---------- */
+const UZ=window.UZ||((uz,en)=>en);
+function langToggle(){const l=window.SAT_LANG||"en";return `<div class="langsw" role="group" aria-label="Til / Language" data-notr><button data-setlang="uz" aria-pressed="${l==="uz"}">O‘zbekcha</button><button data-setlang="en" aria-pressed="${l==="en"}">English</button></div>`}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-setlang]");if(b&&window.SAT_SETLANG&&b.dataset.setlang!==window.SAT_LANG)window.SAT_SETLANG(b.dataset.setlang)});
+/* What a brand-new visitor sees: one clear action instead of an empty dashboard. */
+function renderStart(){
+  view="home";
+  const pt=(t,d)=>`<li><b>${t}</b><span>${d}</span></li>`;
+  shell(`<section class="startpg" data-notr>${langToggle()}
+  <span class="chip">${UZ("Bepul · Ro‘yxatdan o‘tish shart emas","Free · No sign-up needed")}</span>
+  <h1>${UZ("SAT’ga bugundan tayyorlaning","Start preparing for the SAT today")}</h1>
+  <p class="lede">${UZ("Haqiqiy imtihondagidek savollar. Har bir javobdan keyin yechim. Ballingiz darhol chiqadi.","Questions like the real exam. A worked solution after every answer. Your score right away.")}</p>
+  <button class="btn startbig" id="stQuick"><span>${UZ("10 ta savol bilan boshlash","Start with 10 questions")}</span><small>${UZ("2 daqiqa · vaqt chegarasi yo‘q","2 minutes · no timer")}</small></button>
+  <div class="startalt"><button class="btn ghost" data-open="pt1"><span>${UZ("Matematikadan to‘liq test","Full Math test")}</span><small>${UZ("70 daqiqa","70 min")}</small></button><button class="btn ghost" data-open="rw1"><span>${UZ("O‘qish va yozishdan to‘liq test","Full Reading & Writing test")}</span><small>${UZ("64 daqiqa","64 min")}</small></button></div>
+  <ul class="startpts">${pt(UZ("Moslashuvchan testlar","Adaptive tests"),UZ("2-modul natijangizga qarab o‘zgaradi, xuddi haqiqiy SAT’dagidek.","Module 2 changes with how you do in Module 1, like the real SAT."))}${pt(UZ("Ball va tahlil darhol","Score and analysis at once"),UZ("Test tugashi bilan 400–1600 shkaladagi ballingiz va zaif mavzularingizni ko‘rasiz.","The moment you finish you see your 400–1600 score and your weak skills."))}${pt(UZ("90 kunlik kurs","90-Day Course"),UZ("Asoslardan boshlab, kuniga bitta dars va test.","From the basics, one lesson and quiz a day."))}</ul>
+  ${window.SAT_LANG==="en"?"":`<p class="fine">Savollar ingliz tilida, chunki SAT ingliz tilida topshiriladi.</p>`}</section>`);
+  $("#stQuick").onclick=()=>qpStart(qpDeck(10,"both"),"","both",null);
+  bindCommon();
+}
+
 /* ---------- Home ---------- */
 function renderHome(){
   view="home";
+  if(!HISTORY.length&&!guestTried()&&!Object.keys(SESSIONS).length)return renderStart();
   const fm=fullHist("math"),fr=fullHist("rw");const lm=fm[fm.length-1],lr=fr[fr.length-1];
   const bm=fm.reduce((m,r)=>Math.max(m,r.score),0),br=fr.reduce((m,r)=>Math.max(m,r.score),0);
   const items=HISTORY.flatMap(r=>r.items||[]);const ss=Object.values(SESSIONS);
@@ -6835,7 +6872,7 @@ function renderHome(){
     <div class="card"><div class="toolbar"><h2 style="margin:0">Skills to work on</h2>${HISTORY.length?`<button class="btn link" data-go="progress">Progress</button>`:""}</div>
       ${skillList(ws)}
       ${AI&&ws.length?`<div class="actions" style="margin-top:16px"><button class="btn sm ghost" data-open="${wTarget}">Drill ${wTarget==="rwweak"?"Reading &amp; Writing":"Math"} weak skills</button></div>`:""}</div>
-  </section></div>`);
+  </section><div style="text-align:center">${langToggle()}</div></div>`);
   bindCommon();bindHist();
 }
 function vidQ(k){return encodeURIComponent(k+" SAT math")}
