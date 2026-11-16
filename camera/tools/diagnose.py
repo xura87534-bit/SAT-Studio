@@ -21,6 +21,7 @@ import struct
 import subprocess
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 CAMERA_PORT = 6123
 OTHER_PORTS = [80, 554, 8080, 8554, 23, 8000, 34567, 5000, 7000, 6000, 8888]
@@ -177,6 +178,17 @@ def main():
 
     candidates = list(dict.fromkeys(a["hosts"] + ["192.168.169.1"] + ([gateway] if gateway else []) + [ip for ip, mac in arp_ips if not ip.endswith(".255")]))
     candidates = [c for c in candidates if c and not c.startswith("224.") and c not in [ip for _, ip in ips]]
+
+    section("3a. Sweeping the whole local network for the camera port")
+    swept = []
+    for _, ip in ips:
+        pre = ".".join(ip.split(".")[:3])
+        hosts = [f"{pre}.{i}" for i in range(1, 255) if f"{pre}.{i}" != ip]
+        with ThreadPoolExecutor(max_workers=64) as ex:
+            hits = [h for h, ok in zip(hosts, ex.map(lambda h: port_open(h, port, 0.6), hosts)) if ok]
+        print(f"{pre}.1-254: camera port {port} open at {hits or 'no address'}")
+        swept += hits
+    candidates = list(dict.fromkeys(swept + candidates))
 
     section("3. Knocking on likely addresses")
     cameras = []
