@@ -17,7 +17,8 @@ function vid() {
 /* Where this visit came from: a ?utm_source= tag wins, then the referring site, then the in-app browser. */
 function source() {
   try {
-    const q = new URLSearchParams(location.search).get("utm_source"); if (q) return q;
+    const sp = new URLSearchParams(location.search), q = sp.get("utm_source"); if (q) return q;
+    if (sp.has("reel")) return "instagram";
     const ua = navigator.userAgent || "", ref = document.referrer ? new URL(document.referrer).hostname : "";
     if (/instagram/i.test(ref) || /Instagram/.test(ua)) return "instagram";
     if (/(^|\.)t\.me$|telegram/i.test(ref) || /Telegram/i.test(ua)) return "telegram";
@@ -27,11 +28,12 @@ function source() {
     return ref.replace(/^www\./, "");
   } catch (e) { return "direct"; }
 }
+/* Decide the source once per tab, at load, so the app can read it (e.g. to continue an Instagram reel). */
 let SRC = null;
+try { SRC = sessionStorage.getItem("satstudio_src") || source(); sessionStorage.setItem("satstudio_src", SRC); } catch (e) { SRC = source(); }
 function track(name, extra) {
   if (!on) return;
   const v = vid(); if (!v) return;
-  if (SRC === null) { try { SRC = sessionStorage.getItem("satstudio_src") || source(); sessionStorage.setItem("satstudio_src", SRC); } catch (e) { SRC = source(); } }
   let token = CFG.supabaseAnonKey;
   try { const k = Object.keys(localStorage).find(x => /^sb-.*-auth-token$/.test(x)); const s = k && JSON.parse(localStorage.getItem(k)); if (s && s.access_token && s.expires_at * 1000 > Date.now()) token = s.access_token; } catch (e) { }
   try {
