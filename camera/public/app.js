@@ -6,6 +6,7 @@ const NATIVE = !!window.webkit?.messageHandlers?.camcontrol;
 // Fetch frames one by one instead of a long-lived stream (always in the iPhone app; ?poll for testing)
 const POLL = NATIVE || new URLSearchParams(location.search).has('poll');
 document.documentElement.classList.toggle('native', NATIVE);
+let notFoundSince = 0; // when the camera was last seen missing (for the Find camera button)
 const nativeSend = (msg) => window.webkit.messageHandlers.camcontrol.postMessage(msg);
 const $$ = (s) => [...document.querySelectorAll(s)];
 
@@ -825,7 +826,7 @@ async function poll() {
     const dot = $('#statusDot');
     const live = s.connected && s.lastFrameAgeMs != null && s.lastFrameAgeMs < 4000;
     dot.className = `dot ${s.connected ? (live || !s.streaming ? 'ok' : 'warn') : 'bad'}`;
-    $('#statusText').textContent = s.busy ? 'Downloading…' : s.connected ? (s.demo ? 'Demo camera' : 'Camera connected') : s.state === 'connecting' ? 'Looking for camera…' : 'Camera not found';
+    $('#statusText').textContent = s.busy ? 'Downloading…' : s.connected ? (s.demo ? 'Demo camera' : 'Camera connected') : s.state === 'connecting' ? 'Connecting…' : s.state === 'searching' ? 'Searching for camera…' : 'Camera not found';
     $('#demoChip').hidden = !s.demo;
     $('#fpsChip').hidden = !(S.source === 'camera' && s.fps);
     $('#fpsChip').textContent = `${s.fps} fps`;
@@ -837,13 +838,18 @@ async function poll() {
       camSettings = { ...s.settings };
       if (changed) reflectCamSettings();
     }
-    const kv = [['Address', s.camera], ['Status', s.state], ['Firmware', s.info?.version], ['Device ID', s.info?.devId], ['Battery', batt != null ? `${batt}%` : null], ['Frames/s', s.fps || null], ['Last problem', s.lastError]];
+    const kv = [['Address', s.camera], ['Status', s.state], ['Protocol', s.protocol ? (s.protocol === 'v2' ? 'newer (v2)' : 'standard (v1)') : null], ['Firmware', s.info?.version], ['Device ID', s.info?.devId], ['Battery', batt != null ? `${batt}%` : null], ['Frames/s', s.fps || null], ['Last problem', s.lastError]];
     $('#camInfo').innerHTML = kv.filter(([, v]) => v != null && v !== '').map(([k, v]) => `<dt>${k}</dt><dd>${String(v).replace(/[<>&]/g, '')}</dd>`).join('');
     if (S.source === 'camera' && !last) {
-      stageMsg(s.connected ? 'Camera connected. Waiting for the picture…' : NATIVE
-        ? 'Looking for the camera… Open Settings → Wi-Fi and join the camera’s network (it usually starts with Nax_ or MC-), then come back. See Setup.'
-        : `Can’t reach the camera${s.lastError ? ` (${s.lastError})` : ''}.\nIs this computer on the camera’s Wi-Fi? See Setup.`);
+      const where = NATIVE ? 'this iPhone' : 'this computer';
+      stageMsg(s.connected ? 'Camera connected. Waiting for the picture…'
+        : s.state === 'searching' ? 'Searching for the camera…'
+        : s.state === 'connecting' ? `Connecting to the camera at ${s.camera}…`
+        : `Camera not found${s.lastError ? ` (${s.lastError})` : ''}.\nIs ${where} on the camera’s Wi-Fi (Nax_… or MC-…)?`);
     }
+    // Offer the search right on the picture when the camera can't be reached
+    if (s.connected) notFoundSince = 0; else if (!notFoundSince) notFoundSince = Date.now();
+    $('#stageFind').hidden = !(S.source === 'camera' && !last && notFoundSince && Date.now() - notFoundSince > 6000);
     if (S.source === 'camera' && last && Date.now() - lastFrameWall > 5000) stageMsg('Picture paused — reconnecting…');
   } catch {
     bridgeOk = false;
@@ -902,6 +908,81 @@ async function loadDay(date) {
     box.append(wrap);
   } catch (e) { box.querySelector('.hint').textContent = `Couldn't list files: ${e.message}`; }
 }
+
+// ---------------------------------------------------------------- find camera
+const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function renderFind(r, scan) {
+  const log = $('#findLog');
+  log.textContent = '';
+  const add = (mark, cls, html, button) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="${cls}">${mark}</span><span>${html}</span>`;
+    const slot = document.createElement('span');
+    if (button) slot.append(button);
+    li.append(slot);
+    log.append(li);
+  };
+  for (const t of r.tried || []) {
+    const isCam = t.ok && (t.devId || t.protocol);
+    let btn = null;
+    if (t.ok && t.port) {
+      btn = document.createElement('button');
+      btn.textContent = r.current === `${t.host}:${t.port}` ? 'Reconnect' : 'Use';
+      btn.onclick = () => useCamera(t);
+    }
+    const detail = t.ok
+      ? (isCam ? `Camera found${t.devId ? `, ID ${esc(t.devId)}` : ''}${t.protocol ? ` · ${t.protocol === 'v2' ? 'newer' : 'standard'} protocol` : ''}` : esc(t.reason || 'answered'))
+      : esc(t.reason || 'no camera');
+    add(t.ok ? '✓' : '✗', t.ok ? 'ok' : 'no', `<span class="addr">${esc(t.host)}</span><small>${detail}</small>`, btn);
+  }
+  const found = (r.found || []).length;
+  if (!found) {
+    const onCamWifi = (r.networks || []).some((n) => n.address.startsWith('192.168.169.'));
+    const nets = (r.networks || []).map((n) => n.address).join(', ') || 'none';
+    const tip = onCamWifi
+      ? 'You’re on a camera Wi-Fi, but the camera didn’t answer. Switch the camera off and on, wait 20 seconds, and try again.'
+      : `${NATIVE ? 'This iPhone' : 'This computer'} isn’t on the camera’s Wi-Fi (its address is ${esc(nets)}). ${NATIVE ? 'Open Settings → Wi-Fi' : 'Open Wi-Fi settings'} and join the network that starts with <b>Nax_</b> or <b>MC-</b>. If there is none, hold the camera’s side button for 5 seconds until the blue light blinks fast.`;
+    add('!', 'no', tip + (scan ? '' : ' If the camera is on your home Wi-Fi, try “Search the whole network”.'));
+  }
+}
+async function findCamera(scan) {
+  const log = $('#findLog');
+  log.innerHTML = `<li><span>…</span><span>${scan ? 'Checking every address on this network. This can take up to a minute…' : 'Looking for the camera…'}</span><span></span></li>`;
+  $('#btnFind').disabled = true;
+  $('#btnScan').disabled = true;
+  try {
+    const r = await api(`api/discover${scan ? '?scan=1' : ''}`);
+    renderFind(r, scan);
+    const cams = (r.found || []).filter((f) => f.devId || f.protocol);
+    if (cams.length === 1 && r.current !== `${cams[0].host}:${cams[0].port}`) useCamera(cams[0]);
+    else if (cams.length) toast('Camera found');
+  } catch (e) {
+    log.innerHTML = `<li><span class="no">✗</span><span>Search failed: ${esc(e.message)}</span><span></span></li>`;
+  } finally {
+    $('#btnFind').disabled = false;
+    $('#btnScan').disabled = false;
+  }
+}
+async function useCamera(t) {
+  try {
+    await api('api/camera', { host: t.host, port: t.port || 6123, protocol: t.protocol || null, devId: t.devId || null });
+    last = null;
+    toast(`Connecting to the camera at ${t.host}…`);
+  } catch (e) { toast(e.message); }
+}
+$('#btnFind').onclick = () => findCamera(false);
+$('#btnScan').onclick = () => findCamera(true);
+$('#btnManual').onclick = () => {
+  const v = $('#manualIp').value.trim();
+  const m = /^(\d{1,3}(?:\.\d{1,3}){3})(?::(\d+))?$/.exec(v);
+  if (!m) { toast('Enter an address like 192.168.169.1'); return; }
+  useCamera({ host: m[1], port: Number(m[2]) || 6123 });
+};
+$('#stageFind').onclick = () => {
+  showTab('setup');
+  $('#findCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  findCamera(false);
+};
 
 $('#btnReconnect').onclick = async () => { try { await api('api/reconnect', {}); toast('Reconnecting…'); } catch (e) { toast(e.message); } };
 $('#btnReboot').onclick = async () => {

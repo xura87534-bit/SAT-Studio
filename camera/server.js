@@ -3,7 +3,8 @@
 //
 // Run this on a computer (e.g. your MacBook) that is connected to the camera's Wi-Fi hotspot.
 // It talks to the camera and serves the control app to any browser on the same network:
-//   node server.js                 real camera at 192.168.169.1:6123
+//   node server.js                 find the camera automatically (like the official app)
+//   node server.js --camera 192.168.1.50   use a camera at a fixed address
 //   node server.js --demo          built-in simulated camera (no hardware needed)
 //   node server.js --password 1234 ask for a password before showing the camera
 // No npm install needed: only Node.js 18+ built-ins are used.
@@ -21,16 +22,17 @@ const PUBLIC = path.join(ROOT, 'public');
 const SETTINGS_FILE = path.join(ROOT, '.camera-settings.json');
 
 function parseArgs(argv) {
-  const a = { port: Number(process.env.PORT) || 8720, camera: process.env.CAMERA || '192.168.169.1:6123', demo: false, password: process.env.CAMERA_PASSWORD || '', host: '0.0.0.0' };
+  const a = { port: Number(process.env.PORT) || 8720, camera: process.env.CAMERA || '', demo: false, password: process.env.CAMERA_PASSWORD || '', host: '0.0.0.0' };
   for (let i = 0; i < argv.length; i++) {
     const k = argv[i];
     if (k === '--demo') a.demo = true;
+    else if (k === '--demo-v2') { a.demo = true; a.demoProtocol = 'v2'; }
     else if (k === '--port' || k === '-p') a.port = Number(argv[++i]);
     else if (k === '--camera' || k === '-c') a.camera = argv[++i];
     else if (k === '--password') a.password = argv[++i] || '';
     else if (k === '--local-only') a.host = '127.0.0.1';
     else if (k === '--help' || k === '-h') {
-      console.log('Usage: node server.js [--demo] [--port 8720] [--camera 192.168.169.1:6123] [--password PASS] [--local-only]');
+      console.log('Usage: node server.js [--demo] [--port 8720] [--camera IP[:PORT]] [--password PASS] [--local-only]\nWithout --camera it searches for the camera like the official app.');
       process.exit(0);
     }
   }
@@ -51,12 +53,13 @@ const MIME = {
 };
 
 export async function createServer(opts = {}) {
-  const args = { port: 8720, camera: '192.168.169.1:6123', demo: false, password: '', host: '0.0.0.0', ...opts };
+  const args = { port: 8720, camera: '', demo: false, password: '', host: '0.0.0.0', ...opts };
   let sim = null;
-  let [camHost, camPort] = args.camera.split(':');
+  let [camHost, camPort] = (args.camera || '').split(':');
+  camHost = camHost || null;
   camPort = Number(camPort) || 6123;
   if (args.demo) {
-    sim = await startSimulator();
+    sim = await startSimulator({ protocol: args.demoProtocol || 'v1' });
     camHost = sim.host;
     camPort = sim.port;
   }
@@ -107,6 +110,16 @@ export async function createServer(opts = {}) {
     'GET /api/sd/status': () => cam.sdStatus(),
     'GET /api/sd/dates': async () => ({ dates: await cam.sdDates() }),
     'GET /api/wifi/scan': () => cam.wifiScan(),
+    // "Find camera": quick search, or ?scan=1 to try every address on the network
+    'GET /api/discover': async (_b, url) => {
+      const res = await cam.search({ scan: url.searchParams.get('scan') === '1' });
+      return { found: res.found, tried: cam.lastSearch.tried, networks: res.networks, current: cam.status().camera };
+    },
+    'POST /api/camera': (b) => {
+      if (!b.host || !/^[0-9A-Za-z.\-]+$/.test(String(b.host))) throw new Error('Enter an address like 192.168.169.1');
+      cam.useCamera({ host: String(b.host), port: Number(b.port) || 6123, protocol: b.protocol || null, devId: b.devId || null });
+      return { ok: true };
+    },
   };
 
   const server = http.createServer(async (req, res) => {
@@ -260,7 +273,7 @@ if (isMain) {
   const lines = [
     '',
     '  V720 Camera Control is running',
-    `  Camera: ${args.demo ? 'built-in DEMO camera (no hardware)' : args.camera}`,
+    `  Camera: ${args.demo ? 'built-in DEMO camera (no hardware)' : args.camera || 'searching automatically (hotspot 192.168.169.1, then this network)'}`,
     '',
     `  On this computer:  http://localhost:${app.port}`,
   ];
@@ -272,7 +285,7 @@ if (isMain) {
   console.log(lines.join('\n'));
   let last = '';
   app.cam.on('state', (s) => {
-    const msg = s === 'connected' ? `Camera connected${app.cam.info?.version ? ` (firmware ${app.cam.info.version})` : ''}` : s === 'disconnected' ? (app.cam.lastError ? `Camera not reachable: ${app.cam.lastError} — retrying…` : 'Reconnecting to the camera…') : '';
+    const msg = s === 'connected' ? `Camera connected at ${app.cam.host}${app.cam.info?.devId ? `, ID ${app.cam.info.devId}` : ''}${app.cam.info?.version ? `, firmware ${app.cam.info.version}` : ''} (${app.cam.info?.protocol || 'v1'} protocol)` : s === 'searching' ? 'Searching for the camera…' : s === 'disconnected' ? (app.cam.lastError ? `Camera not reachable: ${app.cam.lastError} — retrying…` : 'Reconnecting to the camera…') : '';
     if (msg && msg !== last) { console.log(`[${new Date().toLocaleTimeString()}] ${msg}`); last = msg; }
   });
   const stop = async () => { await app.close(); process.exit(0); };

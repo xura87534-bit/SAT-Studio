@@ -30,6 +30,7 @@
   <section class="stage" id="stage">
     <canvas id="view" width="640" height="360" aria-label="Live camera picture"></canvas>
     <div class="stage-msg" id="stageMsg">Connecting to the camera…</div>
+    <button class="stage-find" id="stageFind" hidden>Find camera</button>
     <div class="hud hud-tl">
       <span class="rec" id="recBadge" hidden>● REC <span id="recTime">0:00</span></span>
       <span class="ir" id="irBadge" hidden>IR</span>
@@ -186,6 +187,20 @@
         </div>
         <input type="file" id="fileIn" accept="video/*" hidden>
         <p class="hint" id="srcHint">The radar works with any source, so you can also measure with your phone’s camera or a video you filmed.</p>
+      </div>
+
+      <div class="card" id="findCard">
+        <h3>Find camera</h3>
+        <p class="hint" style="margin-top:0">CamControl looks for the camera the same way the official V720 app does: on the camera’s own Wi-Fi first (192.168.169.1), then on the network you’re on.</p>
+        <div class="seg">
+          <button id="btnFind" class="primary-btn">Find camera</button>
+          <button id="btnScan">Search the whole network</button>
+        </div>
+        <ol class="find-log" id="findLog" aria-live="polite"></ol>
+        <div class="row">
+          <label for="manualIp">Camera address</label>
+          <div class="inline"><input type="text" id="manualIp" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="192.168.169.1"> <button id="btnManual" class="small">Connect</button></div>
+        </div>
       </div>
 
       <div class="card">

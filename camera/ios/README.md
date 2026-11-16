@@ -25,6 +25,8 @@ The CamControl icon is now on your home screen.
 2. iPhone **Settings → Wi-Fi** → join the camera's network (usually `Nax_…` or `MC-…`). "No Internet Connection" is normal.
 3. Open **CamControl**. The first time, tap **Allow** when it asks to find devices on your local network. If you tapped Don't Allow: Settings → Privacy & Security → Local Network → CamControl.
 
+CamControl finds the camera by itself, the same way the official V720 app does: it asks the camera "who are you?", learns its ID, and logs in with it. It speaks both the standard protocol (most models) and the newer one (A12, W1). Where it found the camera is remembered, so the next start is instant.
+
 Everything from the browser version is there: live view, night vision, flip, photos and videos (the share sheet opens: **Save Image / Save Video** puts them in Photos), listening to the microphone, SD-card recordings, and the **speed radar** with v = d ÷ t. The radar can also measure a video from your photo library: Setup → Video file.
 
 The app stops streaming when you leave it, to save the camera's battery, and reconnects when you come back.
@@ -35,7 +37,7 @@ The app stops streaming when you leave it, to save the camera's battery, and rec
 |---|---|
 | Xcode: "Failed to register bundle identifier" | Your Team isn't selected yet (step 5). If it still fails, change **Bundle Identifier** on the same tab to something unique, e.g. `com.yourname.camcontrol`. |
 | Xcode: "Developer Mode disabled" | Step 6. |
-| App says "Looking for the camera…" | Check the iPhone is on the camera's Wi-Fi, and Local Network access is allowed. The **Setup** tab shows the last error. |
+| "Camera not found" | Tap **Find camera** (on the picture, or Setup → Find camera). It lists every address it tried and why each failed, and says what to do. Usually: join the camera's Wi-Fi (`Nax_…` / `MC-…`) and allow Local Network access. If the camera is on your home Wi-Fi, try **Search the whole network**, or type its address. |
 | Picture freezes | The app reconnects on its own. If it keeps happening, move closer: the range is the camera's Wi-Fi range. |
 
 For debugging, Safari on the Mac can inspect the app: Safari → Settings → Advanced → Show features for web developers, then **Develop → your iPhone → CamControl**.

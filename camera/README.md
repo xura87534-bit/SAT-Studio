@@ -36,7 +36,7 @@ A browser can't talk to the camera directly (it uses its own binary protocol ove
 5. Double-click **`start-mac.command`** (or run `node server.js`). The app opens in the browser.
 6. **Phone:** join the same camera Wi-Fi, then open the "On your phone" address the Mac prints (for example `http://192.168.169.2:8720`). iPhone: Share → **Add to Home Screen**.
 
-Options: `--port 8720`, `--camera 192.168.169.1:6123`, `--password YOURPASS` (asks for it on every device), `--local-only` (only this Mac).
+It finds the camera automatically, like the official V720 app (camera Wi-Fi first, then the network you're on). The **Setup → Find camera** button shows every address it tried and why. Options: `--port 8720`, `--camera 192.168.1.50` (fixed address), `--demo-v2` (simulated newer-model camera), `--password YOURPASS` (asks for it on every device), `--local-only` (only this Mac).
 Keys on the Mac: `P` photo, `R` record, `F` full screen, `Space` stopwatch (in the Radar tab).
 
 ## Using the radar well

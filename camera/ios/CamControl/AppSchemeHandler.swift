@@ -61,6 +61,27 @@ final class AppSchemeHandler: NSObject, WKURLSchemeHandler {
                 if let err = err { self?.json(task, 502, ["error": err]) } else { self?.json(task, 200, ["ok": true, "flip": mode]) }
             }
 
+        case "/api/discover":
+            // "Find camera": quick search, or ?scan=1 to try every address on the Wi-Fi
+            let scan = query["scan"] == "1"
+            cam.search(scan: scan) { [weak self] res in
+                let s = cam.statusJSON()
+                self?.json(task, 200, [
+                    "found": res.found.map { $0.json },
+                    "tried": res.tried.map { $0.json },
+                    "networks": res.networks.map { ["name": $0.name, "address": $0.address] },
+                    "current": s["camera"] ?? "",
+                ])
+            }
+
+        case "/api/camera":
+            let host = (body["host"] as? String) ?? ""
+            let valid = !host.isEmpty && host.unicodeScalars.allSatisfy { CharacterSet(charactersIn: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-").contains($0) }
+            guard valid else { json(task, 400, ["error": "Enter an address like 192.168.169.1"]); return }
+            let port = UInt16((body["port"] as? NSNumber)?.intValue ?? 6123)
+            cam.useCamera(host: host, port: port, proto: body["protocol"] as? String, devId: body["devId"] as? String)
+            json(task, 200, ["ok": true])
+
         case "/api/reboot":
             cam.reboot()
             json(task, 200, ["ok": true])

@@ -14,7 +14,36 @@ enum Cmd {
     static let avi: UInt16 = 7
     static let xml: UInt16 = 8
     static let heartbeat: UInt16 = 100
+    static let ping: UInt16 = 101 // the camera asks "are you there?" …
+    static let pong: UInt16 = 102 // … and expects this answer
+    static let directMotion: UInt16 = 114 // discovery: "who are you?"
     static let liveMotion: UInt16 = 115
+}
+
+/// Newer cameras (A12, W1 — "p2p: 1" in the official app) use a different header:
+/// uint32 length, uint32 cmd, uint32 dataId, 8 zero bytes. Commands are plain JSON (cmd 8).
+enum Cmd2 {
+    static let json: UInt32 = 8
+    static let ping: UInt32 = 9
+    static let pong: UInt32 = 10
+    static let liveMotion: UInt32 = 115
+    static let jpeg: UInt32 = 1003
+    static let g711: UInt32 = 1004
+    static let avi: UInt32 = 1005
+    static let xml: UInt32 = 1006
+}
+
+enum Code2 {
+    static let directMotion = 114
+    static let liveMotion = 115
+    static let avSwitch = 213
+    static let baseInfo = 214
+}
+
+/// Seconds since 1970 in local time, the way the official app sends "unixTimer".
+func localUnixTime() -> Int {
+    let now = Date()
+    return Int(now.timeIntervalSince1970) + TimeZone.current.secondsFromGMT(for: now)
 }
 
 enum Code {
@@ -95,6 +124,36 @@ enum Proto {
         return Data(d)
     }
 
+    /// Newer-format packet (v2).
+    static func encode2(cmd: UInt32, payload: [UInt8] = []) -> Data {
+        var d = [UInt8]()
+        d.reserveCapacity(20 + payload.count)
+        let len = UInt32(payload.count)
+        for v in [len, cmd, UInt32(0)] {
+            d.append(UInt8(v & 0xff))
+            d.append(UInt8((v >> 8) & 0xff))
+            d.append(UInt8((v >> 16) & 0xff))
+            d.append(UInt8((v >> 24) & 0xff))
+        }
+        d.append(contentsOf: [UInt8](repeating: 0, count: 8))
+        d.append(contentsOf: payload)
+        return Data(d)
+    }
+
+    static func json2(_ pairs: [(String, JSONValue)]) -> Data {
+        encode2(cmd: Cmd2.json, payload: Array(JSONValue.object(pairs).encoded.utf8))
+    }
+
+    /// Tells the two header formats apart: v1 has the ASCII forward id "00000000" at bytes 8…15.
+    static func sniff(_ bytes: [UInt8]) -> String? {
+        guard bytes.count >= 20 else { return nil }
+        let fwd = bytes[8..<16]
+        if fwd.allSatisfy({ ($0 >= 48 && $0 <= 57) || ($0 >= 65 && $0 <= 90) || ($0 >= 97 && $0 <= 122) }) { return "v1" }
+        let cmd = UInt32(bytes[4]) | (UInt32(bytes[5]) << 8) | (UInt32(bytes[6]) << 16) | (UInt32(bytes[7]) << 24)
+        if cmd == Cmd2.json || cmd == Cmd2.ping || cmd == Cmd2.pong || cmd == Cmd2.liveMotion || (cmd >= 1001 && cmd <= 1007) { return "v2" }
+        return "v1"
+    }
+
     static func json(_ pairs: [(String, JSONValue)]) -> Data {
         encode(cmd: Cmd.json, payload: Array(JSONValue.object(pairs).encoded.utf8))
     }
@@ -129,12 +188,16 @@ enum Proto {
 }
 
 /// Incremental parser: feed it TCP chunks, get whole packets back.
+/// v1 headers have a 16-bit command, v2 headers a 32-bit one; everything else is the same.
 struct PacketParser {
+    var v2 = false
     private var buf = [UInt8]()
 
-    mutating func push(_ data: Data) -> [(cmd: UInt16, payload: [UInt8])] {
+    init(v2: Bool = false) { self.v2 = v2 }
+
+    mutating func push(_ data: Data) -> [(cmd: UInt32, payload: [UInt8])] {
         buf.append(contentsOf: data)
-        var out = [(cmd: UInt16, payload: [UInt8])]()
+        var out = [(cmd: UInt32, payload: [UInt8])]()
         var pos = 0
         while buf.count - pos >= 20 {
             let len = Int(buf[pos]) | (Int(buf[pos + 1]) << 8) | (Int(buf[pos + 2]) << 16) | (Int(buf[pos + 3]) << 24)
@@ -143,7 +206,8 @@ struct PacketParser {
                 return out
             }
             if buf.count - pos < 20 + len { break }
-            let cmd = UInt16(buf[pos + 4]) | (UInt16(buf[pos + 5]) << 8)
+            var cmd = UInt32(buf[pos + 4]) | (UInt32(buf[pos + 5]) << 8)
+            if v2 { cmd |= (UInt32(buf[pos + 6]) << 16) | (UInt32(buf[pos + 7]) << 24) }
             out.append((cmd: cmd, payload: Array(buf[(pos + 20)..<(pos + 20 + len)])))
             pos += 20 + len
         }

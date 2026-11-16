@@ -3,6 +3,10 @@ import assert from 'node:assert/strict';
 import { encode, encodeJson, PacketParser, JpegAssembler, parseCatalogueXml, minutesFromMask, CMD } from '../bridge/protocol.js';
 import { SpeedGate, speedFrom, alawToFloat } from '../public/radar.js';
 import { createServer } from '../server.js';
+import { startSimulator, SIM_DEV_ID } from '../bridge/simulator.js';
+import { probe } from '../bridge/discovery.js';
+import { Camera } from '../bridge/camera.js';
+import { encode2, PacketParser2, sniffProtocol, localUnixTime } from '../bridge/protocol.js';
 
 test('header layout matches the camera protocol', () => {
   const b = encodeJson({ code: 501 });
@@ -137,4 +141,52 @@ test('password protection', async () => {
   } finally {
     await app.close();
   }
+});
+
+test('v2 packet format round-trips and is told apart from v1', () => {
+  const b = encode2({ cmd: 1003, payload: Buffer.from([1, 2, 3]) });
+  assert.equal(b.readUInt32LE(4), 1003);
+  const [p] = new PacketParser2().push(b);
+  assert.deepEqual([...p.payload], [1, 2, 3]);
+  assert.equal(sniffProtocol(b), 'v2');
+  assert.equal(sniffProtocol(encodeJson({ code: 1 })), 'v1');
+  // local time, like the official app's unixTimer
+  const d = new Date();
+  assert.equal(localUnixTime(d), Math.floor(d.getTime() / 1000) - d.getTimezoneOffset() * 60);
+});
+
+for (const protocol of ['v1', 'v2']) {
+  test(`discovery finds a ${protocol} camera and the bridge logs in with its real ID`, async () => {
+    const sim = await startSimulator({ protocol, pingEveryMs: 300 });
+    const cam = new Camera({ host: sim.host, port: sim.port });
+    try {
+      const r = await probe(sim.host, sim.port);
+      assert.equal(r.ok, true);
+      assert.equal(r.protocol, protocol);
+      assert.equal(r.devId, SIM_DEV_ID);
+
+      const frames = [];
+      cam.on('frame', (f) => frames.push(f));
+      cam.addViewer();
+      cam.start();
+      for (let i = 0; i < 80 && frames.length < 3; i++) await new Promise((res) => setTimeout(res, 100));
+      assert.ok(frames.length >= 3, 'got video');
+      assert.equal(cam.status().protocol, protocol);
+      assert.equal(cam.info.devId, SIM_DEV_ID);
+      assert.ok(sim.state.targets.includes(SIM_DEV_ID), 'logged in with the camera ID, not a placeholder');
+      await cam.setIr(true);
+      assert.equal(sim.state.ir, 1);
+      await new Promise((res) => setTimeout(res, 700));
+      assert.ok(sim.state.pongs > 0, 'answered the camera\'s keep-alive pings');
+    } finally {
+      cam.stop();
+      await sim.close();
+    }
+  });
+}
+
+test('discovery reports why an address is not a camera', async () => {
+  const r = await probe('127.0.0.1', 9, { connectTimeoutMs: 500 });
+  assert.equal(r.ok, false);
+  assert.ok(r.reason);
 });

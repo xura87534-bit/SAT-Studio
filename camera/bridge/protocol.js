@@ -25,6 +25,9 @@ export const CMD = {
   AVI: 7,
   XML: 8,
   HEARTBEAT: 100,
+  PING: 101, // camera asks "are you there?" ...
+  PONG: 102, // ... and expects this answer
+  DIRECT_MOTION: 114, // discovery: "who are you?" → JSON with devId
   LIVE_MOTION: 115,
 };
 
@@ -72,8 +75,65 @@ export function encodeJson(obj, opts = {}) {
 }
 
 /** A command routed through the camera's AP command channel (code 502). */
-export function encodeAp(content) {
-  return encodeJson({ code: CODE.AP_COMMAND, content: { devTarget: DEV_TARGET, ...content } });
+export function encodeAp(content, devTarget = DEV_TARGET) {
+  return encodeJson({ code: CODE.AP_COMMAND, content: { devTarget, ...content } });
+}
+
+/** Seconds since 1970 in local time, the way the official app sends "unixTimer". */
+export function localUnixTime(date = new Date()) {
+  return Math.floor(date.getTime() / 1000) - date.getTimezoneOffset() * 60;
+}
+
+// ---------------------------------------------------------------------------------------------
+// Newer cameras ("p2p: 1" models such as A12 and W1) use a different 20-byte header:
+//
+//   uint32 dataLength, uint32 cmd, uint32 dataId, byte[8] reserved (zeros), byte[dataLength]
+//
+// Commands are plain JSON (cmd 8) without the 502 wrapper; video is cmd 1003, audio 1004.
+// ---------------------------------------------------------------------------------------------
+export const CMD2 = { JSON: 8, PING: 9, PONG: 10, LIVE_MOTION: 115, H264: 1001, PCM: 1002, JPEG: 1003, G711: 1004, AVI: 1005, XML: 1006 };
+export const CODE2 = { LIVE_MOTION: 115, DIRECT_MOTION: 114, IR_LED: 202, AV_SWITCH: 213, BASE_INFO: 214, VIDEO_FLIP: 216, REBOOT: 299 };
+
+export function encode2({ cmd = CMD2.JSON, payload = Buffer.alloc(0), dataId = 0 } = {}) {
+  const body = Buffer.isBuffer(payload) ? payload : Buffer.from(payload);
+  const head = Buffer.alloc(HEADER_SIZE);
+  head.writeUInt32LE(body.length, 0);
+  head.writeUInt32LE(cmd >>> 0, 4);
+  head.writeUInt32LE(dataId >>> 0, 8);
+  return Buffer.concat([head, body]);
+}
+
+export function encodeJson2(obj) {
+  return encode2({ cmd: CMD2.JSON, payload: Buffer.from(JSON.stringify(obj), 'utf8') });
+}
+
+export class PacketParser2 {
+  constructor() { this.buf = Buffer.alloc(0); }
+  push(chunk) {
+    this.buf = this.buf.length ? Buffer.concat([this.buf, chunk]) : chunk;
+    const out = [];
+    while (this.buf.length >= HEADER_SIZE) {
+      const len = this.buf.readUInt32LE(0);
+      if (len > MAX_PAYLOAD) { this.buf = Buffer.alloc(0); break; }
+      if (this.buf.length < HEADER_SIZE + len) break;
+      out.push({ cmd: this.buf.readUInt32LE(4), dataId: this.buf.readUInt32LE(8), payload: Buffer.from(this.buf.subarray(HEADER_SIZE, HEADER_SIZE + len)) });
+      this.buf = this.buf.subarray(HEADER_SIZE + len);
+    }
+    return out;
+  }
+}
+
+/**
+ * Tells the two header formats apart from the first 20 bytes the camera sends.
+ * Old format: bytes 8..15 are the ASCII forward id "00000000". New format: reserved zeros.
+ */
+export function sniffProtocol(buf) {
+  if (buf.length < HEADER_SIZE) return null;
+  const fwd = buf.subarray(8, 16).toString('latin1');
+  if (/^[0-9A-Za-z]{8}$/.test(fwd)) return 'v1';
+  const cmd32 = buf.readUInt32LE(4);
+  if (cmd32 === CMD2.JSON || cmd32 === CMD2.PING || cmd32 === CMD2.PONG || cmd32 === CMD2.LIVE_MOTION || (cmd32 >= 1001 && cmd32 <= 1007)) return 'v2';
+  return 'v1';
 }
 
 /** Incremental parser: feed it TCP chunks, get whole packets back. */

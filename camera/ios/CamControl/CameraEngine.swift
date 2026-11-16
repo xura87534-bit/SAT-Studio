@@ -1,20 +1,29 @@
 import Foundation
 import Network
 
-/// Keeps a TCP connection to the camera (its own Wi-Fi hotspot, 192.168.169.1:6123), reconnects when it
-/// drops, and streams video only while the app is looking at it. Mirrors camera/bridge/camera.js.
-/// Everything runs on the main queue, so no locking is needed.
+/// Finds the camera (like the official V720 app), keeps a TCP connection to it, reconnects when it
+/// drops, and streams video only while the app is looking at it. Handles both packet formats:
+///   v1 — most V720 cameras (A9, X5, M1 …): commands wrapped in code 502
+///   v2 — newer models (A12, W1): plain JSON commands, video cmd 1003
+/// Mirrors camera/bridge/camera.js. Everything runs on the main queue, so no locking is needed.
 final class CameraEngine {
     static let shared = CameraEngine()
 
-    enum State: String { case idle, connecting, connected, disconnected }
+    enum State: String { case idle, searching, connecting, connected, disconnected }
 
-    let host = "192.168.169.1"
-    let port: UInt16 = 6123
+    /// Where the camera is (remembered between launches so the next start is instant).
+    struct Target {
+        var host: String
+        var port: UInt16
+        var proto: String?
+        var devId: String?
+        var stale = false
+    }
 
     private(set) var state: State = .idle
     private(set) var info: [String: Any] = [:]
     private(set) var lastError: String?
+    private(set) var lastSearch: [String: Any]?
     private(set) var lastFrame: Data?
     private(set) var frameSeq = 0
     private(set) var frameTimestamp: Double = 0 // ms since 1970, when the frame was complete
@@ -22,6 +31,7 @@ final class CameraEngine {
     private(set) var busy = false
     private(set) var audioSeq = 0
     private(set) var audioRing: [(seq: Int, data: Data)] = []
+    private(set) var target: Target?
 
     var ir: Bool {
         get { UserDefaults.standard.bool(forKey: "cc.ir") }
@@ -42,16 +52,22 @@ final class CameraEngine {
     private var conn: NWConnection?
     private var generation = 0
     private var running = false
+    private var searching = false
     private var backoff: TimeInterval = 1
     private var parser = PacketParser()
     private var jpeg = JpegAssembler()
     private var pending: [Pending] = []
     private var nextPendingId = 0
-    private var firstPacketHook: (() -> Void)?
+    private var firstPacketHook: ((Kind) -> Void)?
     private var xmlWaiter: (([UInt8]?) -> Void)?
     private var heartbeat: Timer?
     private var watchdog: Timer?
     private var download: DownloadJob?
+
+    private var isV2: Bool { target?.proto == "v2" }
+    private var devTargetId: String { target?.devId ?? devTarget }
+
+    private enum Kind { case json, jpeg, audio, xml, live, heartbeat, ping, pong, other }
 
     private struct Pending {
         let id: Int
@@ -70,6 +86,20 @@ final class CameraEngine {
             self.handle = handle
             self.done = done
         }
+    }
+
+    init() {
+        if let d = UserDefaults.standard.dictionary(forKey: "cc.camera"), let host = d["host"] as? String {
+            target = Target(host: host, port: UInt16((d["port"] as? Int) ?? 6123), proto: d["protocol"] as? String, devId: d["devId"] as? String)
+        }
+    }
+
+    private func saveTarget() {
+        guard let t = target else { UserDefaults.standard.removeObject(forKey: "cc.camera"); return }
+        var d: [String: Any] = ["host": t.host, "port": Int(t.port)]
+        if let p = t.proto { d["protocol"] = p }
+        if let id = t.devId { d["devId"] = id }
+        UserDefaults.standard.set(d, forKey: "cc.camera")
     }
 
     // MARK: - Life cycle
@@ -93,17 +123,62 @@ final class CameraEngine {
 
     func reconnect() {
         backoff = 0.5
-        if conn != nil { drop(generation) } else if running { connect() }
+        if conn != nil { drop(generation) } else if running && !searching { connect() }
+    }
+
+    /// Use this camera from now on (from the search results or a typed address).
+    func useCamera(host: String, port: UInt16, proto: String?, devId: String?) {
+        target = Target(host: host, port: port, proto: proto, devId: devId)
+        saveTarget()
+        reconnect()
     }
 
     private func setState(_ s: State) { state = s }
 
+    // MARK: - Finding the camera
+
+    /// Looks for cameras (also used by the "Find camera" button).
+    func search(scan: Bool, done: @escaping (CameraDiscovery.SearchResult) -> Void) {
+        if state != .connected { setState(.searching) }
+        CameraDiscovery.search(preferred: target?.host, scan: scan) { [weak self] res in
+            self?.lastSearch = [
+                "at": Int(Date().timeIntervalSince1970 * 1000),
+                "scan": scan,
+                "tried": res.tried.map { $0.json },
+                "networks": res.networks.map { ["name": $0.name, "address": $0.address] },
+            ]
+            done(res)
+        }
+    }
+
     private func connect() {
-        guard running, conn == nil else { return }
+        guard running, conn == nil, !searching else { return }
+
+        // 1. Find the camera if we don't know where it is (or the last place stopped working)
+        if target == nil || target?.stale == true {
+            searching = true
+            search(scan: false) { [weak self] res in
+                guard let self = self else { return }
+                self.searching = false
+                guard self.running else { return }
+                if let best = res.found.first(where: { $0.devId != nil }) ?? res.found.first {
+                    self.target = Target(host: best.host, port: best.port, proto: best.proto, devId: best.devId)
+                    self.saveTarget()
+                    self.connect()
+                } else {
+                    self.lastError = "no camera answered at 192.168.169.1 or on this Wi-Fi"
+                    self.retryLater()
+                }
+            }
+            return
+        }
+
+        // 2. Connect and log in
+        guard let t = target else { return }
         generation += 1
         let gen = generation
         setState(.connecting)
-        parser = PacketParser()
+        parser = PacketParser(v2: t.proto == "v2")
         jpeg = JpegAssembler()
         streaming = false
 
@@ -114,7 +189,7 @@ final class CameraEngine {
         tcp.connectionTimeout = 6
         let params = NWParameters(tls: nil, tcp: tcp)
         params.requiredInterfaceType = .wifi
-        let c = NWConnection(host: NWEndpoint.Host(host), port: NWEndpoint.Port(rawValue: port) ?? 6123, using: params)
+        let c = NWConnection(host: NWEndpoint.Host(t.host), port: NWEndpoint.Port(rawValue: t.port) ?? 6123, using: params)
         conn = c
         c.stateUpdateHandler = { [weak self] st in
             guard let self = self, gen == self.generation else { return }
@@ -122,45 +197,35 @@ final class CameraEngine {
             case .ready:
                 self.handshake(gen)
             case .waiting(let err):
-                self.lastError = Self.describe(err)
-                self.drop(gen)
+                self.lastError = CameraDiscovery.describe(err)
+                self.connectFailed(gen)
             case .failed(let err):
-                self.lastError = Self.describe(err)
-                self.drop(gen)
+                self.lastError = CameraDiscovery.describe(err)
+                self.connectFailed(gen)
             default:
                 break
             }
         }
         c.start(queue: .main)
         receive(c, gen)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 9) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 10) { [weak self] in
             guard let self = self, gen == self.generation, self.state == .connecting else { return }
             if self.lastError == nil { self.lastError = "No answer from the camera" }
-            self.drop(gen)
+            self.connectFailed(gen)
         }
     }
 
-    private static func describe(_ err: NWError) -> String {
-        let text = "\(err)"
-        if text.contains("65570") || text.lowercased().contains("policy") {
-            return "Local Network access is off for CamControl (Settings → Privacy & Security → Local Network)"
-        }
-        if case .posix(let code) = err {
-            switch code {
-            case .ENETUNREACH, .EHOSTUNREACH, .ENETDOWN: return "Not on the camera’s Wi-Fi"
-            case .ECONNREFUSED: return "The camera refused the connection"
-            case .ETIMEDOUT: return "No answer from the camera"
-            default: break
-            }
-        }
-        return text
-    }
-
-    /// Ends the current connection and schedules a new one.
-    private func drop(_ gen: Int) {
+    /// Connecting or logging in failed: try the other packet format, then search again.
+    private func connectFailed(_ gen: Int) {
         guard gen == generation else { return }
-        teardown()
-        guard running else { return }
+        if state != .connected, var t = target {
+            if t.proto == nil { t.proto = "v2" } else { t.stale = true }
+            target = t
+        }
+        drop(gen)
+    }
+
+    private func retryLater() {
         setState(.disconnected)
         let delay = backoff
         backoff = min(backoff * 1.6, 8)
@@ -168,6 +233,14 @@ final class CameraEngine {
             guard let self = self, self.running, self.conn == nil else { return }
             self.connect()
         }
+    }
+
+    /// Ends the current connection and schedules a new one.
+    private func drop(_ gen: Int) {
+        guard gen == generation else { return }
+        teardown()
+        guard running else { return }
+        retryLater()
     }
 
     private func teardown() {
@@ -196,7 +269,7 @@ final class CameraEngine {
                 }
             }
             if let error = error {
-                self.lastError = Self.describe(error)
+                self.lastError = CameraDiscovery.describe(error)
                 self.drop(gen)
                 return
             }
@@ -213,56 +286,112 @@ final class CameraEngine {
         conn?.send(content: data, completion: .contentProcessed { _ in })
     }
 
-    // MARK: - Handshake
+    private func sendJSON(_ pairs: [(String, JSONValue)]) {
+        send(isV2 ? Proto.json2(pairs) : Proto.json(pairs))
+    }
+
+    // MARK: - Handshake (the official app's order)
 
     private func handshake(_ gen: Int) {
         var advanced = false
-        let next: () -> Void = { [weak self] in
+        let next: (Kind) -> Void = { [weak self] kind in
             guard let self = self, !advanced, gen == self.generation else { return }
             advanced = true
             self.firstPacketHook = nil
-            self.afterLiveMotion(gen)
+            self.login(gen, cameraAskedForId: kind == .live)
         }
         firstPacketHook = next
-        send(Proto.encode(cmd: Cmd.liveMotion))
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: next)
+        if isV2 {
+            sendJSON([("code", .int(Code2.liveMotion))])
+        } else {
+            send(Proto.encode(cmd: Cmd.liveMotion))
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { next(.other) }
     }
 
-    private func afterLiveMotion(_ gen: Int) {
-        let now = Int(Date().timeIntervalSince1970)
-        request([("code", .int(Code.apConnect)), ("target", .string(devTarget)), ("token", .string(devToken)), ("unixTimer", .int(now))]) { [weak self] connResp in
+    private func login(_ gen: Int, cameraAskedForId: Bool) {
+        let loginPairs: [(String, JSONValue)] = [
+            ("code", .int(isV2 ? Code2.liveMotion : Code.apConnect)),
+            ("target", .string(devTargetId)),
+            ("token", .string(devToken)),
+            ("unixTimer", .int(localUnixTime())),
+        ]
+        let afterLogin: ([String: Any]?) -> Void = { [weak self] connResp in
             guard let self = self, gen == self.generation else { return }
-            self.ap([("code", .int(Code.baseInfo)), ("unixTimer", .int(now))]) { [weak self] r in
+            let infoPairs: [(String, JSONValue)] = self.isV2
+                ? [("code", .int(Code2.baseInfo))]
+                : [("code", .int(Code.baseInfo)), ("unixTimer", .int(localUnixTime()))]
+            self.ap(infoPairs) { [weak self] r in
                 guard let self = self, gen == self.generation else { return }
-                var i = (r?["content"] as? [String: Any]) ?? [:]
+                var i = (r?["content"] as? [String: Any]) ?? r ?? [:]
                 if i["devId"] == nil, let d = connResp?["devId"] { i["devId"] = d }
+                if i["devId"] == nil, let d = self.target?.devId { i["devId"] = d }
+                i["protocol"] = self.isV2 ? "v2" : "v1"
                 self.info = i
+                if self.target?.devId == nil, let d = i["devId"] as? String { self.target?.devId = d; self.saveTarget() }
+                if self.target?.proto == nil { self.target?.proto = "v1"; self.saveTarget() }
                 self.lastError = nil
                 self.backoff = 1
                 self.setState(.connected)
                 self.heartbeat = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in
-                    self?.send(Proto.encode(cmd: Cmd.heartbeat))
+                    guard let self = self else { return }
+                    self.send(self.isV2 ? Proto.encode2(cmd: Cmd2.ping) : Proto.encode(cmd: Cmd.heartbeat))
                 }
                 self.ap([("code", .int(Code.irLed)), ("IrLed", .int(self.ir ? 1 : 0))]) { _ in }
                 if self.flip != 0 { self.ap([("code", .int(Code.videoFlip)), ("mirrorFlip", .int(self.flip))]) { _ in } }
                 if self.wantsVideo { self.openStream() }
             }
         }
+        if isV2 && !cameraAskedForId {
+            afterLogin(nil) // the camera went straight to JSON: no login needed
+        } else {
+            sendRequest(isV2 ? Proto.json2(loginPairs) : Proto.json(loginPairs), key: isV2 ? Code2.liveMotion : Code.apConnect, timeout: 5, completion: afterLogin)
+        }
     }
 
     // MARK: - Packets
 
-    private func onPacket(_ cmd: UInt16, _ payload: [UInt8]) {
-        if cmd == Cmd.heartbeat {
-            send(Proto.encode(cmd: Cmd.heartbeat))
-            return
+    private func kind(_ cmd: UInt32) -> Kind {
+        if isV2 {
+            switch cmd {
+            case Cmd2.json: return .json
+            case Cmd2.jpeg: return .jpeg
+            case Cmd2.g711: return .audio
+            case Cmd2.xml: return .xml
+            case Cmd2.liveMotion: return .live
+            case Cmd2.ping: return .ping
+            case Cmd2.pong: return .pong
+            default: return .other
+            }
         }
-        if let hook = firstPacketHook, cmd == Cmd.liveMotion || cmd == Cmd.json {
-            hook()
-            if cmd == Cmd.liveMotion { return }
+        switch cmd {
+        case UInt32(Cmd.json), UInt32(Cmd.directMotion): return .json
+        case UInt32(Cmd.jpeg): return .jpeg
+        case UInt32(Cmd.g711): return .audio
+        case UInt32(Cmd.xml): return .xml
+        case UInt32(Cmd.liveMotion): return .live
+        case UInt32(Cmd.heartbeat): return .heartbeat
+        case UInt32(Cmd.ping): return .ping
+        case UInt32(Cmd.pong): return .pong
+        default: return .other
+        }
+    }
+
+    private func onPacket(_ cmd: UInt32, _ payload: [UInt8]) {
+        let k = kind(cmd)
+        // Keep-alive: answer the camera's pings, or it drops the connection
+        switch k {
+        case .heartbeat: send(Proto.encode(cmd: Cmd.heartbeat)); return
+        case .ping: send(isV2 ? Proto.encode2(cmd: Cmd2.pong) : Proto.encode(cmd: Cmd.pong)); return
+        case .pong: return
+        default: break
+        }
+        if let hook = firstPacketHook, k == .live || k == .json {
+            hook(k)
+            if k == .live { return }
         }
         if let job = download {
-            if cmd == Cmd.json || cmd == Cmd.liveMotion {
+            if k == .json || k == .live {
                 if let j = Proto.parseJSON(payload) {
                     if (j["code"] as? NSNumber)?.intValue == Code.sdStreamEnd { finishDownload(nil); return }
                     resolvePending(j)
@@ -276,14 +405,14 @@ final class CameraEngine {
             }
             return
         }
-        switch cmd {
-        case Cmd.jpeg:
+        switch k {
+        case .jpeg:
             for f in jpeg.push(payload) { gotFrame(Data(f)) }
-        case Cmd.g711:
+        case .audio:
             gotAudio(Data(payload))
-        case Cmd.xml:
+        case .xml:
             if let w = xmlWaiter { xmlWaiter = nil; w(payload) }
-        case Cmd.json, Cmd.liveMotion:
+        case .json, .live:
             if let j = Proto.parseJSON(payload) { resolvePending(j) }
         default:
             break
@@ -325,11 +454,18 @@ final class CameraEngine {
     // MARK: - Requests
 
     private func request(_ obj: [(String, JSONValue)], timeout: TimeInterval = 4, completion: @escaping ([String: Any]?) -> Void) {
-        sendRequest(Proto.json(obj), key: Self.key(of: obj), timeout: timeout, completion: completion)
+        sendRequest(isV2 ? Proto.json2(obj) : Proto.json(obj), key: Self.key(of: obj), timeout: timeout, completion: completion)
     }
 
+    /// A device command: wrapped in code 502 with the camera's ID for v1, plain JSON for v2.
     private func ap(_ content: [(String, JSONValue)], timeout: TimeInterval = 4, completion: @escaping ([String: Any]?) -> Void) {
-        sendRequest(Proto.ap(content), key: Self.key(of: content), timeout: timeout, completion: completion)
+        if isV2 {
+            request(content, timeout: timeout, completion: completion)
+            return
+        }
+        let target: [(String, JSONValue)] = [("devTarget", .string(devTargetId))]
+        let wrapped: [(String, JSONValue)] = [("code", .int(Code.apCommand)), ("content", .object(content + target))]
+        sendRequest(Proto.json(wrapped), key: Self.key(of: content), timeout: timeout, completion: completion)
     }
 
     private static func key(of pairs: [(String, JSONValue)]) -> Int? {
@@ -363,12 +499,20 @@ final class CameraEngine {
     private func openStream() {
         streaming = true
         streamStartedAt = Date()
-        ap([("code", .int(Code.openAV))]) { _ in }
+        if isV2 {
+            ap([("code", .int(Code2.avSwitch)), ("avSwitch", .int(3))]) { _ in }
+        } else {
+            ap([("code", .int(Code.openAV))]) { _ in }
+        }
     }
 
     private func closeStream() {
         streaming = false
-        ap([("code", .int(Code.closeAV))]) { _ in }
+        if isV2 {
+            ap([("code", .int(Code2.avSwitch)), ("avSwitch", .int(0))]) { _ in }
+        } else {
+            ap([("code", .int(Code.closeAV))]) { _ in }
+        }
     }
 
     private func watch() {
@@ -394,19 +538,27 @@ final class CameraEngine {
         if let t = lastFrameAt { age = Int(Date().timeIntervalSince(t) * 1000) }
         var err: Any = NSNull()
         if let e = lastError { err = e }
+        var proto: Any = NSNull()
+        if let p = target?.proto { proto = p }
         let settings: [String: Any] = ["ir": ir, "flip": flip]
+        var search: Any = NSNull()
+        if let s = lastSearch { search = s }
+        let host = target?.host ?? CameraDiscovery.defaultHost
+        let port = target?.port ?? CameraDiscovery.defaultPort
         return [
             "state": state.rawValue,
             "connected": state == .connected,
             "streaming": streaming,
             "busy": busy,
             "camera": "\(host):\(port)",
+            "protocol": proto,
             "info": info,
             "fps": fps,
             "lastFrameAgeMs": age,
             "viewers": wantsVideo ? 1 : 0,
             "settings": settings,
             "lastError": err,
+            "search": search,
             "demo": false,
             "native": true,
         ]
@@ -415,6 +567,7 @@ final class CameraEngine {
     // MARK: - Controls
 
     private var notConnected: String? { state == .connected && conn != nil ? nil : "The camera is not connected" }
+    private var sdUnsupported: String? { isV2 ? "The SD card isn’t supported for this camera model yet" : nil }
 
     func setIR(_ on: Bool, done: @escaping (String?) -> Void) {
         ir = on
@@ -429,13 +582,17 @@ final class CameraEngine {
     }
 
     func reboot() {
-        send(Proto.ap([("code", .int(Code.reboot))]))
+        if isV2 {
+            sendJSON([("code", .int(Code.reboot))])
+        } else {
+            send(Proto.json([("code", .int(Code.apCommand)), ("content", .object([("code", .int(Code.reboot)), ("devTarget", .string(devTargetId))]))]))
+        }
     }
 
-    // MARK: - SD card
+    // MARK: - SD card (v1 cameras)
 
     func sdStatus(done: @escaping ([String: Any]?, String?) -> Void) {
-        if let e = notConnected { done(nil, e); return }
+        if let e = notConnected ?? sdUnsupported { done(nil, e); return }
         ap([("code", .int(Code.sdStatus))]) { r in
             guard let r = r else { done(nil, "The camera did not respond"); return }
             done((r["content"] as? [String: Any]) ?? r, nil)
@@ -443,8 +600,8 @@ final class CameraEngine {
     }
 
     func sdDates(done: @escaping ([Int]?, String?) -> Void) {
-        if let e = notConnected { done(nil, e); return }
-        request([("code", .int(Code.sdDateList)), ("devTarget", .string(devTarget))], timeout: 6) { r in
+        if let e = notConnected ?? sdUnsupported { done(nil, e); return }
+        request([("code", .int(Code.sdDateList)), ("devTarget", .string(devTargetId))], timeout: 6) { r in
             guard let r = r else { done(nil, "The camera did not respond"); return }
             let raw = (r["dates"] as? [Any]) ?? []
             done(raw.compactMap { ($0 as? NSNumber)?.intValue ?? Int("\($0)") }, nil)
@@ -452,7 +609,7 @@ final class CameraEngine {
     }
 
     func sdFiles(date: Int, done: @escaping ([(hour: Int, minute: Int)]?, String?) -> Void) {
-        if let e = notConnected { done(nil, e); return }
+        if let e = notConnected ?? sdUnsupported { done(nil, e); return }
         var finished = false
         let finish: ([(hour: Int, minute: Int)]?, String?) -> Void = { files, err in
             if finished { return }
@@ -466,7 +623,7 @@ final class CameraEngine {
         DispatchQueue.main.asyncAfter(deadline: .now() + 9) { [weak self] in
             if !finished { self?.xmlWaiter = nil; finish(nil, "The camera did not send the file list") }
         }
-        request([("code", .int(Code.sdConfig)), ("devTarget", .string(devTarget)), ("date", .int(date))], timeout: 6) { [weak self] r in
+        request([("code", .int(Code.sdConfig)), ("devTarget", .string(devTargetId)), ("date", .int(date))], timeout: 6) { [weak self] r in
             guard let r = r else { self?.xmlWaiter = nil; finish(nil, "The camera did not respond"); return }
             if let st = (r["status"] as? NSNumber)?.intValue, st != 200 { self?.xmlWaiter = nil; finish([], nil) }
         }
@@ -474,7 +631,7 @@ final class CameraEngine {
 
     /// Downloads one recorded minute (AVI) to a temporary file. Live video pauses meanwhile.
     func sdDownload(date: Int, hour: Int, minute: Int, done: @escaping (URL?, String?) -> Void) {
-        if let e = notConnected { done(nil, e); return }
+        if let e = notConnected ?? sdUnsupported { done(nil, e); return }
         if busy { done(nil, "Another download is running"); return }
         let name = "\(date)-" + String(format: "%02ld%02ld", hour, minute) + ".avi"
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(name)
@@ -495,7 +652,7 @@ final class CameraEngine {
             let job = DownloadJob(url: url, handle: handle, done: done)
             self.download = job
             self.bumpDownload(8)
-            self.request([("code", .int(Code.sdStartStream)), ("devTarget", .string(devTarget)), ("date", .int(date)), ("hours", .int(hour)), ("minute", .int(minute))], timeout: 8) { [weak self] r in
+            self.request([("code", .int(Code.sdStartStream)), ("devTarget", .string(self.devTargetId)), ("date", .int(date)), ("hours", .int(hour)), ("minute", .int(minute))], timeout: 8) { [weak self] r in
                 guard let self = self, self.download === job else { return }
                 guard let r = r else { self.finishDownload("The camera did not answer"); return }
                 if let st = (r["status"] as? NSNumber)?.intValue, st != 200 { self.finishDownload("The camera refused the download (status \(st))") }
