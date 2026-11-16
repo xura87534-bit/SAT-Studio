@@ -2784,6 +2784,52 @@ T("gX62","G","Circles",2,"spr",({ri,pick})=>{const r=ri(3,12),d=pick([30,45,60,9
  return{q:`A circle has a radius of ${r}. A central angle measures ${d}°. The length of the arc it intercepts is kπ. What is the value of k?`,a:NA(2*r*d/360),e:`Arc = (${d}/360)(2π·${r}) = ${Nn(2*r*d/360)}π.`}});
 T("gX63","G","Circles",3,"spr",({ri,nz})=>{const h=nz(-6,6),k=nz(-6,6),r=ri(2,9);const D=-2*h,E=-2*k,F=h*h+k*k-r*r;
  return{q:`The equation of a circle in the xy-plane is ${X2} + y<sup>2</sup> ${pm(D)}x ${pm(E)}y ${pm(F)} = 0. What is the radius of the circle?`.replace(" + 0 = 0"," = 0"),a:NA(r),e:`Complete the square: (x ${pm(-h)})<sup>2</sup> + (y ${pm(-k)})<sup>2</sup> = ${r*r}, so the radius is √${r*r} = ${r}.`}});
+/* Unit circle: trig values of large or negative angles, e.g. tan(92π/3). Appended last so earlier templates keep their seeds. */
+const UC=(()=>{
+  const MAG={30:{sin:"1/2",cos:"√3/2",tan:"√3/3"},45:{sin:"√2/2",cos:"√2/2",tan:"1"},60:{sin:"√3/2",cos:"1/2",tan:"√3"}};
+  const neg=s=>s==="0"?s:s[0]==="−"?s.slice(1):"−"+s;
+  const QN=["I","II","III","IV"],SIGN={sin:[1,1,-1,-1],cos:[1,-1,-1,1],tan:[1,-1,1,-1]};
+  const piF=(p,q)=>{const g=gcd(p,q);p/=g;q/=g;const a=Math.abs(p);return (p<0?"−":"")+(a===1?"":a)+"π"+(q===1?"":"/"+q)};
+  const deg=n=>`${n<0?"−":""}${Math.abs(n)}°`;
+  // angle p·π/q (radians) or p·180/q degrees; returns everything needed to state and explain it
+  function angle(p,q,useDeg){
+    const t=((p%(2*q))+2*q)%(2*q),k=(p-t)/(2*q),quad=Math.floor(2*t/q),refN=[t,q-t,t-q,2*q-t][quad];
+    const D=180*t/q,ref=180*refN/q,tot=180*p/q;
+    const txt=useDeg?deg(tot):piF(p,q),remTxt=useDeg?`${D}°`:piF(t,q);
+    const red=!k?"":useDeg?`${txt} = ${k<0?"−":""}${Math.abs(k)}(360°) + ${remTxt}`:`${txt} = ${piF(2*k,1)} + ${remTxt}`;
+    return {t,k,D,quad,refN,ref,txt,red,remTxt,refTxt:useDeg?`${ref}°`:piF(refN,q),unit:useDeg?"degree":"radian",full:useDeg?"360°":"2π"};
+  }
+  // "92π/3 = 30π + 2π/3, and full turns of 2π don't change the value, so tan(92π/3) = tan(2π/3). "
+  const turns=(f,A)=>A.red?`Remove full turns: ${A.red}. Adding or removing full turns of ${A.full} doesn't change a trig value, so ${f}(${A.txt}) = ${f}(${A.remTxt}). `:"";
+  const exact=(f,A)=>{const m=MAG[A.ref][f];return SIGN[f][A.quad]>0?m:neg(m)};
+  const approx=(f,A)=>Math[f](A.D*Math.PI/180).toFixed(3).replace("-","−").replace(/^−0\.000$/,"0.000");
+  return {MAG,neg,QN,SIGN,piF,angle,exact,approx,turns};
+})();
+T("gU1","G","Right triangles and trigonometry",3,"mc",({ri,pick})=>{
+  const q=pick([3,4,6]),p=pick([1,1,1,-1])*ri(2*q+1,16*q);ok(gcd(p,q)===1);
+  const useDeg=pick([false,false,false,true]),A=UC.angle(p,q,useDeg),f=pick(["tan","tan","sin","cos"]);
+  const v=UC.exact(f,A),pos=v[0]!=="−";
+  const alt=f==="tan"?(A.ref===45?"√3":UC.MAG[90-A.ref].tan):(A.ref===45?"1/2":UC.MAG[A.ref][f==="sin"?"cos":"sin"]);
+  const w=pos?alt:UC.neg(alt);
+  const sgn=UC.SIGN[f][A.quad]>0?"positive":"negative";
+  return{q:`What is the value of ${f}(${A.txt})?`,right:v,wrong:[UC.neg(v),w,UC.neg(w)],
+   e:`${UC.turns(f,A)}The angle ${A.remTxt} is in quadrant ${UC.QN[A.quad]} with reference angle ${A.refTxt}, and ${f} is ${sgn} there, so the value is ${v}. Calculator check: in Desmos (set to ${A.unit}s) type ${f}(${A.txt}) to get about ${UC.approx(f,A)}, then match it to the choice with the same decimal.`}});
+T("gU2","G","Right triangles and trigonometry",3,"spr",({ri,pick})=>{
+  const q=pick([2,3,6,6,4]),p=pick([1,1,-1])*ri(2*q+1,14*q);ok(gcd(p,q)===1);
+  const f=pick(["sin","cos","tan"]),D=(((180*p/q)%360)+360)%360;
+  if(q===2){ok(f!=="tan");const val=f==="sin"?[0,1,0,-1][D/90]:[1,0,-1,0][D/90];const A=UC.angle(p,q,false);
+    return{q:`What is the value of ${f}(${A.txt})?`,a:NA(val),e:`${UC.turns(f,A)}On the unit circle the angle ${A.remTxt} points to (${[1,0,-1,0][D/90]}, ${[0,1,0,-1][D/90]}), and ${f} is the ${f==="sin"?"y":"x"}-coordinate: ${Nn(val)}.`}}
+  const A=UC.angle(p,q,false),v=UC.exact(f,A);ok(/^−?(1\/2|1)$/.test(v));const val=num(v.replace("−","-"));
+  return{q:`What is the value of ${f}(${A.txt})?`,a:NA(val),
+   e:`${UC.turns(f,A)}The angle ${A.remTxt} is in quadrant ${UC.QN[A.quad]} with reference angle ${A.refTxt}, and ${f} is ${UC.SIGN[f][A.quad]>0?"positive":"negative"} there, so the value is ${v}${v.includes("/")?` (enter ${v.replace("−","-")} or ${NA(val)})`:""}.`}});
+T("gU3","G","Right triangles and trigonometry",3,"mc",({ri,pick})=>{
+  const q=pick([5,7,8,9,10,12]),p=ri(q+1,4*q-1);ok(gcd(p,q)===1&&((p%(2*q))+2*q)%(2*q)>q/2);
+  const f=pick(["sin","cos","tan"]),A=UC.angle(p,q,false),g=f==="sin"?"cos":f==="cos"?"sin":"tan";
+  const r=A.refTxt,gArg=f==="tan"?UC.piF(q-2*A.refN,2*q):r;
+  const pos=UC.SIGN[f][A.quad]>0,R=`${pos?"":"−"}${f}(${r})`;
+  const all=[`${f}(${r})`,`−${f}(${r})`,`${g}(${gArg})`,`−${g}(${gArg})`];
+  return{q:`Which of the following is equal to ${f}(${A.txt})?`,right:R,wrong:all.filter(x=>x!==R),
+   e:`${UC.turns(f,A)}The angle ${A.remTxt} is in quadrant ${UC.QN[A.quad]}, where ${f} is ${pos?"positive":"negative"}, and its reference angle is ${r}. So ${f}(${A.txt}) = ${R}. Calculator check: in Desmos (radians) compare ${f}(${A.txt}) with each choice.`}});
 
 function buildGenerated(){
   const out=[],seenQ=new Set();
