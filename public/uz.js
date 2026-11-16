@@ -100,7 +100,7 @@ const D = {
   "Start 10 questions": "10 ta savolni boshlash", "20 questions": "20 ta savol", "Where you need work": "Qaysi mavzular ustida ishlash kerak",
   "Based on your tests and your Quick Practice answers. Tap a skill to drill only that.": "Testlaringiz va Tezkor mashq javoblaringiz asosida. Faqat bitta mavzuni mashq qilish uchun uni bosing.",
   "Drill": "Mashq", "Fundamentals cheat sheet": "Asosiy qoidalar", "One line per idea. Open a skill to see its rule.": "Har bir qoida bir qatorda. Qoidani ko‘rish uchun mavzuni oching.",
-  "← Quick Practice": "← Tezkor mashq", "I don't know. Show me how": "Bilmayman. Yechimini ko‘rsating", "✓ Correct": "✓ To‘g‘ri", "Show the steps": "Yechimni ko‘rsatish",
+  "← Quick Practice": "← Tezkor mashq", "See results": "Natijani ko‘rish", "No problem. Here is how:": "Hechqisi yo‘q. Yechimi:", "I don't know. Show me how": "Bilmayman. Yechimini ko‘rsating", "✓ Correct": "✓ To‘g‘ri", "Show the steps": "Yechimni ko‘rsatish",
   "Remember:": "Eslab qoling:", "Rule:": "Qoida:", "You'll see this skill again in a moment.": "Bu mavzu biroz keyin yana chiqadi.", "Next": "Keyingi", "Finish": "Tugatish",
   "Round done": "Mashq tugadi", "Another round": "Yana bir mashq", "Back": "Orqaga", "By skill": "Mavzular bo‘yicha",
   "Strong. These basics are solid.": "Zo‘r. Bu asoslarni yaxshi bilasiz.",

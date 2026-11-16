@@ -1084,6 +1084,7 @@ mark.hl{background:rgba(255,213,79,.55);box-shadow:none}
 .startpg .startbig{width:100%;display:block;text-align:center;padding:20px 22px;border-radius:22px;font-size:1.2rem;margin-top:6px}
 .startalt{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
 .startalt .btn{display:block;text-align:left;padding:14px 16px;border-radius:16px;white-space:normal;line-height:1.25}
+.reelnote{width:100%;background:#FFF6D6;border:1px solid #F0D98A;color:#5A4500;border-radius:14px;padding:12px 14px;font-weight:600;font-size:.95rem}
 .startpts{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:12px;width:100%}
 .startpts li{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
 .startpts b{display:block}.startpts span{color:var(--muted);font-size:.93rem}
@@ -6862,6 +6863,22 @@ function bindCommon(){
 const UZ=window.UZ||((uz,en)=>en);
 function langToggle(){const l=window.SAT_LANG||"en";return `<div class="langsw" role="group" aria-label="Til / Language" data-notr><button data-setlang="uz" aria-pressed="${l==="uz"}">O‘zbekcha</button><button data-setlang="en" aria-pressed="${l==="en"}">English</button></div>`}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-setlang]");if(b&&window.SAT_SETLANG&&b.dataset.setlang!==window.SAT_LANG)window.SAT_SETLANG(b.dataset.setlang)});
+/* The three questions from the "uchinchisi — tuzoq" reel. The reel withholds the third answer and says it is
+   in the app, so visitors from Instagram get these first, then seven ordinary Quick Practice questions. */
+function reelItems(){
+  const it=(tid,s,q,c,a,e,rule)=>({tid,s,sec:"M",q,c,a,e,rule});
+  return [
+    it("reel-1","Linear equations in one variable",UZ("3x + 7 = 22. x nechiga teng?","3x + 7 = 22. What is the value of x?"),["3","5","7","15"],1,
+      [UZ("Ikkala tomondan 7 ni ayiring: 3x = 15.","Subtract 7 from both sides: 3x = 15."),UZ("3 ga bo‘ling: x = 5.","Divide by 3: x = 5.")],UZ("Amallarni teskari tartibda bekor qiling.","Undo operations in reverse order.")),
+    it("reel-2","Lines, angles, and triangles",UZ("Uchburchak burchaklari 2 : 3 : 4 nisbatda. Eng katta burchak necha gradus?","A triangle's angles are in the ratio 2 : 3 : 4. What is the largest angle, in degrees?"),["60°","80°","90°","100°"],1,
+      [UZ("2 + 3 + 4 = 9 ta teng qism.","2 + 3 + 4 = 9 equal parts."),UZ("180° ÷ 9 = 20° bir qism.","180° ÷ 9 = 20° per part."),UZ("Eng kattasi: 4 × 20° = 80°.","Largest: 4 × 20° = 80°.")],UZ("Uchburchak burchaklari yig‘indisi 180°.","Triangle angles add to 180°.")),
+    it("reel-3","Percentages",UZ("Narx 25% oshdi, keyin 20% tushdi. Jami qancha o‘zgardi?","A price rises 25%, then falls 20%. What is the overall change?"),["+5%","−5%","0%","+45%"],2,
+      [UZ("Ko‘pchilik 25 − 20 = 5 deb +5% deydi. Bu tuzoq.","Most people say 25 − 20 = 5, so +5%. That's the trap."),UZ("20% kattaroq narxdan olinadi: 1,25 × 0,8 = 1,00.","The 20% is taken from the bigger price: 1.25 × 0.8 = 1.00."),UZ("Narx boshlang‘ichiga teng: o‘zgarish 0%.","The price is back where it started: 0% change.")],UZ("Ketma-ket foizlarni qo‘shmang, ko‘paytiring.","Don't add successive percents; multiply them."))
+  ];
+}
+function fromReel(){try{return /[?&]reel=/.test(location.search)||sessionStorage.getItem("satstudio_src")==="instagram"}catch(e){return false}}
+function startReel(){qpStart(reelItems().concat(qpDeck(7,"both")),UZ("Reeldagi savollar","Reel questions"),"both",null)}
+
 /* What a brand-new visitor sees: one clear action instead of an empty dashboard. */
 function renderStart(){
   view="home";
@@ -6870,11 +6887,12 @@ function renderStart(){
   <span class="chip">${UZ("Bepul · O‘zbek tilida · Ro‘yxatdan o‘tish shart emas","Free · In Uzbek · No sign-up needed")}</span>
   <h1>${UZ("SAT’ga bugundan tayyorlaning","Start preparing for the SAT today")}</h1>
   <p class="lede">${UZ("Haqiqiy imtihondagidek savollar. Har bir javobdan keyin yechim. Ballingiz darhol chiqadi.","Questions like the real exam. A worked solution after every answer. Your score right away.")}</p>
-  <button class="btn startbig" id="stQuick"><span>${UZ("10 ta savol bilan boshlash","Start with 10 questions")}</span><small>${UZ("2 daqiqa · vaqt chegarasi yo‘q","2 minutes · no timer")}</small></button>
+  ${fromReel()?`<div class="reelnote">${UZ("Instagram’dan keldingizmi? Reeldagi 3 ta savol shu yerda, uchinchisining javobi ham.","Here from Instagram? The 3 reel questions are here, with the answer to the third.")}</div>`:""}
+  <button class="btn startbig" id="stQuick"><span>${fromReel()?UZ("Reeldagi savollar + 7 ta yangi","The reel's questions + 7 new"):UZ("10 ta savol bilan boshlash","Start with 10 questions")}</span><small>${UZ("2 daqiqa · vaqt chegarasi yo‘q","2 minutes · no timer")}</small></button>
   <div class="startalt"><button class="btn ghost" data-open="pt1"><span>${UZ("Matematikadan to‘liq test","Full Math test")}</span><small>${UZ("70 daqiqa","70 min")}</small></button><button class="btn ghost" data-open="rw1"><span>${UZ("O‘qish va yozishdan to‘liq test","Full Reading & Writing test")}</span><small>${UZ("64 daqiqa","64 min")}</small></button></div>
   <ul class="startpts">${pt(UZ("Moslashuvchan testlar","Adaptive tests"),UZ("2-modul natijangizga qarab o‘zgaradi, xuddi haqiqiy SAT’dagidek.","Module 2 changes with how you do in Module 1, like the real SAT."))}${pt(UZ("Ball va tahlil darhol","Score and analysis at once"),UZ("Test tugashi bilan 400–1600 shkaladagi ballingiz va zaif mavzularingizni ko‘rasiz.","The moment you finish you see your 400–1600 score and your weak skills."))}${pt(UZ("90 kunlik kurs","90-Day Course"),UZ("Asoslardan boshlab, kuniga bitta dars va test.","From the basics, one lesson and quiz a day."))}</ul>
   <p class="fine">${UZ("SAT Studio — o‘zbekcha interfeysli sanoqli SAT ilovalaridan biri. Savollar ingliz tilida, chunki SAT ingliz tilida topshiriladi.","SAT Studio is one of the few SAT apps with an Uzbek interface. Questions are in English, because the SAT is taken in English.")}</p></section>`);
-  $("#stQuick").onclick=()=>qpStart(qpDeck(10,"both"),"","both",null);
+  $("#stQuick").onclick=()=>fromReel()?startReel():qpStart(qpDeck(10,"both"),"","both",null);
   bindCommon();
 }
 
@@ -6901,6 +6919,7 @@ function renderHome(){
     </div>
   </section>
   ${(()=>{const mm=mistakePool("math").length,mr=mistakePool("rw").length;return mm||mr?`<section class="resume redo"><div class="info"><b>Mistakes to redo</b><div class="muted" style="font-size:.9rem">Math ${mm}, Reading &amp; Writing ${mr}. Each one leaves the list when you answer it correctly.</div></div><div class="actions">${mm?`<button class="btn sm" data-open="redo">Redo Math</button>`:""}${mr?`<button class="btn sm" data-open="rwredo">Redo R&amp;W</button>`:""}</div></section>`:""})()}
+  ${fromReel()?`<section class="resume"><div class="info"><b>${UZ("Reeldagi tuzoq savol","The trap question from the reel")}</b><div class="muted" style="font-size:.9rem">${UZ("3 ta savol va uchinchisining javobi, keyin 7 ta yangi savol.","3 questions and the answer to the third, then 7 new ones.")}</div></div><div class="actions"><button class="btn sm" id="reelGo">${UZ("Boshlash","Start")}</button></div></section>`:""}
   ${guestStrip()}
   ${window.courseHomeStrip?window.courseHomeStrip():""}
   ${window.BILL?BILL.homeStrip():""}
@@ -6919,6 +6938,7 @@ function renderHome(){
       ${skillList(ws)}
       ${AI&&ws.length?`<div class="actions" style="margin-top:16px"><button class="btn sm ghost" data-open="${wTarget}">Drill ${wTarget==="rwweak"?"Reading &amp; Writing":"Math"} weak skills</button></div>`:""}</div>
   </section><div style="text-align:center">${langToggle()}</div></div>`);
+  const reelB=$("#reelGo");if(reelB)reelB.onclick=startReel;
   bindCommon();bindHist();
 }
 function vidQ(k){return encodeURIComponent(k+" SAT math")}
@@ -10295,6 +10315,7 @@ async function use(n){try{return window.claude&&window.claude.use?await window.c
       }
     }catch(e){}
   }
+  try{if(/[?&]reel=/.test(location.search)){sessionStorage.setItem("satstudio_src","instagram");history.replaceState(null,"",location.pathname);startReel();}}catch(e){}
   BOOTED=true;pushStudentSoon();setTimeout(()=>{if(view==="home"&&!test)checkLevelUp(500)},300);
   if(!$("#ov")&&["home","tests","english","book","plan","progress"].includes(screen))go(screen);
 })();
