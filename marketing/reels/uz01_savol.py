@@ -26,6 +26,7 @@ OPTS = [("A", "0"), ("B", "2"), ("C", "4"), ("D", "6")]
 RIGHT = 1
 STEPS = ["2(3x + k) = 6x + 2k", "6x + 4 = 6x + 2k", "2k = 4", "k = 2"]
 CTA1, CTA2 = "Shunaqa savollar bepul", "Link bioda"
+CTA3 = ""   # optional small line under the button
 
 _bg = None
 def bg():
@@ -122,6 +123,7 @@ def frame(t):
         a = ease((p - 0.34) / 0.2); f = font("InterDisplay-Black.otf", 78); w = d.textlength(CTA2, font=f)
         d.rounded_rectangle([(W - w) / 2 - 60, 1200, (W + w) / 2 + 60, 1340], radius=70, fill=BLUE + (int(255 * a),))
         text(d, 1222, CTA2, f, WHITE, a)
+        if CTA3: text(d, 1390, CTA3, font("Inter-SemiBold.otf", 50), BLUE, ease((p - 0.46) / 0.2))
     return img
 
 def audio(path):

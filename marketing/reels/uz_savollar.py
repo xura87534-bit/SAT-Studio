@@ -42,6 +42,9 @@ QUESTIONS = {
         caption="3ˣ⁺¹ = 81. x nechiga teng?"),
 }
 
+# End card for this batch: send viewers to the app for the next question.
+R.CTA1, R.CTA2, R.CTA3 = "Keyingi savol ilovada", "Link bioda", "O‘zbek tilida · Bepul"
+
 def load(q):
     R.HOOK, R.EQ, R.ASK, R.ASK2 = q["hook"], q["eq"], q["ask"], q["ask2"]
     R.OPTS = list(zip("ABCD", q["opts"])); R.RIGHT = q["right"]; R.STEPS = q["steps"]
@@ -51,8 +54,8 @@ def render(name):
     w = Writer("renders/_q.mp4")
     for i in range(int(R.DUR * FPS)): w.add(R.frame(i / FPS))
     w.close(); R.audio("renders/_q.wav")
-    mux("renders/_q.mp4", "renders/_q.wav", f"renders/{name}.mp4")
-    os.remove("renders/_q.mp4"); os.remove("renders/_q.wav"); print(f"renders/{name}.mp4")
+    mux("renders/_q.mp4", "renders/_q.wav", f"renders/{name}_v2.mp4")
+    os.remove("renders/_q.mp4"); os.remove("renders/_q.wav"); print(f"renders/{name}_v2.mp4")
 
 if __name__ == "__main__":
     args = sys.argv[1:]
