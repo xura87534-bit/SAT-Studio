@@ -1,0 +1,13 @@
+{
+  "name": "v720-camera-control",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Ad-free controller for V720 / Naxclow mini Wi-Fi cameras, with a speed radar",
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.js",
+    "demo": "node server.js --demo",
+    "test": "node --test test/*.test.js"
+  }
+}

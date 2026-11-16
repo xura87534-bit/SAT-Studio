@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CamControl</title>
+<meta name="description" content="Ad-free control for your V720 mini Wi-Fi camera, with a speed radar">
+<meta name="theme-color" content="#0b0f14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CamControl">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><img src="icon.svg" alt="" width="26" height="26"><span>CamControl</span></div>
+  <div class="status" id="status" aria-live="polite">
+    <span class="dot" id="statusDot"></span><span id="statusText">Starting…</span>
+    <span class="chip" id="fpsChip" hidden></span>
+    <span class="chip" id="battChip" hidden></span>
+    <span class="chip demo" id="demoChip" hidden>DEMO</span>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="stage" id="stage">
+    <canvas id="view" width="640" height="360" aria-label="Live camera picture"></canvas>
+    <div class="stage-msg" id="stageMsg">Connecting to the camera…</div>
+    <button class="stage-find" id="stageFind" hidden>Find camera</button>
+    <div class="hud hud-tl">
+      <span class="rec" id="recBadge" hidden>● REC <span id="recTime">0:00</span></span>
+      <span class="ir" id="irBadge" hidden>IR</span>
+    </div>
+    <div class="hud hud-tr speed-badge" id="speedBadge" hidden>
+      <div class="sb-value" id="sbValue">0</div><div class="sb-unit" id="sbUnit">km/h</div>
+    </div>
+    <div class="stage-tools">
+      <button class="icon-btn" id="btnZoomOut" title="Zoom out" aria-label="Zoom out">−</button>
+      <button class="icon-btn" id="btnZoomIn" title="Zoom in" aria-label="Zoom in">+</button>
+      <button class="icon-btn native-hide" id="btnFull" title="Full screen" aria-label="Full screen">⤢</button>
+    </div>
+    <div class="file-bar" id="fileBar" hidden>
+      <button class="icon-btn" id="fbPlay" aria-label="Play or pause">▶</button>
+      <input type="range" id="fbSeek" min="0" max="1000" value="0" aria-label="Position">
+      <select id="fbRate" aria-label="Playback speed">
+        <option value="0.25">¼×</option><option value="0.5">½×</option><option value="1" selected>1×</option><option value="2">2×</option>
+      </select>
+    </div>
+  </section>
+
+  <section class="panel">
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="live" aria-selected="true">Camera</button>
+      <button role="tab" data-tab="radar">Radar</button>
+      <button role="tab" data-tab="files">SD card</button>
+      <button role="tab" data-tab="setup">Setup</button>
+    </nav>
+
+    <!-- CAMERA -->
+    <div class="tab-body" id="tab-live">
+      <div class="grid-buttons">
+        <button class="big" id="btnSnap"><span class="ico">📷</span>Photo</button>
+        <button class="big" id="btnRec"><span class="ico">⏺</span><span id="recLabel">Record</span></button>
+        <button class="big toggle" id="btnIr" aria-pressed="false"><span class="ico">🌙</span>Night vision</button>
+        <button class="big toggle" id="btnAudio" aria-pressed="false"><span class="ico">🎧</span>Listen</button>
+      </div>
+      <div class="card">
+        <h3>Picture</h3>
+        <div class="row">
+          <label for="flipSel">Camera image</label>
+          <select id="flipSel">
+            <option value="0">Normal</option>
+            <option value="2">Mirror</option>
+            <option value="3">Flip</option>
+            <option value="4">Upside down</option>
+          </select>
+        </div>
+        <div class="row stack">
+          <span>On screen</span>
+          <div class="seg">
+            <button id="btnRotate" title="Rotate 90°">⟳ Rotate</button>
+            <button id="btnMirror" class="toggle" aria-pressed="false">⇋ Mirror</button>
+            <button id="btnZoomReset">1× zoom</button>
+          </div>
+        </div>
+        <p class="hint">“Camera image” changes the camera itself (and its recordings). “On screen” changes only what you see here.</p>
+      </div>
+    </div>
+
+    <!-- RADAR -->
+    <div class="tab-body" id="tab-radar" hidden>
+      <div class="radar-head">
+        <label class="switch"><input type="checkbox" id="radarOn"><span></span> Speed radar</label>
+        <button class="toggle small" id="btnEditLines" aria-pressed="false">✎ Move lines</button>
+      </div>
+
+      <div class="formula card" id="formula">
+        <div class="f-main"><i>v</i> = <i>d</i> ÷ <i>t</i></div>
+        <div class="f-live" id="fLive">Draw lines A and B across the path, enter the distance between them, then wait for something to pass.</div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <label for="distIn">Distance A↔B (<i>d</i>)</label>
+          <div class="inline"><input type="number" id="distIn" min="0.1" step="0.1" inputmode="decimal"> <span>m</span></div>
+        </div>
+        <div class="row">
+          <label for="unitSel">Show speed in</label>
+          <select id="unitSel"><option value="kmh">km/h</option><option value="mph">mph</option><option value="ms">m/s</option><option value="kn">knots</option></select>
+        </div>
+        <div class="row">
+          <label for="sensIn">Sensitivity</label>
+          <input type="range" id="sensIn" min="0" max="100">
+        </div>
+        <div class="row">
+          <label for="limitIn">Alert above</label>
+          <div class="inline"><input type="number" id="limitIn" min="0" step="1" inputmode="decimal" placeholder="off"> <span id="limitUnit">km/h</span></div>
+        </div>
+        <div class="row">
+          <label for="motionIn">Show detected motion</label>
+          <label class="switch"><input type="checkbox" id="motionIn"><span></span></label>
+        </div>
+        <div class="meters">
+          <div class="meter a"><span>A</span><div><i id="mA"></i></div></div>
+          <div class="meter b"><span>B</span><div><i id="mB"></i></div></div>
+        </div>
+        <p class="hint" id="radarInfo">Timing resolution: –</p>
+      </div>
+
+      <div class="card">
+        <h3>Stopwatch (manual)</h3>
+        <p class="hint">No camera needed: tap when the object passes the first mark and again at the second. Uses the same distance. Human reaction adds about ±0.2 s.</p>
+        <div class="stopwatch">
+          <div class="sw-time" id="swTime">0.000 s</div>
+          <button class="big primary" id="swBtn">Start</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="log-head">
+          <h3>Measurements</h3>
+          <div class="seg"><button id="btnCsv">Export CSV</button><button id="btnClear">Clear</button></div>
+        </div>
+        <ol class="log" id="log"></ol>
+        <p class="hint empty" id="logEmpty">Nothing measured yet.</p>
+      </div>
+
+      <details class="card how">
+        <summary>How the radar works (and how to get accurate results)</summary>
+        <p>Speed is distance divided by time: <b><i>v</i> = <i>d</i> / <i>t</i></b>. You mark two lines across the path and measure the real distance <i>d</i> between them, for example with a tape measure, a known number of floor tiles or road markings. The app learns what the empty scene looks like, notices when something moving reaches line A and then line B, and takes <i>t</i> as the time between those two moments, using the time each frame was captured and interpolating between frames. Then it divides.</p>
+        <p><b>Example:</b> A and B are 10 m apart and a car takes 0.72 s: <i>v</i> = 10 ÷ 0.72 = 13.9 m/s = 50 km/h (× 3.6 converts m/s to km/h).</p>
+        <p><b>Accuracy.</b> The camera sends roughly 10–20 pictures a second, so each crossing time can be off by up to one frame. The app shows that as a range (for example 48–52 km/h). To make the range smaller:</p>
+        <ul>
+          <li>Put the lines further apart: a larger <i>d</i> means a larger <i>t</i>, and the same frame error matters less.</li>
+          <li>Film from the side, so the object crosses the picture rather than coming towards the camera.</li>
+          <li>Put each line exactly where your measured marks are on the ground, in the lane the object uses. Perspective doesn’t matter as long as the lines sit on the real marks.</li>
+          <li>Keep the camera still and the scene evenly lit. Lower the sensitivity if leaves or shadows trigger it, raise it for small or dark objects.</li>
+          <li>For a recorded video, play it at ¼× (Setup → Video file): timing comes from the video’s own timestamps, so slow playback gives the detector every frame.</li>
+        </ul>
+        <p>This is a learning and hobby tool, not a certified speed-enforcement device.</p>
+      </details>
+    </div>
+
+    <!-- SD CARD -->
+    <div class="tab-body" id="tab-files" hidden>
+      <div class="card">
+        <h3>Recordings on the camera’s memory card</h3>
+        <p class="hint">The camera records to its TF (microSD) card in one-minute files. Live video and recording pause while a file downloads.</p>
+        <button class="big wide" id="btnSdLoad">Look for recordings</button>
+        <p class="hint" id="sdStatus"></p>
+        <div id="sdList"></div>
+      </div>
+    </div>
+
+    <!-- SETUP -->
+    <div class="tab-body" id="tab-setup" hidden>
+      <div class="card">
+        <h3>Picture source</h3>
+        <div class="seg seg-col" id="srcSeg">
+          <button data-src="camera" class="toggle">Wi-Fi camera</button>
+          <button data-src="device" class="toggle native-hide">This device’s camera</button>
+          <button data-src="file" class="toggle">Video file</button>
+        </div>
+        <input type="file" id="fileIn" accept="video/*" hidden>
+        <p class="hint" id="srcHint">The radar works with any source, so you can also measure with your phone’s camera or a video you filmed.</p>
+      </div>
+
+      <div class="card" id="findCard">
+        <h3>Find camera</h3>
+        <p class="hint" style="margin-top:0">CamControl looks for the camera the same way the official V720 app does: on the camera’s own Wi-Fi first (192.168.169.1), then on the network you’re on.</p>
+        <div class="seg">
+          <button id="btnFind" class="primary-btn">Find camera</button>
+          <button id="btnScan">Search the whole network</button>
+        </div>
+        <ol class="find-log" id="findLog" aria-live="polite"></ol>
+        <div class="row">
+          <label for="manualIp">Camera address</label>
+          <div class="inline"><input type="text" id="manualIp" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="192.168.169.1"> <button id="btnManual" class="small">Connect</button></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Camera</h3>
+        <dl class="kv" id="camInfo"></dl>
+        <div class="seg">
+          <button id="btnReconnect">Reconnect</button>
+          <button id="btnReboot" class="danger">Restart camera</button>
+        </div>
+      </div>
+
+      <details class="card how native-only" open>
+        <summary>Connecting your camera</summary>
+        <ol class="steps">
+          <li>Switch the camera on. If it was set up with the V720 app before, hold the button on the side for 5 seconds until the blue light blinks fast. That puts it back into hotspot mode.</li>
+          <li>Open iPhone <b>Settings → Wi-Fi</b> and join the camera’s network. Its name usually starts with <code>Nax_</code> or <code>MC-</code>. iPhone may say “No Internet Connection”: that’s normal, stay connected.</li>
+          <li>Come back to CamControl. The first time, allow <b>Local Network</b> access when asked. If you tapped Don’t Allow: Settings → Privacy &amp; Security → Local Network → CamControl.</li>
+        </ol>
+        <p class="hint">Range is the camera’s Wi-Fi range (usually 10–30 m).</p>
+      </details>
+
+      <details class="card how native-hide" open>
+        <summary>Connecting your camera</summary>
+        <ol class="steps">
+          <li>Switch the camera on. If it was set up with the V720 app before, hold the reset button (side, next to the clip) for 5 seconds until the blue light blinks fast. That puts it back into hotspot mode.</li>
+          <li>On your MacBook, open Wi-Fi and join the camera’s own network. Its name usually starts with <code>Nax_</code>, <code>MC-</code> or the number on the sticker. There’s no internet on it, which is expected.</li>
+          <li>On the Mac, run <code>./start-mac.command</code> in the <code>camera</code> folder (or <code>node server.js</code>). It prints two addresses.</li>
+          <li>Open the first address on the Mac. For the phone, join the same camera Wi-Fi and open the “On your phone” address.</li>
+          <li>To install: on iPhone tap Share → Add to Home Screen; on Android / Chrome use Install app.</li>
+        </ol>
+        <p class="hint">Range is the camera’s Wi-Fi range (usually 10–30 m, more in open space). If the Mac is connected to the internet by cable or a second adapter, a VPN such as Tailscale lets you open the app from anywhere.</p>
+      </details>
+
+      <div class="card">
+        <h3>About</h3>
+        <p class="hint">No ads, no account, no cloud: the picture goes straight from your camera to your devices. Works with V720 / Naxclow based mini cameras.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast" role="status" hidden></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CC0A11CE0000000000000007 /* CamControlApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0A11CE0000000000000001 /* CamControlApp.swift */; };
+		CC0A11CE0000000000000008 /* CamWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0A11CE0000000000000002 /* CamWebView.swift */; };
+		CC0A11CE0000000000000009 /* AppSchemeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0A11CE0000000000000003 /* AppSchemeHandler.swift */; };
+		CC0A11CE000000000000000A /* CameraEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0A11CE0000000000000004 /* CameraEngine.swift */; };
+		CC0A11CE000000000000000B /* CameraDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0A11CE0000000000000005 /* CameraDiscovery.swift */; };
+		CC0A11CE000000000000000C /* CameraProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0A11CE0000000000000006 /* CameraProtocol.swift */; };
+		CC0A11CE000000000000000E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC0A11CE000000000000000D /* Assets.xcassets */; };
+		CC0A11CE0000000000000010 /* public in Resources */ = {isa = PBXBuildFile; fileRef = CC0A11CE000000000000000F /* public */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		CC0A11CE0000000000000011 /* CamControl.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CamControl.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC0A11CE0000000000000001 /* CamControlApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CamControlApp.swift; sourceTree = "<group>"; };
+		CC0A11CE0000000000000002 /* CamWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CamWebView.swift; sourceTree = "<group>"; };
+		CC0A11CE0000000000000003 /* AppSchemeHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSchemeHandler.swift; sourceTree = "<group>"; };
+		CC0A11CE0000000000000004 /* CameraEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraEngine.swift; sourceTree = "<group>"; };
+		CC0A11CE0000000000000005 /* CameraDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraDiscovery.swift; sourceTree = "<group>"; };
+		CC0A11CE0000000000000006 /* CameraProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraProtocol.swift; sourceTree = "<group>"; };
+		CC0A11CE000000000000000D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		CC0A11CE000000000000000F /* public */ = {isa = PBXFileReference; lastKnownFileType = folder; name = public; path = ../public; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CC0A11CE0000000000000016 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CC0A11CE0000000000000012 = {
+			isa = PBXGroup;
+			children = (
+				CC0A11CE0000000000000013 /* CamControl */,
+				CC0A11CE000000000000000F /* public */,
+				CC0A11CE0000000000000014 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CC0A11CE0000000000000013 /* CamControl */ = {
+			isa = PBXGroup;
+			children = (
+				CC0A11CE0000000000000001 /* CamControlApp.swift */,
+				CC0A11CE0000000000000002 /* CamWebView.swift */,
+				CC0A11CE0000000000000003 /* AppSchemeHandler.swift */,
+				CC0A11CE0000000000000004 /* CameraEngine.swift */,
+				CC0A11CE0000000000000005 /* CameraDiscovery.swift */,
+				CC0A11CE0000000000000006 /* CameraProtocol.swift */,
+				CC0A11CE000000000000000D /* Assets.xcassets */,
+			);
+			path = CamControl;
+			sourceTree = "<group>";
+		};
+		CC0A11CE0000000000000014 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC0A11CE0000000000000011 /* CamControl.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CC0A11CE0000000000000018 /* CamControl */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC0A11CE000000000000001B /* Build configuration list for PBXNativeTarget "CamControl" */;
+			buildPhases = (
+				CC0A11CE0000000000000015 /* Sources */,
+				CC0A11CE0000000000000016 /* Frameworks */,
+				CC0A11CE0000000000000017 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CamControl;
+			productName = CamControl;
+			productReference = CC0A11CE0000000000000011 /* CamControl.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CC0A11CE0000000000000019 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					CC0A11CE0000000000000018 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = CC0A11CE000000000000001A /* Build configuration list for PBXProject "CamControl" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CC0A11CE0000000000000012;
+			productRefGroup = CC0A11CE0000000000000014 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CC0A11CE0000000000000018 /* CamControl */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CC0A11CE0000000000000017 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC0A11CE000000000000000E /* Assets.xcassets in Resources */,
+				CC0A11CE0000000000000010 /* public in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CC0A11CE0000000000000015 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC0A11CE0000000000000007 /* CamControlApp.swift in Sources */,
+				CC0A11CE0000000000000008 /* CamWebView.swift in Sources */,
+				CC0A11CE0000000000000009 /* AppSchemeHandler.swift in Sources */,
+				CC0A11CE000000000000000A /* CameraEngine.swift in Sources */,
+				CC0A11CE000000000000000B /* CameraDiscovery.swift in Sources */,
+				CC0A11CE000000000000000C /* CameraProtocol.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		CC0A11CE000000000000001C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		CC0A11CE000000000000001D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CC0A11CE000000000000001E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = CamControl;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "CamControl connects to your mini Wi-Fi camera on its own Wi-Fi network to show the live picture and control it.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Save photos and videos from your camera to your photo library.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.camcontrol.app$(DEVELOPMENT_TEAM)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CC0A11CE000000000000001F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = CamControl;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "CamControl connects to your mini Wi-Fi camera on its own Wi-Fi network to show the live picture and control it.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Save photos and videos from your camera to your photo library.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.camcontrol.app$(DEVELOPMENT_TEAM)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CC0A11CE000000000000001A /* Build configuration list for PBXProject "CamControl" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC0A11CE000000000000001C /* Debug */,
+				CC0A11CE000000000000001D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CC0A11CE000000000000001B /* Build configuration list for PBXNativeTarget "CamControl" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC0A11CE000000000000001E /* Debug */,
+				CC0A11CE000000000000001F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CC0A11CE0000000000000019 /* Project object */;
+}
