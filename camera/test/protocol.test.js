@@ -96,6 +96,21 @@ test('bridge + simulated camera: status, stream, controls, SD card', async () =>
     ctrl.abort();
     assert.match(text, /Content-Type: image\/jpeg/);
 
+    // one-frame-per-request mode used by the iPhone app
+    const f1 = await fetch(`${base}/frame.jpg?after=0`);
+    assert.equal(f1.status, 200);
+    const seq = Number(f1.headers.get('x-seq'));
+    assert.ok(seq > 0 && Number(f1.headers.get('x-timestamp')) > 0);
+    assert.deepEqual([...new Uint8Array(await f1.arrayBuffer()).subarray(0, 2)], [0xff, 0xd8]);
+    const f2 = await fetch(`${base}/frame.jpg?after=${seq}`);
+    assert.ok(Number(f2.headers.get('x-seq')) > seq);
+    await f2.arrayBuffer();
+    const au = await fetch(`${base}/audio.chunk?after=-1`);
+    assert.equal(au.status, 200);
+    assert.ok((await au.arrayBuffer()).byteLength > 0);
+    // POST body in the query string (the iPhone app's request handler may not get bodies)
+    assert.equal((await (await fetch(`${base}/api/ir?b=${encodeURIComponent('{"on":false}')}`, { method: 'POST' })).json()).ir, false);
+
     assert.equal((await (await fetch(`${base}/api/ir`, { method: 'POST', body: '{"on":true}' })).json()).ir, true);
     assert.equal(app.sim.state.ir, 1);
     await fetch(`${base}/api/flip`, { method: 'POST', body: '{"mode":4}' });

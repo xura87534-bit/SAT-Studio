@@ -13,7 +13,11 @@ Controls the small clip-on "WiFi" cameras that use the **V720** app (Naxclow chi
 | Stopwatch | Manual v = d / t when there's no camera |
 | Other sources | The radar also works with your phone/Mac camera or a video file (slow-motion playback for precision) |
 
-## How it works
+## iPhone app
+
+There is also a real **iPhone app** in [`ios/`](ios/README.md). It connects straight to the camera with no MacBook in between. You install it once from your Mac with Xcode (free); see [ios/README.md](ios/README.md).
+
+## How it works (browser version)
 
 A browser can't talk to the camera directly (it uses its own binary protocol over TCP port 6123), so a small **bridge** runs on your Mac. The Mac joins the camera's Wi-Fi, the bridge talks to the camera and serves the app; your phone opens the app from the Mac.
 
@@ -59,4 +63,5 @@ Keys on the Mac: `P` photo, `R` record, `F` full screen, `Space` stopwatch (in t
 | `bridge/camera.js` | Connection, reconnects, commands, streams only while someone watches (saves battery) |
 | `bridge/simulator.js` | A fake camera with the same protocol, for `--demo` and tests |
 | `public/` | The app (`app.js`), radar maths and detector (`radar.js`) |
+| `ios/` | The iPhone app (Swift); it reuses `public/` for its screens |
 | `test/` | `npm test` (or `node --test test/*.test.js`) |

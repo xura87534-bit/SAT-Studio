@@ -40,7 +40,7 @@
     <div class="stage-tools">
       <button class="icon-btn" id="btnZoomOut" title="Zoom out" aria-label="Zoom out">−</button>
       <button class="icon-btn" id="btnZoomIn" title="Zoom in" aria-label="Zoom in">+</button>
-      <button class="icon-btn" id="btnFull" title="Full screen" aria-label="Full screen">⤢</button>
+      <button class="icon-btn native-hide" id="btnFull" title="Full screen" aria-label="Full screen">⤢</button>
     </div>
     <div class="file-bar" id="fileBar" hidden>
       <button class="icon-btn" id="fbPlay" aria-label="Play or pause">▶</button>
@@ -181,7 +181,7 @@
         <h3>Picture source</h3>
         <div class="seg seg-col" id="srcSeg">
           <button data-src="camera" class="toggle">Wi-Fi camera</button>
-          <button data-src="device" class="toggle">This device’s camera</button>
+          <button data-src="device" class="toggle native-hide">This device’s camera</button>
           <button data-src="file" class="toggle">Video file</button>
         </div>
         <input type="file" id="fileIn" accept="video/*" hidden>
@@ -197,7 +197,17 @@
         </div>
       </div>
 
-      <details class="card how" open>
+      <details class="card how native-only" open>
+        <summary>Connecting your camera</summary>
+        <ol class="steps">
+          <li>Switch the camera on. If it was set up with the V720 app before, hold the button on the side for 5 seconds until the blue light blinks fast. That puts it back into hotspot mode.</li>
+          <li>Open iPhone <b>Settings → Wi-Fi</b> and join the camera’s network. Its name usually starts with <code>Nax_</code> or <code>MC-</code>. iPhone may say “No Internet Connection”: that’s normal, stay connected.</li>
+          <li>Come back to CamControl. The first time, allow <b>Local Network</b> access when asked. If you tapped Don’t Allow: Settings → Privacy &amp; Security → Local Network → CamControl.</li>
+        </ol>
+        <p class="hint">Range is the camera’s Wi-Fi range (usually 10–30 m).</p>
+      </details>
+
+      <details class="card how native-hide" open>
         <summary>Connecting your camera</summary>
         <ol class="steps">
           <li>Switch the camera on. If it was set up with the V720 app before, hold the reset button (side, next to the clip) for 5 seconds until the blue light blinks fast. That puts it back into hotspot mode.</li>

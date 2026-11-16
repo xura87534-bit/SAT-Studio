@@ -1,6 +1,12 @@
 import { SpeedGate, UNITS, convert, speedFrom, toGray, alawToFloat } from './radar.js';
 
 const $ = (s) => document.querySelector(s);
+// Running inside the CamControl iPhone app (WKWebView with a native camera engine)?
+const NATIVE = !!window.webkit?.messageHandlers?.camcontrol;
+// Fetch frames one by one instead of a long-lived stream (always in the iPhone app; ?poll for testing)
+const POLL = NATIVE || new URLSearchParams(location.search).has('poll');
+document.documentElement.classList.toggle('native', NATIVE);
+const nativeSend = (msg) => window.webkit.messageHandlers.camcontrol.postMessage(msg);
 const $$ = (s) => [...document.querySelectorAll(s)];
 
 // ---------------------------------------------------------------- settings
@@ -37,7 +43,9 @@ function toast(msg, ms = 2600) {
   toastTimer = setTimeout(() => { t.hidden = true; }, ms);
 }
 async function api(path, body) {
-  const r = await fetch(path, body === undefined ? { cache: 'no-store' } : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  // POST bodies are also sent in the query (?b=) because the iPhone app's request handler may not see bodies
+  const url = body === undefined ? path : `${path}${path.includes('?') ? '&' : '?'}b=${encodeURIComponent(JSON.stringify(body))}`;
+  const r = await fetch(url, body === undefined ? { cache: 'no-store' } : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(j.error || `HTTP ${r.status}`);
   return j;
@@ -47,7 +55,13 @@ const stamp = () => {
   const p = (n) => String(n).padStart(2, '0');
   return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
 };
-function download(blob, name) {
+async function download(blob, name) {
+  if (NATIVE) {
+    // Hand the file to the app, which opens the share sheet (Save to Photos, Files, AirDrop…)
+    const data = await new Promise((res) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1] || ''); fr.readAsDataURL(blob); });
+    nativeSend({ type: 'save', name, mime: blob.type || 'application/octet-stream', data });
+    return;
+  }
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = name;
@@ -86,6 +100,7 @@ class CameraSource {
     this.ctrl?.abort();
   }
   async _run() {
+    if (POLL) return this._runPoll();
     const dec = new TextDecoder();
     while (this.active) {
       this.ctrl = new AbortController();
@@ -121,7 +136,35 @@ class CameraSource {
       if (this.active) await new Promise((r) => setTimeout(r, 1200));
     }
   }
-  async _deliver(bytes, ts) {
+  async _runPoll() {
+    let seq = 0;
+    while (this.active) {
+      this.ctrl = new AbortController();
+      try {
+        const r = await fetch(`frame.jpg?after=${seq}`, { signal: this.ctrl.signal, cache: 'no-store' });
+        if (r.status === 200) {
+          seq = Number(r.headers.get('X-Seq')) || seq + 1;
+          const ts = Number(r.headers.get('X-Timestamp')) || performance.timeOrigin + performance.now();
+          const bytes = new Uint8Array(await r.arrayBuffer());
+          await this._deliver(bytes, ts, true);
+          continue;
+        }
+        if (r.status !== 204) throw new Error(`HTTP ${r.status}`);
+      } catch {
+        if (!this.active) return;
+        await new Promise((res) => setTimeout(res, 1000));
+      }
+    }
+  }
+  async _deliver(bytes, ts, wait) {
+    if (wait) {
+      // poll mode: decode in order; the next request starts after this frame is drawn
+      try {
+        const bmp = await createImageBitmap(new Blob([bytes], { type: 'image/jpeg' }));
+        if (this.active) this.onFrame(bmp, ts, bmp.width, bmp.height);
+      } catch { /* corrupt frame */ }
+      return;
+    }
     // Decode one frame at a time; if the device is slow, skip to the newest one.
     if (this.decoding) { this.next = [bytes, ts]; return; }
     this.decoding = true;
@@ -587,7 +630,7 @@ $('#btnEditLines').onclick = () => setEditing(!editing);
 // ---------------------------------------------------------------- camera controls
 $('#btnSnap').onclick = () => {
   if (!last) return toast('No picture yet');
-  view.toBlob((b) => { if (b) { download(b, `photo-${stamp()}.jpg`); toast('Photo saved'); } }, 'image/jpeg', 0.93);
+  view.toBlob((b) => { if (b) { download(b, `photo-${stamp()}.jpg`); if (!NATIVE) toast('Photo saved'); } }, 'image/jpeg', 0.93);
 };
 
 let recorder = null;
@@ -602,7 +645,7 @@ $('#btnRec').onclick = () => {
   const at = audio.recordTrack();
   if (at) stream.addTrack(at);
   const type = ['video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm'].find((t) => MediaRecorder.isTypeSupported(t)) || '';
-  try { recorder = new MediaRecorder(stream, type ? { mimeType: type, videoBitsPerSecond: 4e6 } : undefined); } catch (e) { return toast(`Can't record: ${e.message}`); }
+  try { recorder = new MediaRecorder(stream, type ? { mimeType: type, videoBitsPerSecond: NATIVE ? 2.5e6 : 4e6 } : undefined); } catch (e) { return toast(`Can't record: ${e.message}`); }
   recChunks = [];
   recorder.ondataavailable = (e) => e.data.size && recChunks.push(e.data);
   recorder.onstop = () => {
@@ -613,7 +656,7 @@ $('#btnRec').onclick = () => {
     $('#recBadge').hidden = true;
     $('#btnRec').classList.remove('recording');
     $('#recLabel').textContent = 'Record';
-    toast('Video saved');
+    if (!NATIVE) toast('Video saved');
   };
   recorder.start(1000);
   recStart = Date.now();
@@ -660,6 +703,7 @@ const audio = {
     this.on = true;
     this.ctrl = new AbortController();
     this.next = 0;
+    if (POLL) { this._poll(); return; }
     const res = await fetch('audio.alaw', { signal: this.ctrl.signal, cache: 'no-store' });
     if (!res.ok || !res.body) throw new Error('No sound from the camera');
     const reader = res.body.getReader();
@@ -672,6 +716,22 @@ const audio = {
         }
       } catch { /* stopped */ }
     })();
+  },
+  async _poll() {
+    let seq = -1;
+    while (this.on) {
+      try {
+        const r = await fetch(`audio.chunk?after=${seq}`, { signal: this.ctrl.signal, cache: 'no-store' });
+        if (r.status === 200) {
+          seq = Number(r.headers.get('X-Seq'));
+          const b = new Uint8Array(await r.arrayBuffer());
+          if (b.length) this._play(alawToFloat(b));
+        } else if (r.status !== 204) throw new Error(`HTTP ${r.status}`);
+      } catch {
+        if (!this.on) return;
+        await new Promise((res) => setTimeout(res, 1000));
+      }
+    }
   },
   _play(pcm8k) {
     const rate = this.ctx.sampleRate;
@@ -780,14 +840,16 @@ async function poll() {
     const kv = [['Address', s.camera], ['Status', s.state], ['Firmware', s.info?.version], ['Device ID', s.info?.devId], ['Battery', batt != null ? `${batt}%` : null], ['Frames/s', s.fps || null], ['Last problem', s.lastError]];
     $('#camInfo').innerHTML = kv.filter(([, v]) => v != null && v !== '').map(([k, v]) => `<dt>${k}</dt><dd>${String(v).replace(/[<>&]/g, '')}</dd>`).join('');
     if (S.source === 'camera' && !last) {
-      stageMsg(s.connected ? 'Camera connected. Waiting for the picture…' : `Can’t reach the camera${s.lastError ? ` (${s.lastError})` : ''}.\nIs this computer on the camera’s Wi-Fi? See Setup.`);
+      stageMsg(s.connected ? 'Camera connected. Waiting for the picture…' : NATIVE
+        ? 'Looking for the camera… Open Settings → Wi-Fi and join the camera’s network (it usually starts with Nax_ or MC-), then come back. See Setup.'
+        : `Can’t reach the camera${s.lastError ? ` (${s.lastError})` : ''}.\nIs this computer on the camera’s Wi-Fi? See Setup.`);
     }
     if (S.source === 'camera' && last && Date.now() - lastFrameWall > 5000) stageMsg('Picture paused — reconnecting…');
   } catch {
     bridgeOk = false;
     $('#statusDot').className = 'dot bad';
     $('#statusText').textContent = 'Bridge not running';
-    if (S.source === 'camera') stageMsg('Can’t reach the CamControl bridge. Start it on your Mac with “node server.js” and open the address it prints.');
+    if (S.source === 'camera') stageMsg(NATIVE ? 'Starting the camera engine…' : 'Can’t reach the CamControl bridge. Start it on your Mac with “node server.js” and open the address it prints.');
   }
 }
 setInterval(poll, 2000);
@@ -833,6 +895,7 @@ async function loadDay(date) {
       const a = document.createElement('a');
       a.href = `api/sd/download?date=${date}&hour=${f.hour}&minute=${f.minute}`;
       a.download = '';
+      if (NATIVE) a.onclick = (e) => { e.preventDefault(); toast('Downloading… live video pauses until it finishes', 4000); nativeSend({ type: 'sdDownload', date, hour: f.hour, minute: f.minute }); };
       a.textContent = `${String(f.hour).padStart(2, '0')}:${String(f.minute).padStart(2, '0')}`;
       wrap.append(a);
     }
@@ -897,6 +960,7 @@ document.addEventListener('keydown', (e) => {
 
 // keep the screen on while watching
 async function wakeLock() {
+  if (NATIVE) return; // the app keeps the screen on itself
   try { if (document.visibilityState === 'visible') await navigator.wakeLock?.request('screen'); } catch { /* not allowed */ }
 }
 document.addEventListener('visibilitychange', wakeLock);
@@ -906,9 +970,12 @@ bindRadarUi();
 showTab(S.tab);
 $('#btnMirror').setAttribute('aria-pressed', String(S.mirror));
 renderLog();
-setSource(S.source === 'file' ? 'camera' : S.source);
+setSource(S.source === 'file' || (NATIVE && S.source === 'device') ? 'camera' : S.source);
 wakeLock();
 if ('serviceWorker' in navigator && window.isSecureContext) navigator.serviceWorker.register('sw.js').catch(() => {});
+
+// called by the iPhone app
+window.__ccNative = { toast: (m) => toast(m, 3500) };
 
 // for tests
 window.__cc = { gate, S, get log() { return log; } };

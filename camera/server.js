@@ -65,11 +65,27 @@ export async function createServer(opts = {}) {
   if (!args.demo) cam.on('settings', saveSettings);
   cam.start();
 
+  // frame / audio sequence numbers for the one-request-per-frame endpoints
+  let frameSeq = 0;
+  let frameTs = 0;
+  cam.on('frame', (_j, ts) => { frameSeq++; frameTs = ts; });
+  let audioSeq = 0;
+  const audioRing = [];
+  cam.on('audio', (data) => { audioRing.push({ seq: ++audioSeq, data }); if (audioRing.length > 40) audioRing.shift(); });
+  // polling viewers count as one viewer while they keep asking
+  let pollTimer = null;
+  const pollViewer = () => {
+    if (!pollTimer) cam.addViewer(); else clearTimeout(pollTimer);
+    pollTimer = setTimeout(() => { pollTimer = null; cam.removeViewer(); }, 5000);
+  };
+
   const json = (res, code, body) => {
     res.writeHead(code, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
     res.end(JSON.stringify(body));
   };
-  const readBody = (req) => new Promise((resolve) => {
+  const readBody = (req, url) => new Promise((resolve) => {
+    const q = url?.searchParams.get('b');
+    if (q) { try { resolve(JSON.parse(q)); return; } catch { /* fall through */ } }
     let d = '';
     req.on('data', (c) => { d += c; if (d.length > 1e5) req.destroy(); });
     req.on('end', () => { try { resolve(d ? JSON.parse(d) : {}); } catch { resolve({}); } });
@@ -124,6 +140,38 @@ export async function createServer(opts = {}) {
         return;
       }
 
+      // One frame per request (used by the iPhone app's web view, and by ?poll in a browser)
+      if (route === 'GET /frame.jpg') {
+        const after = Number(url.searchParams.get('after')) || 0;
+        const send = () => {
+          res.writeHead(200, { 'Content-Type': 'image/jpeg', 'Cache-Control': 'no-store', 'X-Seq': String(frameSeq), 'X-Timestamp': frameTs.toFixed(2) });
+          res.end(cam.lastFrame);
+        };
+        pollViewer();
+        if (cam.lastFrame && frameSeq > after) return send();
+        const t = setTimeout(() => { cam.off('frame', onF); res.writeHead(204); res.end(); }, 3000);
+        const onF = () => { clearTimeout(t); cam.off('frame', onF); send(); };
+        cam.on('frame', onF);
+        req.on('close', () => { clearTimeout(t); cam.off('frame', onF); });
+        return;
+      }
+
+      if (route === 'GET /audio.chunk') {
+        const after = Number(url.searchParams.get('after'));
+        pollViewer();
+        const send = () => {
+          const parts = audioRing.filter((c) => c.seq > after);
+          res.writeHead(200, { 'Content-Type': 'application/octet-stream', 'Cache-Control': 'no-store', 'X-Seq': String(audioSeq) });
+          res.end(Buffer.concat(parts.map((c) => c.data)));
+        };
+        if (audioRing.some((c) => c.seq > after)) return send();
+        const t = setTimeout(() => { cam.off('audio', onA); res.writeHead(204); res.end(); }, 1500);
+        const onA = () => { clearTimeout(t); cam.off('audio', onA); send(); };
+        cam.on('audio', onA);
+        req.on('close', () => { clearTimeout(t); cam.off('audio', onA); });
+        return;
+      }
+
       if (route === 'GET /snapshot.jpg') {
         if (!cam.lastFrame) return json(res, 503, { error: 'No picture yet' });
         res.writeHead(200, { 'Content-Type': 'image/jpeg', 'Cache-Control': 'no-store' });
@@ -164,7 +212,7 @@ export async function createServer(opts = {}) {
       }
 
       if (api[route]) {
-        const body = req.method === 'POST' ? await readBody(req) : {};
+        const body = req.method === 'POST' ? await readBody(req, url) : {};
         return json(res, 200, await api[route](body, url));
       }
 
@@ -193,7 +241,7 @@ export async function createServer(opts = {}) {
   await new Promise((r) => server.listen(args.port, args.host, r));
   return {
     server, cam, sim, port: server.address().port,
-    close: async () => { cam.stop(); server.closeAllConnections?.(); await new Promise((r) => server.close(r)); await sim?.close(); },
+    close: async () => { clearTimeout(pollTimer); cam.stop(); server.closeAllConnections?.(); await new Promise((r) => server.close(r)); await sim?.close(); },
   };
 }
 
