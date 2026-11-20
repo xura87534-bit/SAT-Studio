@@ -807,7 +807,7 @@ ${tip("The hypotenuse is never “opposite” or “adjacent”; it is always ac
 });
 M(2, 4, "28", "review", "m2d28", "Geometry and Trigonometry review", { from: ["m2d22", "m2d23", "m2d24", "m2d25", "m2d26", "m2d27"], n: 10, sum: "Mixed SAT geometry and trig quiz." });
 M(2, 4, "29", "task", "m2d29", "Full Math practice test", { sum: "Take a full Math test and log every mistake.", body: `<p>Take a full two-module Math test under real timing (2 × 35 minutes). Then write every missed question in your error notebook.</p>`, act: [["tests", "Open Math tests"]] });
-M(2, 4, "30", "task", "m2d30", "Fix your weakest topics", { sum: "Rework the 2–3 topics with the most mistakes.", body: `<p>Look at your error notebook and the <b>Progress</b> page. Pick the 2 or 3 topics with the most mistakes, go back to those lessons in this course, then practice them in <b>Quick Practice</b>.</p>`, act: [["quick", "Open Quick Practice"], ["progress", "Open Progress"]] });
+M(2, 4, "30", "task", "m2d30", "Fix your weakest topics", { sum: "Rework the 2–3 topics with the most mistakes.", body: `<p>Look at your error notebook and the <b>History</b> page. Pick the 2 or 3 topics with the most mistakes, go back to those lessons in this course, then practice them in <b>Quick Practice</b>.</p>`, act: [["quick", "Open Quick Practice"], ["progress", "Open Progress"]] });
 
 /* ===== MONTH 3: HARD QUESTIONS AND FULL TESTS ===== */
 const m3 = [

@@ -159,7 +159,7 @@ const D = {
   "Free and Pro, side by side": "Bepul va Pro: taqqoslash", "Free": "Bepul", "Full adaptive tests": "To‘liq moslashuvchan testlar", "Unlimited": "Cheksiz",
   "AI-written tests and weak-skill drills": "AI yozgan testlar va zaif mavzular mashqi", "Not included": "Kirmaydi", "Included": "Kiradi",
   "AI tutor, explanations and score reports": "AI repetitori, tushuntirishlar va natija tahlili", "All 12 weeks": "Barcha 12 hafta",
-  "Quick Practice, calculator, word bank, progress": "Tezkor mashq, kalkulyator, lug‘at, natijalar", "Questions": "Savollar",
+  "Quick Practice, calculator, word bank": "Tezkor mashq, kalkulyator, lug‘at", "Questions": "Savollar",
   "How do I pay?": "Qanday to‘layman?", "Will I be charged again?": "Yana pul yechiladimi?", "What if I buy again while Pro is still active?": "Pro tugamasdan yana sotib olsam-chi?",
   "Can I get my money back?": "Pulimni qaytarib olsam bo‘ladimi?", "Is the free plan really free?": "Bepul tarif rostdan ham bepulmi?",
   "No. You pay once for a fixed number of days. When they run out you go back to the free plan and keep all your scores and history.": "Yo‘q. Ma’lum kunlar uchun bir marta to‘laysiz. Muddat tugagach bepul tarifga qaytasiz, barcha ballaringiz va tarixingiz saqlanib qoladi.",
