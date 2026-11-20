@@ -1912,7 +1912,7 @@ const LIB=[
  {id:"pt10",kind:"full",title:"Practice Test 10",desc:"Its own fixed Module 1 with the official domain balance. Module 2 adapts to you.",src:"fixed",set:9},
  {id:"hard",kind:"full",title:"Challenge Test",desc:"A Module 1 made of only medium and hard questions. Aim for the harder Module 2.",src:"fixed",set:10},
  {id:"mix",kind:"full",title:"Fresh mix",desc:"Module 1 is drawn from questions you haven't answered yet.",src:"mix"},
- {id:"ai",kind:"full",title:"AI-written test",desc:"Claude writes both modules new, so no two attempts repeat.",src:"ai",ai:true},
+ {id:"ai",kind:"full",title:"AI-written test",desc:"AI writes both modules new, so no two attempts repeat.",src:"ai",ai:true},
  {id:"dA",kind:"drill",d:"A",title:"Algebra drill",desc:"Linear equations, functions, systems and inequalities."},
  {id:"dM",kind:"drill",d:"M",title:"Advanced Math drill",desc:"Quadratics, exponentials, equivalent expressions and nonlinear systems."},
  {id:"dP",kind:"drill",d:"P",title:"Data Analysis drill",desc:"Ratios, percentages, statistics, probability and study design."},
@@ -1924,7 +1924,7 @@ const LIB=[
  {id:"figM",kind:"drill",d:"M",title:"Advanced Math: graphs & tables",desc:"Parabolas, exponentials, absolute value and function tables to read and interpret.",figOnly:true},
  {id:"m1d",kind:"drill",title:"Module 1 drill: beat the routing line",desc:"22 Module 1-style questions in 35 minutes. Score about 60% (weighted by difficulty) to earn the harder Module 2 on the real test.",m1:true},
  {id:"am",kind:"drill",title:"Algebra & Advanced Math mix",desc:"22 questions from the two biggest domains, about 70% of the real test. 35 minutes.",am:true},
- {id:"weak",kind:"drill",title:"Weak-skill drill",desc:"Claude writes 10 questions on the skills you miss most often.",ai:true,weak:true}
+ {id:"weak",kind:"drill",title:"Weak-skill drill",desc:"AI writes 10 questions on the skills you miss most often.",ai:true,weak:true}
 ];
 LIB.unshift({id:"redo",kind:"drill",redo:"math",title:"Redo my mistakes",desc:"Every Math question you got wrong, oldest first. Answer one correctly and it leaves the list."});
 const LIBID=Object.fromEntries(LIB.map(l=>[l.id,l]));
@@ -6261,12 +6261,12 @@ const RWSETS=(()=>{const used=new Set();const sets=[0,1,2,3,4,5,6,7].map(i=>{con
   const add=l=>{LIB.push(l);LIBID[l.id]=l};
   [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].forEach(i=>add({id:"rw"+(i+1),sub:"rw",kind:"full",title:"R&W Practice Test "+(i+1),desc:i>=8?"Its own fixed Module 1 from the newest question set, written to match recent SAT difficulty. Module 2 adapts to you.":i===0?"A fixed Module 1 covering all 11 question types. Retake it to measure growth. Module 2 adapts to you.":i>=6?"Its own fixed Module 1 built from the newest, harder passages. Module 2 adapts to you.":"Its own fixed Module 1 with the official mix of question types. Module 2 adapts to you.",src:"fixed",set:i}));
   add({id:"rwmix",sub:"rw",kind:"full",title:"R&W Fresh mix",desc:"Module 1 is drawn from passages you haven't seen yet.",src:"mix"});
-  add({id:"rwai",sub:"rw",kind:"full",title:"R&W AI-written test",desc:"Claude writes new passages for both modules, so no two attempts repeat.",src:"ai",ai:true});
+  add({id:"rwai",sub:"rw",kind:"full",title:"R&W AI-written test",desc:"AI writes new passages for both modules, so no two attempts repeat.",src:"ai",ai:true});
   const dd={CS:"Words in context, text structure and purpose, and cross-text connections.",II:"Central ideas, textual and data evidence, and inferences.",SEC:"Punctuation between clauses, agreement, verb forms, pronouns, and modifiers.",EOI:"Transitions and rhetorical synthesis from student notes."};
   RW_ORDER.forEach(d=>add({id:"rwd"+d,sub:"rw",kind:"drill",d,dom:true,title:RW_DOM[d]+" drill",desc:dd[d]}));
   add({id:"rwredo",sub:"rw",kind:"drill",redo:"rw",title:"Redo my mistakes",desc:"Every Reading and Writing question you got wrong, including Book Tests, oldest first. Answer one correctly and it leaves the list."});
   add({id:"rwhard",sub:"rw",kind:"drill",title:"Extreme questions only",desc:"10 of the toughest Reading and Writing questions, starting with ones you haven't seen.",hard:true});
-  add({id:"rwweak",sub:"rw",kind:"drill",title:"Weak-skill drill",desc:"Claude writes 10 Reading and Writing questions on the skills you miss most.",ai:true,weak:true});
+  add({id:"rwweak",sub:"rw",kind:"drill",title:"Weak-skill drill",desc:"AI writes 10 Reading and Writing questions on the skills you miss most.",ai:true,weak:true});
   RW_SKILLS.forEach(([sk,d])=>add({id:"rws-"+slug(sk),sub:"rw",kind:"drill",d,skill:sk,title:sk,desc:`${RW_DOM[d]}.`}));
 })();
 function rich(s){
@@ -6279,13 +6279,13 @@ function beginRW(l,seen){
   if(l.kind==="full"){
     if(l.src==="fixed")startModule(RWSETS[l.set].map(id=>BYID[id]));
     else if(l.src==="mix")startModule(rwAssemble(RW_COUNTS,M1MIX,new Set(),seen));
-    else runGen({head:"Writing your test",lede:"Claude is writing new Reading and Writing passages for Module 1. This can take a minute or two.",total:27,
+    else runGen({head:"Writing your test",lede:"AI is writing new Reading and Writing passages for Module 1. This can take a minute or two.",total:27,
       produce:(sig,prog)=>aiRW({label:"Module 1",counts:RW_COUNTS,total:27,difficulty:"mixed: about 8 easy (level 1), 12 medium (level 2) and 7 hard (level 3)",focus:"Cover every question type with varied topics: science, history, social science, the arts, and short literary excerpts.",context:"This is the first module of the section, so difficulty is mixed."},sig,prog),
       done:ai=>{const q=rwMerge(ai,rwAssemble(RW_COUNTS,M1MIX,new Set(),seen),RW_COUNTS);test.m1src=src(q);startModule(rwSort(q))}});
   }else if(l.weak){
     const ws=weakSkills(3,"rw");const counts={};ws.forEach(([k],i)=>counts[k]=[4,3,3][i]);
     const tot=Object.values(counts).reduce((s,n)=>s+n,0);if(ws.length&&tot<10)counts[ws[0][0]]+=10-tot;
-    runGen({head:"Writing your drill",lede:"Claude is writing 10 questions on the Reading and Writing skills you miss most.",total:10,
+    runGen({head:"Writing your drill",lede:"AI is writing 10 questions on the Reading and Writing skills you miss most.",total:10,
       produce:(sig,prog)=>aiRW({label:"a targeted practice drill",counts,total:10,difficulty:"about 3 easy, 4 medium and 3 hard",focus:"Target these question types; vary topics and include the trap answers students usually fall for.",context:"The student has been missing these question types: "+ws.map(([k,v])=>`${k} (${v.c}/${v.t} correct)`).join("; ")+"."},sig,prog),
       done:ai=>{const q=rwMerge(ai,rwAssemble(counts,{1:3,2:4,3:3},new Set(),seen),counts);test.m1src=src(q);startModule(rwSort(q))}});
   }else if(l.hard){
@@ -6317,7 +6317,7 @@ function buildM2RW(){
   const fb=()=>hard?rwAssemble(RW_COUNTS,{1:0,2:2,3:8},exclude,seenIds(),Math.random,rwHardPool()):rwAssemble(RW_COUNTS,{1:6,2:4,3:0},exclude,seenIds());
   // Like the real SAT: same question-type mix as Module 1; only the difficulty changes with the route.
   if(!AI||test.m1src==="bank"||!test.m1src){const q=fb();test.m2src=src(q);m2Bridge(m1,27,()=>startModule(rwSort(q)));return}
-  runGen({head:"Module 1 submitted",lede:"Claude is writing Module 2 at the difficulty your Module 1 earned, then checking every answer. This can take a minute or two.",total:27,
+  runGen({head:"Module 1 submitted",lede:"AI is writing Module 2 at the difficulty your Module 1 earned, then checking every answer. This can take a minute or two.",total:27,
     produce:(sig,prog)=>aiRW({label:"Module 2",counts:RW_COUNTS,total:27,
       difficulty:hard?"mostly hard: about 5 medium (level 2) and 22 hard (level 3), with dense academic passages, close answer choices, precise vocabulary, and subtle distractors":"mostly easier: about 15 easy (level 1) and 12 medium (level 2), with clear, accessible passages",
       focus:"Follow the official SAT blueprint for every question type, exactly like a real Module 2. Do not target any particular skill.",
@@ -6843,7 +6843,7 @@ function shell(content){
   app.innerHTML=`<div class="shell"><nav class="side" aria-label="Main">
     <div class="brand"><img class="logo" src="/icons/logo-sm.png" alt="" width="34" height="34" style="background:none;object-fit:cover">SAT Studio</div>
     ${nav.map(([k,l,i,sh])=>`<button class="nav${view===k?" on":""}" data-nav="${k}"${view===k?' aria-current="page"':""}>${i}<span class="${sh?"lg":""}">${esc(l)}</span>${sh?`<span class="sm">${esc(sh)}</span>`:""}${k==="home"&&ns?`<em aria-label="${ns} saved">${ns}</em>`:""}</button>`).join("")}
-    <div class="sidefoot"><i class="${AI?"on":""}"></i>${!BOOTED&&window.claude?"Syncing your progress…":AI?"Claude connected":"Built-in questions"}</div>${!AI&&(BOOTED||!window.claude)&&!(window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn)?`<button class="sidesync connai" data-connai>${window.SAT_PLATFORM?"Sign in or sign up free":"Connect Claude"}</button>`:""}${window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn?`<button class="sidesync" data-signout>Sign out</button>`:""}<button class="sidesync" id="syncOpen">Backup &amp; sync</button>${langToggle()}<span class="appver owner">Created by Xurshid Jo’rayev</span><span class="appver">${window._vl||(window._vl=(()=>{let h=0;const a=BANK.concat(RWBANK);for(const x of a){const d=String(x.id)+":"+(x.lv|0);for(let i=0;i<d.length;i++)h=(h*31+d.charCodeAt(i))|0}return "Build "+(h>>>0).toString(36).toUpperCase().slice(0,4)})())}${window.claude?"":" · downloaded copy"}</span>
+    <div class="sidefoot"><i class="${AI?"on":""}"></i>${!BOOTED&&window.claude?"Syncing your progress…":AI?"AI connected":"Built-in questions"}</div>${!AI&&(BOOTED||!window.claude)&&!(window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn)?`<button class="sidesync connai" data-connai>${window.SAT_PLATFORM?"Sign in or sign up free":"Connect AI"}</button>`:""}${window.SAT_PLATFORM&&window.SAT_PLATFORM.signedIn?`<button class="sidesync" data-signout>Sign out</button>`:""}<button class="sidesync" id="syncOpen">Backup &amp; sync</button>${langToggle()}<span class="appver owner">Created by Xurshid Jo’rayev</span><span class="appver">${window._vl||(window._vl=(()=>{let h=0;const a=BANK.concat(RWBANK);for(const x of a){const d=String(x.id)+":"+(x.lv|0);for(let i=0;i<d.length;i++)h=(h*31+d.charCodeAt(i))|0}return "Build "+(h>>>0).toString(36).toUpperCase().slice(0,4)})())}${window.claude?"":" · downloaded copy"}</span>
   </nav><main class="main">${content}</main></div>`;
   $$("[data-nav]").forEach(b=>b.onclick=()=>go(b.dataset.nav));
 }
@@ -6975,7 +6975,7 @@ function guestTried(){try{return Object.values(qpLoad()||{}).some(x=>x&&x.n)}cat
 function guestStrip(){
   const P=window.SAT_PLATFORM;
   if(!P||!P.hasBackend||P.signedIn||!navigator.onLine||!(HISTORY.length||guestTried()))return "";
-  return `<section class="resume"><div class="info"><b>Save your progress</b><div class="muted" style="font-size:.9rem">Your scores live only in this browser for now. A free account keeps them safe and syncs every device${P.ai?", and it switches on the Claude tutor":""}. It takes ten seconds.</div></div><div class="actions"><button class="btn sm" data-connai>Create free account</button></div></section>`;
+  return `<section class="resume"><div class="info"><b>Save your progress</b><div class="muted" style="font-size:.9rem">Your scores live only in this browser for now. A free account keeps them safe and syncs every device${P.ai?", and it switches on the AI tutor":""}. It takes ten seconds.</div></div><div class="actions"><button class="btn sm" data-connai>Create free account</button></div></section>`;
 }
 
 /* ---------- Tests library ---------- */
@@ -6990,7 +6990,7 @@ function libCard(l){
   if(s){const i=sessionInfo(s);status=`<span class="status prog">In progress: ${i.where}, ${i.ans}/${i.n} answered</span>`}
   else if(att.length)status=`<span class="status">${l.kind==="full"||l.kind==="sat"?`Best ${best}`:`Best ${best}%`}, ${att.length} attempt${att.length>1?"s":""}</span>`;
   else if(l.redo)status=disabled?`<span class="status muted">No mistakes to redo right now</span>`:`<span class="status prog">${mistakePool(l.redo).length} mistake${mistakePool(l.redo).length>1?"s":""} waiting</span>`;
-  else if(disabled)status=`<span class="status muted">${l.weak&&AI?"Finish any test first to unlock":"Needs Claude, available when opened in Claude"}</span>`;
+  else if(disabled)status=`<span class="status muted">${l.weak&&AI?"Finish any test first to unlock":"Needs AI, available when opened in AI"}</span>`;
   return `<article class="tcard"><div class="top"><span class="sym" style="background:${color}">${sym}</span><h3>${esc(l.title)}</h3>${window.BILL&&BILL.lockBadge(l)||(l.ai?`<span class="badge">AI</span>`:"")}</div>
   <p class="desc">${esc(l.desc)}</p><div class="meta">${sp.q} questions, ${sp.min} min</div>${status}
   <div class="actions">${s?`<button class="btn sm" data-resume="${l.id}">Resume</button><button class="btn sm ghost" data-open="${l.id}">Options</button>`:`<button class="btn sm${l.kind==="drill"?" ghost":""}" data-open="${l.id}"${disabled?" disabled":""}>Start</button>`}</div></article>`;
@@ -7105,12 +7105,12 @@ function beginTest(l,timed,chain){
   if(l.kind==="full"){
     if(l.src==="fixed")startModule(SETS[l.set].map(id=>BYID[id]));
     else if(l.src==="mix")startModule(assemble(BASE,M1MIX,new Set(),seen));
-    else runGen({head:"Writing your test",lede:"Claude is writing a new Module 1 for you. This usually takes about a minute.",total:22,
+    else runGen({head:"Writing your test",lede:"AI is writing a new Module 1 for you. This usually takes about a minute.",total:22,
       produce:(sig,prog)=>aiQuestions({label:"Module 1",total:22,counts:BASE,difficulty:"about 6 at level 1, 10 at level 2 and 6 at level 3",focus:"Cover a broad range of skills in each domain, as on a real Module 1.",context:"This is the first module of the test, so it has mixed difficulty."},sig,prog),
       done:(ai)=>{const fb=assemble(BASE,M1MIX,new Set(),seen);const q=mergeByCounts(ai,fb,BASE);test.m1src=src(q);startModule(byLevel(q))}});
   }else if(l.weak){
     const ws=weakSkills(4,"math");const names=ws.map(([k])=>k);
-    runGen({head:"Writing your drill",lede:"Claude is writing 10 questions on the skills you miss most.",total:10,
+    runGen({head:"Writing your drill",lede:"AI is writing 10 questions on the skills you miss most.",total:10,
       produce:(sig,prog)=>aiQuestions({label:"a targeted practice drill",total:10,countsText:"Spread them across these skills: "+ws.map(([k,v])=>`${k} (domain ${v.d}, ${v.c}/${v.t} correct so far)`).join("; ")+".",difficulty:"about 3 at level 1, 4 at level 2 and 3 at level 3",focus:"Target the specific skills listed; vary the contexts and the step that usually trips students up.",context:"The student has been missing these skills in earlier tests."},sig,prog),
       done:(ai)=>{let q=ai.slice(0,10);const fb=shuffle(BANK.filter(b=>names.includes(b.s)&&!q.some(x=>x.id===b.id)));q=q.concat(fb.slice(0,10-q.length));if(q.length<10)q=q.concat(shuffle(BANK.filter(b=>!q.includes(b))).slice(0,10-q.length));test.m1src=src(q);startModule(byLevel(q))}});
   }else if(l.m1){startModule(assemble(BASE,M1MIX,new Set(),seen));
@@ -7264,10 +7264,10 @@ function askOpenFor(it,label,key){ASKR={it,label,key,open:true};askSync();setTim
 function askSync(){
   let b=$("#askBtn"),p=$("#askp");const c=askCtx();
   if(!c){if(b)b.remove();if(p)p.remove();return}
-  if(!b){b=document.createElement("button");b.id="askBtn";b.className="askbtn";b.innerHTML="ASK";b.title="Ask Claude about this question";b.setAttribute("aria-label","Ask Claude about this question");document.body.appendChild(b);b.onclick=()=>{const c2=askCtx();if(!c2)return;c2.setOpen(!c2.open);askSync();if(!c2.open&&c2.review){ASKR=null;askSync()}else setTimeout(()=>{const t=$("#askIn");if(t)t.focus()},30)}}
+  if(!b){b=document.createElement("button");b.id="askBtn";b.className="askbtn";b.innerHTML="ASK";b.title="Ask AI about this question";b.setAttribute("aria-label","Ask AI about this question");document.body.appendChild(b);b.onclick=()=>{const c2=askCtx();if(!c2)return;c2.setOpen(!c2.open);askSync();if(!c2.open&&c2.review){ASKR=null;askSync()}else setTimeout(()=>{const t=$("#askIn");if(t)t.focus()},30)}}
   b.setAttribute("aria-expanded",String(!!c.open));b.classList.toggle("on",!!c.open);
   if(!c.open){if(p)p.remove();return}
-  if(!p){p=document.createElement("aside");p.id="askp";p.className="askp";p.setAttribute("aria-label","Ask Claude");document.body.appendChild(p)}
+  if(!p){p=document.createElement("aside");p.id="askp";p.className="askp";p.setAttribute("aria-label","Ask AI");document.body.appendChild(p)}
   askDraw();
 }
 function askFmt(t){return esc(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\n/g,"<br>")}
@@ -7279,7 +7279,7 @@ function askDraw(){
   <div class="asklog" id="askLog">${th.length?th.map(m=>`<div class="am ${m.r}">${askFmt(m.t)}</div>`).join(""):`<div class="am bot">${askFmt(plain(intro))}</div>`}</div>
   ${th.length?"":`<div class="askchips">${starts.map(([k,l])=>`<button data-ak="${esc(k)}">${esc(l)}</button>`).join("")}</div>`}
   ${th.length&&!askBusy?`<div class="askchips"><button data-ak="OK, what's the next step?">Next step</button><button data-ak="I still don't get it. Explain that more simply.">Simpler, please</button></div>`:""}
-  ${AI?"":`<div class="askchips"><button data-connai>Connect Claude</button></div>`}<form class="askf" id="askF"><textarea id="askIn" rows="2" placeholder="${AI?"Type your question…":"ASK works when the app is open in Claude"}"${AI?"":" disabled"}></textarea><button class="btn sm" ${AI&&!askBusy?"":"disabled"}>Send</button></form>`;
+  ${AI?"":`<div class="askchips"><button data-connai>Connect AI</button></div>`}<form class="askf" id="askF"><textarea id="askIn" rows="2" placeholder="${AI?"Type your question…":"ASK works when the app is open in AI"}"${AI?"":" disabled"}></textarea><button class="btn sm" ${AI&&!askBusy?"":"disabled"}>Send</button></form>`;
   const log=$("#askLog");log.scrollTop=log.scrollHeight;
   $("#askX").onclick=()=>{c.setOpen(false);if(c.review)ASKR=null;askSync()};
   $$("[data-ak]").forEach(x=>x.onclick=()=>askSend(x.dataset.ak));
@@ -7309,7 +7309,7 @@ ${c.review?"- Help them see exactly where their answer went wrong (the likely mi
 - Plain text only: no LaTeX, no markdown headings. Write powers like x^2 and fractions like 3/4. You may bold a key idea with **double asterisks**.
 - Keep it under ${c.review?160:120} words.`;
   try{await AI(prompt,{onText:({text:t})=>{bot.t=t;if(askKey()===key&&$("#askLog")){const els=$$("#askLog .am");const last=els[els.length-1];if(last){last.innerHTML=askFmt(t);$("#askLog").scrollTop=1e9}}}})}
-  catch(e){bot.t=e?.code==="not_granted"?"ASK needs permission to use Claude. Press Connect Claude and try again.":"That didn't load. Try again."}
+  catch(e){bot.t=e?.code==="not_granted"?"ASK needs permission to use AI. Press Connect AI and try again.":"That didn't load. Try again."}
   askBusy=false;if(askKey()===key)askDraw();if(!c.review)autosave();
 }
 /* ---------- Motivation ---------- */
@@ -7600,7 +7600,7 @@ function buildM2(){
   const fb=()=>assemble(counts,hard?{1:0,2:3,3:7}:{1:6,2:4,3:0},exclude,seenIds());
   // Like the real SAT: Module 2 has the same topic mix as Module 1; only the difficulty changes with the route.
   if(!AI||test.m1src==="bank"||!test.m1src){const q=fb();test.m2src=src(q);m2Bridge(m1,22,()=>startModule(byLevel(q)));return}
-  runGen({head:"Module 1 submitted",lede:"Claude is writing Module 2 at the difficulty your Module 1 earned, then checking every answer. This usually takes a minute or two.",total:22,
+  runGen({head:"Module 1 submitted",lede:"AI is writing Module 2 at the difficulty your Module 1 earned, then checking every answer. This usually takes a minute or two.",total:22,
     produce:(sig,prog)=>aiQuestions({label:"Module 2",total:22,counts,
       difficulty:hard?"about 6 at level 2 and 16 at level 3, at true SAT hard-question depth (multi-step, parameters and constants, systems with no or infinitely many solutions, discriminant, exponential models, circle equations, trig ratios, percent change chains, statistics reasoning)":"about 13 at level 1 and 9 at level 2, standard SAT easy and medium questions",
       focus:"Follow the official SAT blueprint: cover a broad range of skills in each domain, exactly like a real Module 2. Do not target any particular skill.",
@@ -7747,7 +7747,7 @@ function renderResults(rec,fresh){
   setTimeout(askSync,0);
   view="history";
   const full=(rec.kind||"full")==="full";const st=statsFrom(rec.items);const rw=subOf(rec)==="rw",nq=rw?27:22,cut=rw?RW_CUT:ROUTE_CUT;
-  const srcTxt=s=>s==="ai"?"written by Claude":s==="mixed"?"Claude and built-in questions":"built-in questions";
+  const srcTxt=s=>s==="ai"?"written by AI":s==="mixed"?"AI and built-in questions":"built-in questions";
   shell(`<div class="stack">
   <div class="toolbar"><button class="btn link" id="backH">Back to history</button><span class="muted">${esc(fmtDate(rec.done||rec.date))}</span></div>
   <section class="mhead">${(c=>motiveHTML(c,"cheer "+(c[2]||"")))(cheerOf(rec))}</section>
@@ -7840,9 +7840,9 @@ function reportHTML(rec){
     ${r.focus?.length?`<h3>Focus areas</h3><ul class="focus">${r.focus.map(f=>`<li><b>${esc(f.skill)}</b><br>${esc(f.why)}<br><span class="muted">Tip: ${esc(f.tip)}</span></li>`).join("")}</ul>`:""}
     ${r.plan?.length?`<h3>Next 7 days</h3><ol class="plan">${r.plan.map(p=>`<li>${esc(p)}</li>`).join("")}</ol>`:""}
     ${r.target?`<p style="margin-top:14px"><b>Next target:</b> ${esc(r.target)}</p>`:""}`;
-  if(rec._loading)return `${h}<p class="muted">Claude is reviewing your answers and writing a plan.</p>`;
+  if(rec._loading)return `${h}<p class="muted">AI is reviewing your answers and writing a plan.</p>`;
   if(rec._err)return `${h}<p class="err">${esc(rec._err)}</p>${AI?`<button class="btn ghost sm" id="runRep">Try the analysis again</button>`:""}`;
-  return `${h}${AI?`<p class="muted">Get a breakdown of your mistakes and a 7-day plan.</p><button class="btn" id="runRep">Analyze my results</button>`:`<p class="muted">AI analysis is available when this page is open in Claude.</p>`}`;
+  return `${h}${AI?`<p class="muted">Get a breakdown of your mistakes and a 7-day plan.</p><button class="btn" id="runRep">Analyze my results</button>`:`<p class="muted">AI analysis is available when this page is open in AI.</p>`}`;
 }
 function bindReport(rec){const b=$("#runRep");if(b)b.onclick=()=>runReport(rec)}
 function refreshReport(rec){const el=$("#report");if(el){el.innerHTML=reportHTML(rec);bindReport(rec)}}
@@ -7871,7 +7871,7 @@ Give 1-3 strengths, 2-4 focus areas, and 7 plan items.`;
     rec._loading=false;const {_loading,_err,...clean}=rec;persist(clean);
   }catch(e){
     rec._loading=false;
-    rec._err=e?.code==="not_granted"?"The analysis needs permission to use Claude. Allow it, then try again.":e?.code==="rate_limited"?"Claude is busy right now. Wait a minute and try again.":"The analysis didn't come back in a usable form. Try again.";
+    rec._err=e?.code==="not_granted"?"The analysis needs permission to use AI. Allow it, then try again.":e?.code==="rate_limited"?"AI is busy right now. Wait a minute and try again.":"The analysis didn't come back in a usable form. Try again.";
   }
   refreshReport(rec);
 }
@@ -7886,7 +7886,7 @@ Student's answer: ${ansText(it,it.your)}
 
 In plain text (no markdown, no LaTeX), under 160 words: first the most likely mistake behind their answer, then ${it.p?"why the correct answer is right, using evidence from the passage":"a short step-by-step correct solution"}, then one tip for spotting this question type on the SAT.`;
   try{await AI(prompt,{onText:({text})=>{out.textContent=text}});btn.remove()}
-  catch(e){out.textContent=e?.text||(e?.code==="not_granted"?"Explanations need permission to use Claude.":"The explanation didn't load. Try again.");btn.disabled=false}
+  catch(e){out.textContent=e?.text||(e?.code==="not_granted"?"Explanations need permission to use AI.":"The explanation didn't load. Try again.");btn.disabled=false}
 }
 
 /* ---------- Progress ---------- */
@@ -7936,7 +7936,7 @@ function renderProgress(){
   ${drillItems.length?`<section class="card"><h2>Drill accuracy</h2>${bars(statsFrom(drillItems).d)}</section>`:""}
   ${pacingHTML(items,progSub)}
   ${calCard()}
-  <section class="card"><h2>Backup &amp; sync</h2><p class="muted">Move your progress between the claude.ai app, the downloaded copy, or another browser.</p><button class="btn ghost" data-syncopen>Open backup &amp; sync</button></section>
+  <section class="card"><h2>Backup &amp; sync</h2><p class="muted">Move your progress between the downloaded copy and another browser.</p><button class="btn ghost" data-syncopen>Open backup &amp; sync</button></section>
   </div>`);
   bindP();bindCal();
 }
@@ -8175,7 +8175,7 @@ function renderHistory(){
   ${ss.length?`<section><h2>Saved, not finished</h2><div class="stack" style="gap:12px">${ss.map(resumeStrip).join("")}</div></section>`:""}
   ${histLevelCard(h)}
   <section class="card">${h.length?h.map(histRow).join(""):`<div class="empty"><h2>Nothing here yet</h2><p class="muted">Completed tests are listed here with their scores.</p><button class="btn" data-go="tests">Choose a test</button></div>`}</section>
-  <p class="fine">${STORE.kind==="db"?"History and saved tests are stored in your Claude account for this page.":"History and saved tests are stored in this browser."}</p></div>`);
+  <p class="fine">${STORE.kind==="db"?"History and saved tests are stored in your AI account for this page.":"History and saved tests are stored in this browser."}</p></div>`);
   $$("[data-f]").forEach(b=>b.onclick=()=>{histFilter=b.dataset.f;renderHistory()});
   bindCommon();bindHist();
 }
@@ -10048,7 +10048,7 @@ Return ONLY JSON: {"items":[{"w":"the word exactly as given","uz":"natural Uzbek
     items.forEach(it=>{const e=todo.find(x=>wbKey(x.w)===wbKey(String(it.w||"")));if(!e)return;e.uz=String(it.uz||"").slice(0,80);e.pos=String(it.pos||"").slice(0,20);e.def=String(it.def||"").slice(0,140);e.ex=String(it.ex||"").slice(0,180)});
     wbSave();WB_BUSY=false;if(view==="words")renderWords();
     const done=todo.filter(e=>e.uz).length;if(done)wbToast(`Translated ${done} word${done>1?"s":""} into Uzbek`);return true;
-  }catch(e){WB_BUSY=false;if(view==="words")renderWords();wbToast(e?.code==="not_granted"?"Allow Claude to translate, then press Translate in the Word bank.":"Translation didn't finish. Press Translate in the Word bank to try again.");return false}
+  }catch(e){WB_BUSY=false;if(view==="words")renderWords();wbToast(e?.code==="not_granted"?"Allow AI to translate, then press Translate in the Word bank.":"Translation didn't finish. Press Translate in the Word bank to try again.");return false}
 }
 function wbToast(msg,link){
   let t=$("#wbToast");if(!t){t=document.createElement("div");t.id="wbToast";t.setAttribute("role","status");document.body.appendChild(t)}
@@ -10074,7 +10074,7 @@ function renderWords(){
   shell(`<div class="pagehead"><div><h1>Word bank</h1><p class="muted">Words you marked in Reading &amp; Writing, with Uzbek translations, meanings and the sentence where you found them. Turn on <b>Words</b> in any R&amp;W test and tap a word (or select a short phrase) to mark it; it's saved here when you finish the test.</p></div></div>
   <div class="stack">
    <section class="card wbtop"><div class="wbstats"><div><b>${L.length}</b><span>words</span></div><div><b>${L.length-learned}</b><span>to learn</span></div><div><b>${learned}</b><span>learned</span></div></div>
-    <div class="row">${L.filter(e=>e.st!=="ok").length?`<button class="btn" id="wbCards">Flashcards</button>`:""}${missing?(AI?`<button class="btn ghost" id="wbTr"${WB_BUSY?" disabled":""}>${WB_BUSY?"Translating…":`Translate ${missing} missing`}</button>`:`<span class="fine">${missing} without translation — connect Claude for automatic translation, or add them yourself.</span>`):""}</div></section>
+    <div class="row">${L.filter(e=>e.st!=="ok").length?`<button class="btn" id="wbCards">Flashcards</button>`:""}${missing?(AI?`<button class="btn ghost" id="wbTr"${WB_BUSY?" disabled":""}>${WB_BUSY?"Translating…":`Translate ${missing} missing`}</button>`:`<span class="fine">${missing} without translation — connect AI for automatic translation, or add them yourself.</span>`):""}</div></section>
    ${L.length?`<div class="wbtools"><div class="chips" role="group" aria-label="Filter">${[["all","All"],["new","To learn"],["ok","Learned"]].map(([k,t])=>`<button class="chipbtn" data-wf="${k}" aria-pressed="${WBF.f===k}">${t}</button>`).join("")}</div><input id="wbQ" placeholder="Search words" value="${esc(WBF.q)}" aria-label="Search words"></div>
    <div class="wbgrid">${list.map(card).join("")||`<p class="muted">No words match.</p>`}</div>`
    :`<section class="card"><h2>No words yet</h2><p class="muted">Start a Reading &amp; Writing test, press <b>Words</b> in the top bar, then tap any word you don't know. When you finish the test, the words appear here with their Uzbek translations.</p><button class="btn" id="wbGoRW">Go to Reading &amp; Writing</button></section>`}
@@ -10170,7 +10170,7 @@ Give 3-5 weaknesses.`;
     const r=await AI.json(prompt,{cache:false});if(!r||typeof r.summary!=="string")throw {code:"bad"};
     SETTINGS.fb={at:new Date().toISOString(),n:HISTORY.length,r:{headline:String(r.headline||""),summary:String(r.summary),strengths:(r.strengths||[]).map(String).slice(0,5),weaknesses:(r.weaknesses||[]).filter(w=>w&&w.area).map(w=>({area:String(w.area),evidence:String(w.evidence||""),fix:String(w.fix||"")})).slice(0,6),habits:(r.habits||[]).map(String).slice(0,4),plan:(r.plan||[]).map(String).slice(0,7),target:String(r.target||"")}};
     SETTINGS.fbErr=null;persist(JSON.parse(JSON.stringify(SETTINGS)));
-  }catch(e){SETTINGS.fbErr=e?.code==="not_granted"?"Claude needs permission to write your feedback. Allow it, then press the button again.":e?.code==="rate_limited"?"Claude is busy right now. Try again in a minute.":"The feedback didn't come back in a usable form. Try again."}
+  }catch(e){SETTINGS.fbErr=e?.code==="not_granted"?"AI needs permission to write your feedback. Allow it, then press the button again.":e?.code==="rate_limited"?"AI is busy right now. Try again in a minute.":"The feedback didn't come back in a usable form. Try again."}
   FB_BUSY=false;if(view==="feedback")renderFeedback();
 }
 function renderFeedback(){
@@ -10191,9 +10191,9 @@ function renderFeedback(){
   <div class="stack">
   ${!HISTORY.length?`<section class="card"><h2>No results yet</h2><p class="muted">Finish a test or drill and your feedback will appear here.</p></section>`:`
    <section class="card fbai">
-    <div class="fbaih"><span class="fbav">∑</span><div><h2>Coach's feedback</h2><p class="fine">${ai?`Written ${new Date(F.at).toLocaleString([], {dateStyle:"medium",timeStyle:"short"})} · based on ${F.n} result${F.n>1?"s":""}`:AI?"Claude reads all your results and writes a personal report.":"Connect Claude in the app to get a written report. The numbers below update automatically."}</p></div>
+    <div class="fbaih"><span class="fbav">∑</span><div><h2>Coach's feedback</h2><p class="fine">${ai?`Written ${new Date(F.at).toLocaleString([], {dateStyle:"medium",timeStyle:"short"})} · based on ${F.n} result${F.n>1?"s":""}`:AI?"AI reads all your results and writes a personal report.":"Connect AI in the app to get a written report. The numbers below update automatically."}</p></div>
     ${AI?`<button class="btn${ai&&!newN?" ghost":""}" id="fbGo"${FB_BUSY?" disabled":""}>${FB_BUSY?"Writing…":ai?(newN?`Update (${newN} new)`:"Refresh"):"Get feedback"}</button>`:""}</div>
-    ${FB_BUSY&&!ai?`<p class="muted fbwait">Claude is reading your results…</p>`:""}
+    ${FB_BUSY&&!ai?`<p class="muted fbwait">AI is reading your results…</p>`:""}
     ${SETTINGS.fbErr?`<p class="fberr">${esc(SETTINGS.fbErr)}</p>`:""}
     ${ai?`<p class="fbhead">${esc(ai.headline)}</p><p>${esc(ai.summary)}</p>
      ${ai.strengths.length?`<h3>What's working</h3><ul class="fbl ok">${ai.strengths.map(s=>`<li>${esc(s)}</li>`).join("")}</ul>`:""}
@@ -10240,7 +10240,7 @@ function openSync(){
   const n=HISTORY.length,s=Object.keys(SESSIONS).length,w=(SETTINGS.wb||[]).length;
   const ov=document.createElement("div");ov.className="wbov";ov.id="syncOv";ov.setAttribute("role","dialog");ov.setAttribute("aria-label","Backup and sync");
   ov.innerHTML=`<div class="wbfc syncbox"><div class="wbfh"><h2 style="margin:0">Backup &amp; sync</h2><button class="wbi" id="syncX" aria-label="Close">✕</button></div>
-   <p class="muted">${window.claude?"Your progress syncs automatically to your account here on claude.ai.":"This is a downloaded copy: progress is saved in this browser only."} To move it to another copy of the app (the downloaded file, or another browser), download a backup here and import it there. Importing merges: the newer version of each test wins, and nothing is deleted.</p>
+   <p class="muted">${window.claude?"Your progress syncs automatically to your account here.":"This is a downloaded copy: progress is saved in this browser only."} To move it to another copy of the app (the downloaded file, or another browser), download a backup here and import it there. Importing merges: the newer version of each test wins, and nothing is deleted.</p>
    <p class="fine">On this device: <b>${n}</b> result${n===1?"":"s"}, <b>${s}</b> unfinished test${s===1?"":"s"}, <b>${w}</b> saved word${w===1?"":"s"}.</p>
    <div class="row"><button class="btn" id="syncDown">Download backup</button><label class="btn ghost" style="cursor:pointer">Import backup<input type="file" id="syncFile" accept=".json,application/json" hidden></label></div>
    <p class="fine" id="syncMsg" role="status"></p></div>`;
@@ -10251,18 +10251,18 @@ function openSync(){
 }
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("#syncOpen,[data-syncopen]");if(b)openSync()});
 
-/* ---------- Reconnect Claude (sample permission) ---------- */
+/* ---------- Reconnect AI (sample permission) ---------- */
 async function connectAI(){
   const say=t=>{if(typeof wbToast==="function")wbToast(t);else alert(t)};
   if(window.SAT_PLATFORM){if(!window.SAT_PLATFORM.hasBackend){say("Sign-in and sync need the online version of SAT Studio.");return}window.SAT_PLATFORM.signIn();return}
-  if(!window.claude){say("Claude features only work when the app is open in claude.ai, not in a downloaded copy.");return}
+  if(!window.claude){say("AI features only work when the app is open in claude.ai, not in a downloaded copy.");return}
   const perm=await use("permissions");let st=null;
   try{if(perm){st=await perm.state("sample");
     if(st==="prompt")st=(await perm.request(["sample"])).sample;
-    else if(st==="denied"){say("Turn on “Use Claude” in the panel that opens, then close it.");try{await perm.manage()}catch(e){say("Open this app's Permissions menu in claude.ai and turn Claude access on, then reload.");return}st=await perm.state("sample")}}}catch(e){}
+    else if(st==="denied"){say("Turn on “Use AI” in the panel that opens, then close it.");try{await perm.manage()}catch(e){say("Open this app's Permissions menu in claude.ai and turn AI access on, then reload.");return}st=await perm.state("sample")}}}catch(e){}
   let s2=null;try{s2=await window.claude.use("sample")}catch(e){}
-  if(s2){AI=s2;say("Claude connected.");go(view==="test"?"home":view||"home");return}
-  say(st==="granted"?"Permission is on. Reload the app to finish connecting.":st==="unavailable"?"Claude isn't available in this view. Open the app from claude.ai on the web or desktop and try again.":"Claude is still off. Open this app's Permissions menu in claude.ai, allow Claude, then reload.");
+  if(s2){AI=s2;say("AI connected.");go(view==="test"?"home":view||"home");return}
+  say(st==="granted"?"Permission is on. Reload the app to finish connecting.":st==="unavailable"?"AI isn't available in this view. Open the app from claude.ai on the web or desktop and try again.":"AI is still off. Open this app's Permissions menu in claude.ai, allow AI, then reload.");
 }
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-connai]");if(b)connectAI()});
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-signout]");if(b&&window.SAT_PLATFORM)window.SAT_PLATFORM.signOut()});

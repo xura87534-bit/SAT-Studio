@@ -3,7 +3,7 @@
    Uses the app's globals at call time: shell, esc, $, $$, go, view, HISTORY, SESSIONS, LIB, ME, closeSheet.
 
    Limits on built-in content are checked in the browser, so they keep honest students honest;
-   the Claude allowance is enforced on the server and can't be skipped. */
+   the AI allowance is enforced on the server and can't be skipped. */
 (function () {
 "use strict";
 const CFG = window.SAT_CONFIG || {}, P = window.SAT_PLANS, PF = window.SAT_PLATFORM || {};
@@ -68,10 +68,10 @@ const satCount = () => LIB.filter(l => l.kind === "sat").length;
 
 const WHY = {
   full: () => ["This test is part of Pro", F.m2Free ? `Free accounts get Practice Tests 1 and 2 in Math and in Reading & Writing, plus Full SAT 1, with unlimited retakes. Pro opens all ${fullCount()} section tests, ${satCount()} Full SATs, the Challenge Test and Fresh mix.` : `Free accounts can take Module 1 of Practice Tests 1 and 2 in Math and in Reading & Writing, and of Full SAT 1. Pro opens Module 2 and your score, plus all ${fullCount()} section tests, ${satCount()} Full SATs, the Challenge Test and Fresh mix.`],
-  ai: () => ["AI-written tests are part of Pro", "Claude writes a brand-new test or a drill on your weakest skills every time, so you never run out of fresh questions."],
+  ai: () => ["AI-written tests are part of Pro", "AI writes a brand-new test or a drill on your weakest skills every time, so you never run out of fresh questions."],
   drills: () => F.drillsPerDay ? [`That's today's ${F.drillsPerDay} free drills`, "Free drills reset at midnight, and Redo my mistakes is always open. Pro has no daily limit."] : ["Drills are part of Pro", "Redo my mistakes is always open. Pro opens unlimited drills on every skill."],
   course: () => [F.courseWeeks ? "The rest of the course is part of Pro" : "The 90-Day Course is part of Pro", F.courseWeeks ? `Week ${F.courseWeeks} of the 90-Day Course is free. Pro opens all 12 weeks, from the basics to full timed tests.` : "Pro opens all 12 weeks, from the basics to full timed tests."],
-  ai_limit: m => F.aiPerDay ? ["You've used today's free Claude answers", m || `Free accounts get ${F.aiPerDay} Claude answers a day. Pro gets ${P.pro.aiPerDay}.`] : ["The Claude tutor is part of Pro", `Claude explains every question you miss, up to ${P.pro.aiPerDay} answers a day.`],
+  ai_limit: m => F.aiPerDay ? ["You've used today's free AI answers", m || `Free accounts get ${F.aiPerDay} AI answers a day. Pro gets ${P.pro.aiPerDay}.`] : ["The AI tutor is part of Pro", `AI explains every question you miss, up to ${P.pro.aiPerDay} answers a day.`],
 };
 function paywall(reason, msg) {
   const [title, body] = (WHY[reason] || WHY.full)(msg);
@@ -293,14 +293,14 @@ function renderBilling() {
     ["Full adaptive tests", F.m2Free ? `Practice Tests 1 and 2 per section, plus Full SAT 1` : `Module 1 of Practice Tests 1 and 2 per section, plus Full SAT 1`, F.m2Free ? `All ${n} section tests and ${satCount()} Full SATs, plus Challenge Test and Fresh mix` : `Module 2 and your score on every test: all ${n} section tests and ${satCount()} Full SATs, plus Challenge Test and Fresh mix`],
     ["Drills", F.drillsPerDay ? `${F.drillsPerDay} a day` : "Not included", "Unlimited"],
     ["AI-written tests and weak-skill drills", "Not included", "Included"],
-    ["Claude tutor, explanations and score reports", F.aiPerDay ? `${F.aiPerDay} answers a day` : "Not included", `${P.pro.aiPerDay} a day`],
+    ["AI tutor, explanations and score reports", F.aiPerDay ? `${F.aiPerDay} answers a day` : "Not included", `${P.pro.aiPerDay} a day`],
     ["90-Day Course", F.courseWeeks ? `Week ${F.courseWeeks}` : "Not included", "All 12 weeks"],
     ["Quick Practice, calculator, word bank, progress", "Included", "Included"],
   ];
   shell(`<div class="stack">
   <section class="blhero"><span class="chip">SAT Studio Pro</span>
     <h1>Every test, every drill, a tutor on every question.</h1>
-    <p class="muted">Sitting the SAT costs about $111 each time. Pro is the practice that makes one sitting enough: ${n} full adaptive section tests, unlimited drills, and Claude explaining every question you miss.</p></section>
+    <p class="muted">Sitting the SAT costs about $111 each time. Pro is the practice that makes one sitting enough: ${n} full adaptive section tests, unlimited drills, and AI explaining every question you miss.</p></section>
   ${ownerCard()}${enabled() ? statusCard() : `<section class="card blstat ok"><div class="grow"><b>Free during launch</b><span class="muted">Right now everything in SAT Studio is open to everyone at no cost. These are the prices for when Pro opens; the free plan below stays free after that.</span></div></section>`}
   <section><div class="blplans">${P.plans.map(planCard).join("")}</div>
     <p class="blnote">${P.founding ? esc(P.foundingNote) + ". " : ""}One payment, no auto-renewal, nothing to cancel.${g ? ` Not for you? Tell us within ${g} days and we send the money back.` : ""}</p></section>
@@ -439,13 +439,13 @@ const LOCK = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke
 function homeStrip() {
   if (!enabled() || isPro() || !HISTORY.length) return "";
   const left = Math.max(0, F.drillsPerDay - drillsToday());
-  return `<section class="resume"><div class="info"><b>Free plan</b><div class="muted" style="font-size:.9rem">${F.drillsPerDay ? `${left} of ${F.drillsPerDay} drills left today · ` : ""}${F.aiPerDay ? `${F.aiPerDay} Claude answers a day · ` : ""}Module 1 of the free tests</div></div><div class="actions"><button class="btn sm" data-bill>See Pro</button></div></section>`;
+  return `<section class="resume"><div class="info"><b>Free plan</b><div class="muted" style="font-size:.9rem">${F.drillsPerDay ? `${left} of ${F.drillsPerDay} drills left today · ` : ""}${F.aiPerDay ? `${F.aiPerDay} AI answers a day · ` : ""}Module 1 of the free tests</div></div><div class="actions"><button class="btn sm" data-bill>See Pro</button></div></section>`;
 }
 function resultStrip(rec) {
   if (!enabled() || isPro() || !rec || !Array.isArray(rec.items)) return "";
   const missed = rec.items.filter(i => !i.ok), skills = new Set(missed.map(i => i.s)).size;
   if (missed.length < 3) return "";
-  return `<section class="resume"><div class="info"><b>You missed ${missed.length} questions across ${skills} skill${skills === 1 ? "" : "s"}</b><div class="muted" style="font-size:.9rem">Pro turns that list into practice: unlimited drills on each skill, AI-written questions on your weakest ones, and ${P.pro.aiPerDay} Claude explanations a day.</div></div><div class="actions"><button class="btn sm" data-bill>See Pro</button></div></section>`;
+  return `<section class="resume"><div class="info"><b>You missed ${missed.length} questions across ${skills} skill${skills === 1 ? "" : "s"}</b><div class="muted" style="font-size:.9rem">Pro turns that list into practice: unlimited drills on each skill, AI-written questions on your weakest ones, and ${P.pro.aiPerDay} AI explanations a day.</div></div><div class="actions"><button class="btn sm" data-bill>See Pro</button></div></section>`;
 }
 const lockBadge = l => { const w = lockOf(l); return w === "drills" ? `<span class="lockb">Back tomorrow</span>` : w ? `<span class="lockb">Pro</span>` : ""; };
 const navItem = () => { const pro = enabled() && isPro() && !isOwner(), l = !enabled() ? "Pricing" : pro ? "Pro plan" : "Go Pro"; return [["billing", l, ICON_PRO, pro ? "Pro" : l]]; };
