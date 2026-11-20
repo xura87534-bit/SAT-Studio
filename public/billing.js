@@ -69,9 +69,9 @@ const satCount = () => LIB.filter(l => l.kind === "sat").length;
 const WHY = {
   full: () => ["This test is part of Pro", F.m2Free ? `Free accounts get Practice Tests 1 and 2 in Math and in Reading & Writing, plus Full SAT 1, with unlimited retakes. Pro opens all ${fullCount()} section tests, ${satCount()} Full SATs, the Challenge Test and Fresh mix.` : `Free accounts can take Module 1 of Practice Tests 1 and 2 in Math and in Reading & Writing, and of Full SAT 1. Pro opens Module 2 and your score, plus all ${fullCount()} section tests, ${satCount()} Full SATs, the Challenge Test and Fresh mix.`],
   ai: () => ["AI-written tests are part of Pro", "Claude writes a brand-new test or a drill on your weakest skills every time, so you never run out of fresh questions."],
-  drills: () => [`That's today's ${F.drillsPerDay} free drills`, "Free drills reset at midnight, and Redo my mistakes is always open. Pro has no daily limit."],
-  course: () => ["The rest of the course is part of Pro", `Week ${F.courseWeeks} of the 90-Day Course is free. Pro opens all 12 weeks, from the basics to full timed tests.`],
-  ai_limit: m => ["You've used today's free Claude answers", m || `Free accounts get ${F.aiPerDay} Claude answers a day. Pro gets ${P.pro.aiPerDay}.`],
+  drills: () => F.drillsPerDay ? [`That's today's ${F.drillsPerDay} free drills`, "Free drills reset at midnight, and Redo my mistakes is always open. Pro has no daily limit."] : ["Drills are part of Pro", "Redo my mistakes is always open. Pro opens unlimited drills on every skill."],
+  course: () => [F.courseWeeks ? "The rest of the course is part of Pro" : "The 90-Day Course is part of Pro", F.courseWeeks ? `Week ${F.courseWeeks} of the 90-Day Course is free. Pro opens all 12 weeks, from the basics to full timed tests.` : "Pro opens all 12 weeks, from the basics to full timed tests."],
+  ai_limit: m => F.aiPerDay ? ["You've used today's free Claude answers", m || `Free accounts get ${F.aiPerDay} Claude answers a day. Pro gets ${P.pro.aiPerDay}.`] : ["The Claude tutor is part of Pro", `Claude explains every question you miss, up to ${P.pro.aiPerDay} answers a day.`],
 };
 function paywall(reason, msg) {
   const [title, body] = (WHY[reason] || WHY.full)(msg);
@@ -291,10 +291,10 @@ function renderBilling() {
   const g = P.guaranteeDays, n = fullCount();
   const rows = [
     ["Full adaptive tests", F.m2Free ? `Practice Tests 1 and 2 per section, plus Full SAT 1` : `Module 1 of Practice Tests 1 and 2 per section, plus Full SAT 1`, F.m2Free ? `All ${n} section tests and ${satCount()} Full SATs, plus Challenge Test and Fresh mix` : `Module 2 and your score on every test: all ${n} section tests and ${satCount()} Full SATs, plus Challenge Test and Fresh mix`],
-    ["Drills", `${F.drillsPerDay} a day`, "Unlimited"],
+    ["Drills", F.drillsPerDay ? `${F.drillsPerDay} a day` : "Not included", "Unlimited"],
     ["AI-written tests and weak-skill drills", "Not included", "Included"],
-    ["Claude tutor, explanations and score reports", `${F.aiPerDay} answers a day`, `${P.pro.aiPerDay} a day`],
-    ["90-Day Course", `Week ${F.courseWeeks}`, "All 12 weeks"],
+    ["Claude tutor, explanations and score reports", F.aiPerDay ? `${F.aiPerDay} answers a day` : "Not included", `${P.pro.aiPerDay} a day`],
+    ["90-Day Course", F.courseWeeks ? `Week ${F.courseWeeks}` : "Not included", "All 12 weeks"],
     ["Quick Practice, calculator, word bank, progress", "Included", "Included"],
   ];
   shell(`<div class="stack">
@@ -321,7 +321,7 @@ function renderBilling() {
     <details><summary>Will I be charged again?</summary><p>No. You pay once for a fixed number of days. When they run out you go back to the free plan and keep all your scores and history.</p></details>
     <details><summary>What if I buy again while Pro is still active?</summary><p>The new days are added after the ones you already have, so you never lose time.</p></details>
     ${g ? `<details><summary>Can I get my money back?</summary><p>Yes. If Pro isn't what you expected, message us within ${g} days of paying and we return the full amount to your card.</p></details>` : ""}
-    <details><summary>Is the free plan really free?</summary><p>${F.m2Free ? `Yes, with no time limit. You can sit two full tests in each section, a Full SAT, ${F.drillsPerDay} drills a day and all of Quick Practice without paying.` : `Yes, with no time limit. You can take Module 1 of the free tests as often as you like, plus ${F.drillsPerDay} drills a day and all of Quick Practice, without paying. Module 2 and your score are Pro.`}</p></details>
+    <details><summary>Is the free plan really free?</summary><p>${F.m2Free ? `Yes, with no time limit. You can sit two full tests in each section, a Full SAT, ${F.drillsPerDay ? F.drillsPerDay + " drills a day and " : ""}all of Quick Practice without paying.` : `Yes, with no time limit. You can take Module 1 of the free tests as often as you like, plus ${F.drillsPerDay ? F.drillsPerDay + " drills a day and " : ""}all of Quick Practice, without paying. Module 2 and your score are Pro.`}</p></details>
   </section></div>`);
   $$("[data-buy]").forEach(b => b.onclick = () => buy(b.dataset.buy));
   const stg = $(".blstage");   // the comparison fades in row by row when it scrolls into view
@@ -439,7 +439,7 @@ const LOCK = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke
 function homeStrip() {
   if (!enabled() || isPro() || !HISTORY.length) return "";
   const left = Math.max(0, F.drillsPerDay - drillsToday());
-  return `<section class="resume"><div class="info"><b>Free plan</b><div class="muted" style="font-size:.9rem">${left} of ${F.drillsPerDay} drills left today · ${F.aiPerDay} Claude answers a day · 2 full tests per section</div></div><div class="actions"><button class="btn sm" data-bill>See Pro</button></div></section>`;
+  return `<section class="resume"><div class="info"><b>Free plan</b><div class="muted" style="font-size:.9rem">${F.drillsPerDay ? `${left} of ${F.drillsPerDay} drills left today · ` : ""}${F.aiPerDay ? `${F.aiPerDay} Claude answers a day · ` : ""}Module 1 of the free tests</div></div><div class="actions"><button class="btn sm" data-bill>See Pro</button></div></section>`;
 }
 function resultStrip(rec) {
   if (!enabled() || isPro() || !rec || !Array.isArray(rec.items)) return "";
