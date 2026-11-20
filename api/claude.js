@@ -45,17 +45,17 @@ export async function POST(request) {
   } else if (planErr && (planErr.code === "PGRST202" || planErr.code === "42883")) {
     // billing-2026-11.sql hasn't been run yet: keep the one-limit-for-everyone behaviour.
     const { data: allowed, error: rateErr } = await supabase.rpc("use_ai_credit", { p_limit: DAILY_LIMIT, p_global: GLOBAL_DAILY_LIMIT });
-    if (rateErr) { console.error("use_ai_credit failed", rateErr); return new Response("Couldn't check your Claude allowance.", { status: 500 }); }
+    if (rateErr) { console.error("use_ai_credit failed", rateErr); return new Response("Couldn't check your AI allowance.", { status: 500 }); }
     status = allowed;
   } else {
     console.error("use_ai_credit_plan failed", planErr);
-    return new Response("Couldn't check your Claude allowance.", { status: 500 });
+    return new Response("Couldn't check your AI allowance.", { status: 500 });
   }
-  if (status === "global") return new Response("Claude is at capacity for today. Try again tomorrow.", { status: 429 });
+  if (status === "global") return new Response("AI is at capacity for today. Try again tomorrow.", { status: 429 });
   if (status !== "ok") {
     const msg = plan === "free"
-      ? `You've used today's ${limit} free Claude answers. Go Pro for ${DAILY_LIMIT} a day, or come back tomorrow.`
-      : `You've used today's ${limit} Claude requests. They reset at midnight UTC.`;
+      ? `You've used today's ${limit} free AI answers. Go Pro for ${DAILY_LIMIT} a day, or come back tomorrow.`
+      : `You've used today's ${limit} AI requests. They reset at midnight UTC.`;
     return new Response(msg, { status: 429, headers: { "x-sat-plan": plan } });
   }
 
@@ -85,11 +85,11 @@ export async function POST(request) {
           }
         }
         const final = await stream.finalMessage();
-        if (final.stop_reason === "refusal") controller.enqueue(enc.encode("\u0000ERR:Claude couldn't help with this request."));
+        if (final.stop_reason === "refusal") controller.enqueue(enc.encode("\u0000ERR:AI couldn't help with this request."));
       } catch (e) {
         if (!request.signal.aborted) {
           console.error("claude stream failed", e);
-          controller.enqueue(enc.encode("\u0000ERR:Claude is busy right now. Try again in a minute."));
+          controller.enqueue(enc.encode("\u0000ERR:AI is busy right now. Try again in a minute."));
         }
       } finally {
         controller.close();

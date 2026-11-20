@@ -336,7 +336,7 @@
   async function callClaude(prompt, opts, json) {
     const { data } = await sb.auth.getSession();
     const token = data.session && data.session.access_token;
-    if (!token) throw err("not_granted", "Sign in to use Claude.");
+    if (!token) throw err("not_granted", "Sign in to use AI.");
     let res;
     try {
       res = await fetch("/api/claude", {
@@ -350,13 +350,13 @@
       throw err("network", "Can't reach the server. Check your connection.");
     }
     if (res.status === 429) {
-      const text = (await res.text()) || "Daily Claude limit reached.";
+      const text = (await res.text()) || "Daily AI limit reached.";
       // The billing layer turns a free-plan limit into an upgrade prompt.
       try { dispatchEvent(new CustomEvent("sat:ailimit", { detail: { message: text, plan: res.headers.get("x-sat-plan") || "" } })); } catch (e) {}
       throw err("rate_limited", text);
     }
-    if (res.status === 401) throw err("not_granted", "Sign in again to use Claude.");
-    if (!res.ok || !res.body) throw err("server", (await res.text().catch(() => "")) || "Claude request failed.");
+    if (res.status === 401) throw err("not_granted", "Sign in again to use AI.");
+    if (!res.ok || !res.body) throw err("server", (await res.text().catch(() => "")) || "AI request failed.");
     const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
     let text = "";
     for (;;) {
@@ -373,7 +373,7 @@
     try { return JSON.parse(t); } catch (e) {}
     const a = t.search(/[\[{]/), b = Math.max(t.lastIndexOf("}"), t.lastIndexOf("]"));
     if (a >= 0 && b > a) { try { return JSON.parse(t.slice(a, b + 1)); } catch (e) {} }
-    throw err("bad", "Claude returned something that isn't valid JSON.");
+    throw err("bad", "AI returned something that isn't valid JSON.");
   }
   function makeSample() {
     const AI = (prompt, opts) => callClaude(prompt, opts, false);
