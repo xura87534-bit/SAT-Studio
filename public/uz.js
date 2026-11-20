@@ -63,7 +63,7 @@ const D = {
   "Needs AI, available when opened in AI": "AI kerak (hozircha yoqilmagan)", "Finish any test first to unlock": "Ochish uchun avval biror test ishlang",
   "Redo my mistakes": "Xatolarimni qayta ishlash", "No mistakes to redo right now": "Hozircha qayta ishlanadigan xato yo‘q",
   "Every Math question you got wrong, oldest first. Answer one correctly and it leaves the list.": "Matematikadan xato qilgan barcha savollaringiz, eng eskisidan boshlab. To‘g‘ri javob bersangiz, savol ro‘yxatdan chiqadi.",
-  "Every Reading and Writing question you got wrong, including Book Tests, oldest first. Answer one correctly and it leaves the list.": "O‘qish va yozishdan xato qilgan barcha savollaringiz, eng eskisidan boshlab. To‘g‘ri javob bersangiz, savol ro‘yxatdan chiqadi.",
+  "Every Reading and Writing question you got wrong, oldest first. Answer one correctly and it leaves the list.": "O‘qish va yozishdan xato qilgan barcha savollaringiz, eng eskisidan boshlab. To‘g‘ri javob bersangiz, savol ro‘yxatdan chiqadi.",
   "Algebra drill": "Algebra mashqi", "Advanced Math drill": "Advanced Math mashqi", "Data Analysis drill": "Data Analysis mashqi", "Geometry & Trig drill": "Geometriya va trigonometriya mashqi",
   "Linear equations, functions, systems and inequalities.": "Chiziqli tenglamalar, funksiyalar, sistemalar va tengsizliklar.",
   "Quadratics, exponentials, equivalent expressions and nonlinear systems.": "Kvadrat va ko‘rsatkichli funksiyalar, teng kuchli ifodalar, chiziqsiz sistemalar.",

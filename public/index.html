@@ -1929,7 +1929,7 @@ const LIB=[
 LIB.unshift({id:"redo",kind:"drill",redo:"math",title:"Redo my mistakes",desc:"Every Math question you got wrong, oldest first. Answer one correctly and it leaves the list."});
 const LIBID=Object.fromEntries(LIB.map(l=>[l.id,l]));
 const redoN=l=>Math.min(15,mistakePool(l.redo).length);
-const spec=l=>l.kind==="sat"?{q:98,min:144,parts:"4 modules and a 10-minute break"}:l.redo?{q:redoN(l),min:Math.max(5,Math.ceil(redoN(l)*(l.redo==="rw"?1.2:1.6))),parts:"1 set of "+redoN(l)}:l.book?{q:l.n,min:Math.ceil(l.n*(l.mbook?1.6:1.2)),parts:"1 set of "+l.n}:l.sub==="rw"?(l.kind==="full"?{q:54,min:64,parts:"2 modules of 27"}:{q:10,min:12,parts:"1 set of 10"}):l.am||l.m1?{q:22,min:35,parts:"1 module of 22"}:l.kind==="full"?{q:44,min:70,parts:"2 modules of 22"}:{q:10,min:15,parts:"1 set of 10"};
+const spec=l=>l.kind==="sat"?{q:98,min:144,parts:"4 modules and a 10-minute break"}:l.redo?{q:redoN(l),min:Math.max(5,Math.ceil(redoN(l)*(l.redo==="rw"?1.2:1.6))),parts:"1 set of "+redoN(l)}:l.sub==="rw"?(l.kind==="full"?{q:54,min:64,parts:"2 modules of 27"}:{q:10,min:12,parts:"1 set of 10"}):l.am||l.m1?{q:22,min:35,parts:"1 module of 22"}:l.kind==="full"?{q:44,min:70,parts:"2 modules of 22"}:{q:10,min:15,parts:"1 set of 10"};
 
 /* ---------- Utilities ---------- */
 const $=s=>document.querySelector(s);
@@ -6264,7 +6264,7 @@ const RWSETS=(()=>{const used=new Set();const sets=[0,1,2,3,4,5,6,7].map(i=>{con
   add({id:"rwai",sub:"rw",kind:"full",title:"R&W AI-written test",desc:"AI writes new passages for both modules, so no two attempts repeat.",src:"ai",ai:true});
   const dd={CS:"Words in context, text structure and purpose, and cross-text connections.",II:"Central ideas, textual and data evidence, and inferences.",SEC:"Punctuation between clauses, agreement, verb forms, pronouns, and modifiers.",EOI:"Transitions and rhetorical synthesis from student notes."};
   RW_ORDER.forEach(d=>add({id:"rwd"+d,sub:"rw",kind:"drill",d,dom:true,title:RW_DOM[d]+" drill",desc:dd[d]}));
-  add({id:"rwredo",sub:"rw",kind:"drill",redo:"rw",title:"Redo my mistakes",desc:"Every Reading and Writing question you got wrong, including Book Tests, oldest first. Answer one correctly and it leaves the list."});
+  add({id:"rwredo",sub:"rw",kind:"drill",redo:"rw",title:"Redo my mistakes",desc:"Every Reading and Writing question you got wrong, oldest first. Answer one correctly and it leaves the list."});
   add({id:"rwhard",sub:"rw",kind:"drill",title:"Extreme questions only",desc:"10 of the toughest Reading and Writing questions, starting with ones you haven't seen.",hard:true});
   add({id:"rwweak",sub:"rw",kind:"drill",title:"Weak-skill drill",desc:"AI writes 10 Reading and Writing questions on the skills you miss most.",ai:true,weak:true});
   RW_SKILLS.forEach(([sk,d])=>add({id:"rws-"+slug(sk),sub:"rw",kind:"drill",d,skill:sk,title:sk,desc:`${RW_DOM[d]}.`}));
@@ -6275,7 +6275,6 @@ function rich(s){
   return h.replace(/_{3,}/g,'<span class="blank" role="img" aria-label="blank"></span>');
 }
 function beginRW(l,seen){
-  if(l.book){startModule(BOOKSETS[l.id].map(id=>BYID[id]));return}
   if(l.kind==="full"){
     if(l.src==="fixed")startModule(RWSETS[l.set].map(id=>BYID[id]));
     else if(l.src==="mix")startModule(rwAssemble(RW_COUNTS,M1MIX,new Set(),seen));
@@ -6372,7 +6371,7 @@ function normRW(arr){
 let engFilter="all",progSub="math";
 function renderEnglish(){
   view="english";
-  const R=LIB.filter(l=>l.sub==="rw"&&!l.book);
+  const R=LIB.filter(l=>l.sub==="rw");
   shell(`<div class="pagehead"><div><h1>Reading &amp; Writing</h1><p class="muted">Full tests follow the Digital SAT format: two 32-minute modules of 27 questions, each built on a short passage. Module 2 adapts to how you do in Module 1. You can save and exit any test and resume it later.</p></div></div>
   <div class="chips" role="group" aria-label="Filter tests" style="margin-bottom:18px">${[["all","All"],["full","Full tests"],["drill","Drills"],["skill","Skill drills"]].map(([k,t])=>`<button class="chipbtn" data-ef="${k}" aria-pressed="${engFilter===k}">${t}</button>`).join("")}</div>
   <section class="stack">
@@ -6398,343 +6397,8 @@ function mergeByCounts(ai,fb,counts){
   return out;
 }
 
-/* ---------- Book Tests: original questions following the chapters of The Ultimate Guide to SAT Grammar ---------- */
-const BK_TESTS=[
- {id:"bk-1",part:"Part I · Non-Grammar Questions",sym:"1",title:"Ch. 1 · Transitions",desc:"Continue, cause-and-effect, contrast and sequence transitions, including transitions in the middle or at the end of a sentence."},
- {id:"bk-2",part:"Part I · Non-Grammar Questions",sym:"2",title:"Ch. 2 · Specific Focus (Student Notes)",desc:"Pick the sentence that does exactly what the “student” wants, using the notes."},
- {id:"bk-3",part:"Part II · Punctuation",sym:"3",title:"Ch. 3 · Sentences and Fragments",desc:"Complete sentences versus fragments: -ing words, participles, and extra relative pronouns."},
- {id:"bk-4",part:"Part II · Punctuation",sym:"4",title:"Ch. 4 · Joining and Separating Sentences",desc:"Periods, semicolons, comma + FANBOYS, comma splices, and conjunctive adverbs like however and therefore."},
- {id:"bk-5",part:"Part II · Punctuation",sym:"5",title:"Ch. 5 · Joining Sentences and Fragments",desc:"Colons and single dashes before explanations and lists."},
- {id:"bk-6",part:"Part II · Punctuation",sym:"6",title:"Ch. 6 · Non-Essential & Essential Clauses",desc:"Matching pairs of commas, dashes and parentheses, and when names and titles take no commas."},
- {id:"bk-7",part:"Part II · Punctuation",sym:"7",title:"Ch. 7 · Additional Comma Uses and Misuses",desc:"Lists, adjectives, introductory phrases, and commas that don't belong."},
- {id:"bk-cr1",part:"Part II · Punctuation",sym:"R",title:"Cumulative Review · Transitions and Punctuation",desc:"Mixed review of Chapters 1 through 7."},
- {id:"bk-8",part:"Part III · Grammar",sym:"8",title:"Ch. 8 · Verbs: Agreement and Tense",desc:"Subject-verb agreement with tricky subjects, plus tense consistency and verb forms."},
- {id:"bk-9",part:"Part III · Grammar",sym:"9",title:"Ch. 9 · Pronouns",desc:"Pronoun agreement, its versus their, and who, whom, whose and which."},
- {id:"bk-10",part:"Part III · Grammar",sym:"10",title:"Ch. 10 · Apostrophes",desc:"Singular and plural possessives, and its, it's, their, whose."},
- {id:"bk-11",part:"Part III · Grammar",sym:"11",title:"Ch. 11 · Modification",desc:"Dangling and misplaced modifiers."},
- {id:"bk-12",part:"Part III · Grammar",sym:"12",title:"Ch. 12 · Parallel Structure",desc:"Lists, comparisons and paired constructions that must match."},
- {id:"bk-cr2",part:"Part III · Grammar",sym:"R",title:"Cumulative Review · Verbs, Pronouns, and Modification",desc:"Mixed review of Chapters 8 through 12."},
- {id:"bk-ps1",part:"Practice Sets · All Chapters",sym:"P1",title:"Practice Set 1",desc:"Mixed questions from every chapter, in test order."},
- {id:"bk-ps2",part:"Practice Sets · All Chapters",sym:"P2",title:"Practice Set 2",desc:"Mixed questions from every chapter, in test order."},
- {id:"bk-ps3",part:"Practice Sets · All Chapters",sym:"P3",title:"Practice Set 3",desc:"Mixed questions from every chapter, in test order."},
- {id:"bk-a",part:"Appendix · Additional Concepts",sym:"A",title:"Appendix A · Word Pairs and Comparisons",desc:"Either/or, neither/nor, not only/but also, and faulty comparisons."},
- {id:"bk-b",part:"Appendix · Additional Concepts",sym:"B",title:"Appendix B · Question Marks",desc:"Direct versus indirect questions."}
-];
-const BKRAW={};
-const TR="Transitions",BD="Boundaries",FS="Form, Structure, and Sense",SY="Rhetorical Synthesis";
-function K(t,s,lv,p,c,e,q){(BKRAW[t]=BKRAW[t]||[]).push({s,lv,p,c,e,q})}
-
-/* Ch 1 Transitions */
-K("bk-1",TR,1,"Glass frogs have nearly transparent skin on their undersides. ______ an observer looking up at one perched on a leaf can see its heart beating.",["As a result,","However,","For example,","Similarly,"],"Seeing the heart is a result of the transparent skin: cause-and-effect.");
-K("bk-1",TR,1,"Most bats hunt by echolocation. Fruit bats, ______ rely mainly on keen eyesight and a strong sense of smell to find food.",["by contrast,","for instance,","therefore,","in addition,"],"Fruit bats differ from most bats: contrast.");
-K("bk-1",TR,1,"The town's original courthouse was destroyed by fire in 1874. ______ a new courthouse was built on the same site, this time out of brick.",["Afterward,","Similarly,","In contrast,","For example,"],"The rebuilding happened later: sequence.");
-K("bk-1",TR,2,"Early typewriters jammed when neighboring keys were struck in quick succession, and the QWERTY layout was designed partly to reduce this problem. ______ the layout remains standard today, long after jamming stopped being a concern.",["Nevertheless,","Thus,","Similarly,","For instance,"],"The layout survives even though its original reason is gone: contrast.");
-K("bk-1",TR,2,"Sloths move so slowly that algae grow in their fur. ______ the green tint the algae give them may help sloths blend in with the forest canopy.",["Moreover,","However,","Instead,","Nonetheless,"],"The second sentence adds a further point: continue.");
-K("bk-1",TR,2,"Many people assume that chameleons change color mainly to match their surroundings. Researchers have found, ______ that the changes are more often linked to temperature and social signals.",["however,","therefore,","for example,","likewise,"],"A transition in the middle of a sentence still shows the relationship to the previous sentence; here it is a contrast.");
-K("bk-1",TR,2,"The composer wrote more than forty operas during her career. Only three are still performed regularly, ______",["however.","therefore.","for example.","similarly."],"A transition at the end of the sentence works the same way: forty written, only three performed is a contrast.");
-K("bk-1",TR,3,"The novel was rejected by eleven publishers before it was finally accepted. ______ it went on to sell more than a million copies in its first year.",["Ultimately,","Therefore,","Similarly,","For example,"],"The sales came at the end of a long process; the rejections did not cause them, so “Therefore” is wrong.");
-K("bk-1",TR,3,"Ancient Roman concrete has proven remarkably durable. ______ harbor walls built nearly two thousand years ago remain largely intact despite constant exposure to seawater.",["Indeed,","However,","Instead,","Otherwise,"],"The second sentence reinforces the first with strong evidence: continue.");
-K("bk-1",TR,2,"Some economists predicted that online shopping would force most physical bookstores to close. ______ the number of independent bookstores in the country has grown over the past decade.",["In reality,","Accordingly,","For example,","Likewise,"],"What happened contradicts the prediction.");
-K("bk-1",TR,1,"The bridge had been closed for repairs for several months. ______ drivers had to take a detour that added twenty minutes to their commute.",["Consequently,","Nevertheless,","Similarly,","In other words,"],"The detour was caused by the closure.");
-K("bk-1",TR,3,"Octopuses have roughly 500 million neurons. ______ about two-thirds of those neurons are located not in the brain but in the arms.",["Surprisingly,","Therefore,","Similarly,","In conclusion,"],"The second fact is unexpected rather than a result or a summary.");
-K("bk-1",TR,2,"Honeybees perform a dance to show other bees where flowers are located. ______ some species of ants leave chemical trails that guide nestmates to food.",["Similarly,","However,","Consequently,","Instead,"],"Both describe ways insects guide others to food: similarity.");
-K("bk-1",TR,3,"The architect did not try to hide the building's steel frame behind decorative stone. ______ she left the beams exposed, making the structure itself part of the design.",["Instead,","Moreover,","Therefore,","Similarly,"],"“Instead” introduces what she did in place of hiding the frame.");
-K("bk-1",TR,3,"Some sea turtles return to lay eggs on the very beach where they themselves hatched. ______ they can navigate back to a specific stretch of coast after years at sea.",["In other words,","However,","Nevertheless,","By contrast,"],"The second sentence restates the first in different terms.");
-
-/* Ch 2 Student Notes */
-K("bk-2",SY,1,NOTES(["Mount Kilimanjaro is located in Tanzania.","It is the highest mountain in Africa.","Its summit is 5,895 meters above sea level.","It is a dormant volcano."]),["At 5,895 meters above sea level, Mount Kilimanjaro is the highest mountain in Africa.","Mount Kilimanjaro, a dormant volcano, is located in Tanzania.","Mount Kilimanjaro is a dormant volcano.","Mount Kilimanjaro is in Tanzania, in Africa."],"Only this choice uses the height facts.",RS("emphasize the height of Mount Kilimanjaro"));
-K("bk-2",SY,2,NOTES(["The axolotl is a salamander native to lakes near Mexico City.","Unlike most salamanders, it keeps its gills and lives in water as an adult.","It can regrow lost limbs and even parts of its heart and brain.","Its wild population has fallen sharply because of pollution and urban growth."]),["Because axolotls can regrow lost limbs and even parts of their hearts and brains, they are of great interest to scientists.","Axolotls are native to lakes near Mexico City.","Unlike most salamanders, axolotls keep their gills as adults.","The axolotl's wild population has fallen because of pollution and urban growth."],"The regeneration ability is what makes them scientifically interesting.",RS("explain why scientists are interested in studying the axolotl"));
-K("bk-2",SY,2,NOTES(["Frida Kahlo (1907–1954) was a Mexican painter.","About a third of her paintings are self-portraits.","Georgia O'Keeffe (1887–1986) was an American painter.","She is best known for large, close-up paintings of flowers."]),["While Frida Kahlo is known for her self-portraits, Georgia O'Keeffe is best known for large, close-up paintings of flowers.","Frida Kahlo was Mexican, while Georgia O'Keeffe was American.","Georgia O'Keeffe lived longer than Frida Kahlo.","Both Frida Kahlo and Georgia O'Keeffe were twentieth-century painters."],"The goal is the subjects, so the answer must name each painter's subject.",RS("contrast the subjects the two painters are known for"));
-K("bk-2",SY,3,NOTES(["Tidal power generates electricity from the rise and fall of ocean tides.","Unlike wind and sunlight, tides are highly predictable.","Tidal power plants are expensive to build.","The Sihwa Lake station in South Korea is one of the largest tidal power plants in the world."]),["Tidal power has the advantage of being highly predictable, but tidal power plants are expensive to build.","Tidal power generates electricity from the rise and fall of ocean tides.","The Sihwa Lake station in South Korea is one of the largest tidal power plants in the world.","Tides, unlike wind and sunlight, are highly predictable."],"The goal asks for both an advantage and a disadvantage.",RS("present an advantage and a disadvantage of tidal power"));
-K("bk-2",SY,1,NOTES(["The Library of Alexandria was located in Egypt.","It was founded in the 3rd century BCE.","It aimed to collect all of the world's written knowledge.","Scholars who worked there made advances in mathematics and astronomy."]),["The Library of Alexandria was founded in the 3rd century BCE.","The Library of Alexandria was located in Egypt.","Scholars at the Library of Alexandria made advances in mathematics.","The Library of Alexandria aimed to collect all written knowledge."],"Only this choice gives the date.",RS("state when the library was founded"));
-K("bk-2",SY,2,NOTES(["Researchers gave 120 adults a list of 30 words to memorize.","Half of the participants then took a 90-minute nap; the others stayed awake.","The next day, those who had napped remembered 25% more of the words on average."]),["In a study of 120 adults, those who napped for 90 minutes after memorizing a list of words remembered 25% more of the words the next day than those who stayed awake.","Researchers gave 120 adults a list of 30 words to memorize.","Half of the participants took a 90-minute nap.","Participants who napped remembered more words."],"Presenting the findings requires the comparison and the result.",RS("present the study's findings"));
-K("bk-2",SY,3,NOTES(["Mansa Musa ruled the Mali Empire in the 14th century.","In 1324, he traveled from Mali to Mecca.","He brought so much gold that he lowered its value in Cairo for years.","Under his rule, Timbuktu became a center of learning."]),["During his 1324 journey to Mecca, Mansa Musa brought so much gold that he lowered its value in Cairo for years.","Mansa Musa ruled the Mali Empire in the 14th century.","Under Mansa Musa's rule, Timbuktu became a center of learning.","In 1324, Mansa Musa traveled from Mali to Mecca."],"Lowering the value of gold in a whole city shows immense wealth.",RS("emphasize the wealth of Mansa Musa"));
-K("bk-2",SY,2,NOTES(["The word “robot” comes from the Czech word “robota,” meaning forced labor.","It was first used in a 1920 play by Karel Čapek.","The play was titled <i>R.U.R.</i>"]),["The word “robot,” first used in Karel Čapek's 1920 play <i>R.U.R.</i>, comes from the Czech word “robota,” meaning forced labor.","Karel Čapek wrote a play titled <i>R.U.R.</i>","The play <i>R.U.R.</i> was written in 1920.","Robots appear in many plays and novels."],"Only this choice explains where the word came from.",RS("explain the origin of the word “robot”"));
-K("bk-2",SY,3,NOTES(["Saturn and Jupiter are both gas giants.","Jupiter has a diameter of about 140,000 kilometers.","Saturn has a diameter of about 116,000 kilometers.","Saturn's density is lower than that of water."]),["Although Saturn is a gas giant about 116,000 kilometers across, its density is lower than that of water.","Saturn and Jupiter are both gas giants.","Jupiter, at about 140,000 kilometers across, is larger than Saturn.","Saturn has a diameter of about 116,000 kilometers."],"A density lower than water is the surprising property.",RS("highlight a surprising property of Saturn"));
-K("bk-2",SY,1,NOTES(["Maize was first domesticated in southern Mexico.","This happened about 9,000 years ago.","Its wild ancestor is a grass called teosinte."]),["Maize's wild ancestor is a grass called teosinte.","Maize was first domesticated in southern Mexico.","Maize was domesticated about 9,000 years ago.","Maize was first grown in Mexico."],"Only this choice names the ancestor.",RS("identify the wild ancestor of maize"));
-
-/* Ch 3 Sentences and Fragments */
-K("bk-3",BD,1,"The Hoover Dam, completed in 1936, ______ the Colorado River on the border between Nevada and Arizona.",["spans","spanning","which spans","having spanned"],"The subject “the Hoover Dam” needs a main verb; the other choices create a fragment.");
-K("bk-3",BD,1,"Each autumn, millions of monarch butterflies ______ thousands of kilometers to forests in central Mexico.",["travel","traveling","that travel","having traveled"],"The sentence needs a conjugated verb, not an -ing form or a relative clause.");
-K("bk-3",BD,2,"The museum's newest exhibit, a collection of letters written by nineteenth-century sailors, ______ visitors a rare glimpse of life at sea.",["offers","offering","which offers","having offered"],"Remove the appositive: “The museum's newest exhibit ___ visitors…” needs a main verb.");
-K("bk-3",BD,2,"Although the experiment ______ several times, the researchers were unable to reproduce their original results.",["was repeated","being repeated","having been repeated","repeating"],"The clause after “although” needs a real verb.");
-K("bk-3",BD,2,"Dolly Parton, who grew up in a one-room cabin in the Tennessee mountains, ______ thousands of songs over her career.",["has written","writing","who has written","having written"],"After the non-essential clause, the subject still needs a main verb.");
-K("bk-3",BD,3,"The first free, tax-supported public library in the United States, the Peterborough Town Library in New Hampshire ______ in 1833.",["was founded","being founded","which was founded","having been founded"],"The subject “the Peterborough Town Library” needs a conjugated verb.");
-K("bk-3",BD,3,"The volcano erupted without warning in 1980, ______ ash across eleven states.",["scattering","it scattered","scattered","and scattering"],"An -ing phrase can follow a comma to describe the result; “it scattered” creates a comma splice.");
-K("bk-3",BD,2,"Because the satellite's solar panels ______ damaged during launch, engineers had to reduce the power available to its instruments.",["were","being","having been","was"],"The clause needs a conjugated verb that agrees with the plural “panels.”");
-K("bk-3",BD,3,"The pianist practices for six hours each day, a schedule ______ she has followed since childhood.",["that","and","which it","and it"],"“A schedule that she has followed” is a correct noun phrase; the others are ungrammatical.");
-K("bk-3",BD,1,"The ancient city of Petra, carved into rose-colored cliffs in what is now Jordan, ______ by hundreds of thousands of tourists every year.",["is visited","being visited","which is visited","having been visited"],"The subject needs a main verb.");
-K("bk-3",BD,2,"Founded in 1088, the University of Bologna in Italy ______ the oldest university in continuous operation in the Western world.",["is","being","which is","that is"],"The sentence needs a main verb after the subject.");
-K("bk-3",BD,3,"Some of the earliest known musical instruments ______ flutes carved from bird bone and mammoth ivory more than 40,000 years ago.",["are","being","that are","which were"],"“Some… instruments” needs a main verb.");
-
-/* Ch 4 Joining and Separating Sentences */
-K("bk-4",BD,1,"The Sahara is the largest hot desert in the ______ covers about 9 million square kilometers of northern Africa.",["world. It","world, it","world it","world, and, it"],"Two complete sentences need a period between them; a comma alone is a comma splice.");
-K("bk-4",BD,1,"The bakery opens at six in the ______ its bread usually sells out by noon.",["morning, but","morning but,","morning, but,","morning; but,"],"Comma + FANBOYS joins two sentences; no comma after the conjunction.");
-K("bk-4",BD,2,"The first footprints on the Moon will likely last for millions of ______ is no wind or water there to erode them.",["years; there","years, there","years there","years, and, there"],"Semicolon = period: it can join two complete sentences.");
-K("bk-4",BD,2,"Many people believe that goldfish can remember things for only a few ______ experiments have shown that they can remember information for months.",["seconds; however,","seconds, however,","seconds however","seconds, however"],"Between two sentences, “however” needs a semicolon or period before it and a comma after it.");
-K("bk-4",BD,2,"The festival is usually held outdoors. This year, ______ it will take place in the convention center because storms are expected.",["however,","however","; however,","however;"],"In the middle of a single sentence, “however” is surrounded by commas.");
-K("bk-4",BD,3,"The engineers tested the new material in extreme ______ performed well at temperatures as low as −200°C.",["conditions. It","conditions, it","conditions it","conditions, and it,"],"Two complete sentences: use a period.");
-K("bk-4",BD,2,"Some sharks must keep water moving over their gills in order to ______ is why many species swim continuously.",["breathe, which","breathe, this","breathe this","breathe; which"],"“Which” makes the second part a dependent clause that can follow a comma; “this” after a comma creates a comma splice.");
-K("bk-4",BD,3,"The novel's narrator never reveals her ______ readers learn only that she grew up in a small coastal town.",["name; instead,","name, instead,","name instead,","name, instead"],"Two complete sentences joined with a transition: semicolon before, comma after.");
-K("bk-4",BD,1,"Emperor penguins huddle together in large groups during the Antarctic ______ shuffle slowly so that each bird takes a turn in the warm center.",["winter, and they","winter they","winter, they","winter, and, they"],"Comma + “and” correctly joins the two sentences.");
-K("bk-4",BD,2,"The orchestra had rehearsed the symphony for ______ the conductor still felt that the final movement was not ready.",["weeks, yet","weeks yet,","weeks, yet,","weeks; yet,"],"“Yet” is a FANBOYS conjunction: comma before, none after.");
-K("bk-4",BD,3,"The trail was covered in ______ rangers closed it to hikers until spring.",["ice, so","ice so,","ice; so,","ice, so,"],"“So” is a FANBOYS conjunction: comma before, none after.");
-K("bk-4",BD,2,"Venice is built on more than one hundred small ______ are connected by over four hundred bridges.",["islands, which","islands, they","islands they","islands; which"],"“Which” begins a dependent clause that can follow a comma.");
-K("bk-4",BD,3,"Light from the Sun takes about eight minutes to reach ______ we always see the Sun as it was eight minutes earlier.",["Earth; therefore,","Earth, therefore,","Earth therefore","Earth, therefore"],"“Therefore” between two sentences needs a semicolon before it.");
-K("bk-4",BD,1,"Leonardo da Vinci filled thousands of notebook pages with ______ of them include designs for machines that were never built.",["sketches. Many","sketches, many","sketches many","sketches, and, many"],"“Many of them include…” is a complete sentence, so a period is needed.");
-K("bk-4",BD,3,"The company's first product was a simple wooden ______ it manufactures some of the most advanced robots in the world.",["toy; today,","toy, today,","toy today,","toy, and, today,"],"Two complete sentences: a semicolon joins them.");
-
-/* Ch 5 Colons and dashes */
-K("bk-5",BD,1,"The recipe calls for three kinds of ______ cheddar, parmesan, and goat cheese.",["cheese:","cheese;","cheese, such as:","cheese. Cheddar,"],"A colon introduces a list after a complete sentence.");
-K("bk-5",BD,2,"The explorers had one goal in ______ to reach the summit before the monsoon arrived.",["mind:","mind;","mind, and","mind. To"],"A colon introduces the explanation of the goal.");
-K("bk-5",BD,2,"After months of searching, the divers finally found what they had been looking ______ wreck of a seventeenth-century merchant ship.",["for—the","for; the","for, it was the","for. The"],"A single dash, like a colon, introduces an explanation.");
-K("bk-5",BD,3,"The ingredients in the original recipe ______ flour, water, salt, and yeast.",["were","were:","were;","were—"],"A colon or dash needs a complete sentence before it; “The ingredients… were” is not complete.");
-K("bk-5",BD,2,"The town's economy depends almost entirely on one ______",["industry: tourism.","industry; tourism.","industry, it is tourism.","industry. Tourism."],"A colon introduces the explanation “tourism.”");
-K("bk-5",BD,3,"Scientists were puzzled by one feature of the newly discovered ______ its enormous size, it produced almost no detectable sound.",["species: despite","species, despite","species despite","species, and despite"],"A colon can join two sentences when the second explains the first.");
-K("bk-5",BD,1,"The coach gave her team a simple ______ “Play as though every point is the last one.”",["instruction:","instruction;","instruction, and","instruction. That"],"A colon introduces the quotation that explains the instruction.");
-K("bk-5",BD,2,"Only two countries in the world are surrounded entirely by other landlocked ______ Liechtenstein and Uzbekistan.",["countries:","countries;","countries, they are","countries, these are"],"A colon introduces the list.");
-K("bk-5",BD,3,"The festival offers activities for all ages, such ______ storytelling, pottery, and kite-making.",["as","as:","as;","as—"],"Never put a colon or dash after “such as.”");
-K("bk-5",BD,2,"The violinist's career began in an unlikely ______ crowded subway station in New York City.",["place—a","place; a","place, it was a","place. A"],"A dash introduces the explanation.");
-K("bk-5",BD,3,"The study's conclusion was ______ who slept at least eight hours performed better on memory tests.",["clear: students","clear, students","clear students","clear. That students"],"A colon introduces the explanation of the conclusion.");
-K("bk-5",BD,2,"Marie Curie remains the only person to have won Nobel Prizes in two different ______",["sciences: physics and chemistry.","sciences; physics and chemistry.","sciences, they were physics and chemistry.","sciences. Physics and chemistry."],"A colon introduces the explanation.");
-
-/* Ch 6 Non-essential and essential clauses */
-K("bk-6",BD,1,"The Great Wall, which was built and rebuilt over many ______ stretches across northern China.",["centuries,","centuries","centuries;","centuries—"],"A non-essential clause opened with a comma must close with a comma.");
-K("bk-6",BD,2,"Ruth Bader Ginsburg—who served on the Supreme Court from 1993 until ______ was the second woman appointed to the Court.",["2020—","2020,","2020;","2020"],"Opened with a dash, closed with a dash; punctuation can't be mixed.");
-K("bk-6",BD,2,"The capybara (the world's largest ______ can weigh more than 60 kilograms.",["rodent)","rodent),","rodent,","rodent"],"Parentheses come in pairs, with no comma after.");
-K("bk-6",BD,3,"Colombian novelist ______ won the Nobel Prize in Literature in 1982.",["Gabriel García Márquez","Gabriel García Márquez,",", Gabriel García Márquez,",", Gabriel García Márquez"],"The name is essential after a title-like description, so no commas.");
-K("bk-6",BD,2,"The coelacanth, a fish once thought to have died out millions of years ______ was rediscovered off the coast of South Africa in 1938.",["ago,","ago","ago—","ago;"],"Close the non-essential appositive with a comma.");
-K("bk-6",BD,3,"Students ______ complete the summer reading program will receive a certificate.",["who","which",", who",", which"],"The clause identifies which students, so it is essential: no comma, and “who” for people.");
-K("bk-6",BD,2,"My grandmother's house, built in ______ still has its original wooden floors.",["1910,","1910","1910;","1910—"],"Close the non-essential phrase with a comma.");
-K("bk-6",BD,3,"Mary Shelley's novel ______ is often considered the first work of science fiction.",["<i>Frankenstein</i>","<i>Frankenstein</i>,",", <i>Frankenstein</i>,",", <i>Frankenstein</i>"],"Shelley wrote more than one novel, so the title is essential: no commas.");
-K("bk-6",BD,2,"The researchers' findings—published last month in a major ______ suggest that the drug may help patients recover more quickly.",["journal—","journal,","journal;","journal"],"Dash in, dash out.");
-K("bk-6",BD,3,"Kangaroos, ______ are native to Australia, can travel more than 50 kilometers per hour.",["which","that","they","whom"],"A non-essential clause set off by commas takes “which.”");
-K("bk-6",BD,1,"Our neighbor, a retired science ______ volunteers at the local museum every weekend.",["teacher,","teacher","teacher;","teacher—"],"Close the appositive with a comma.");
-K("bk-6",BD,2,"The Amazon rainforest—home to about ten percent of the world's known ______ covers parts of nine countries.",["species—","species,","species","species;"],"Dash in, dash out.");
-K("bk-6",BD,3,"The architect's best-known building, a museum in ______ attracts more than a million visitors each year.",["Spain,","Spain","Spain—","Spain;"],"The appositive opened with a comma and must close with one.");
-K("bk-6",BD,2,"The plan, ______ was rejected by the city council after residents raised concerns about traffic.",["however,","however","; however,","however;"],"“However” interrupting one sentence is set off by a pair of commas.");
-K("bk-6",BD,3,"Physicist Chien-Shiung ______ is known for an experiment that overturned a long-accepted law of physics, was nicknamed the “First Lady of Physics.”",["Wu, who","Wu who","Wu; who","Wu—who"],"The clause ends with a comma, so it must begin with one.");
-
-/* Ch 7 Additional comma uses */
-K("bk-7",BD,1,"The garden includes roses, tulips, ______ and lilies.",["daisies,","daisies","daisies;","daisies:"],"Items in a list of three or more are separated by commas.");
-K("bk-7",BD,2,"The students who volunteered at the food bank last ______ raised more than $2,000 for local families.",["winter","winter,","winter;","winter—"],"Don't put a comma between a subject and its verb.");
-K("bk-7",BD,3,"The hikers crossed a ______ river before reaching camp.",["cold, swift","cold swift,","cold, swift,","cold; swift"],"Two adjectives that each describe the noun are separated by a comma, with no comma before the noun.");
-K("bk-7",BD,3,"The town is known for its ______ brick houses.",["old red","old, red,","old red,","old; red"],"Adjectives of age and color don't take commas between them, and no comma goes before the noun.");
-K("bk-7",BD,2,"Many fruits, such ______ bananas and avocados, continue to ripen after they are picked.",["as","as:","as,","as;"],"No punctuation after “such as.”");
-K("bk-7",BD,1,"The scientist ______ the samples under a microscope.",["examined","examined,","examined:","examined;"],"No punctuation between a verb and its object.");
-K("bk-7",BD,3,"The letters were stored in a wooden ______ under the bed for more than fifty years.",["box","box,","box;","box:"],"Don't put a comma before a prepositional phrase that completes the idea.");
-K("bk-7",BD,2,"In the spring of ______ the city opened its first public swimming pool.",["1925,","1925","1925;","1925:"],"An introductory phrase is followed by a comma.");
-K("bk-7",BD,3,"The chef combines traditional ______ modern techniques in her cooking.",["recipes with","recipes, with","recipes; with","recipes: with"],"No punctuation is needed before “with.”");
-K("bk-7",BD,2,"The museum's most popular ______ a 4,000-year-old wooden boat discovered in a riverbank.",["exhibit is","exhibit, is","exhibit; is","exhibit: is"],"Don't separate the subject from the verb.");
-
-/* Cumulative Review 1 */
-K("bk-cr1",TR,2,"Many deserts are extremely hot during the day. ______ winter temperatures in the Gobi Desert can drop below −40°C.",["However,","Therefore,","For example,","Similarly,"],"Freezing temperatures contrast with heat.");
-K("bk-cr1",BD,3,"The violin was made in 1721 by Antonio ______ is now worth millions of dollars.",["Stradivari and","Stradivari, and","Stradivari; and","Stradivari—and"],"“The violin… was made… and is now worth” has one subject with two verbs, so no comma.");
-K("bk-cr1",BD,2,"The cave paintings at Lascaux are about 17,000 years ______ depict horses, deer, and bulls.",["old. They","old, they","old they","old, and, they"],"Two sentences need a period.");
-K("bk-cr1",BD,3,"The engineers faced a difficult ______ to build a stable foundation on soft, marshy ground.",["challenge: how","challenge; how","challenge, it was how","challenge. How"],"A colon introduces the explanation of the challenge.");
-K("bk-cr1",BD,2,"The Eiffel Tower, which was completed in ______ was originally meant to stand for only twenty years.",["1889,","1889","1889;","1889—"],"Close the non-essential clause with a comma.");
-K("bk-cr1",TR,3,"Many critics dismissed the film when it was released. Audiences, ______ made it one of the most successful films of the year.",["however,","therefore,","for example,","similarly,"],"Audiences reacted the opposite way from critics.");
-K("bk-cr1",BD,1,"The river flooded after three days of heavy ______ several farms were damaged.",["rain, and","rain and,","rain, and,","rain; and,"],"Comma + “and” joins two sentences.");
-K("bk-cr1",BD,2,"The poet Langston ______ was a central figure of the Harlem Renaissance, wrote about the lives of working-class Black Americans.",["Hughes, who","Hughes who","Hughes; who","Hughes—who"],"The clause closes with a comma, so it must open with one.");
-K("bk-cr1",BD,3,"The island's only source of fresh water—a small ______ dries up almost completely each summer.",["spring—","spring,","spring;","spring"],"Dash in, dash out.");
-K("bk-cr1",TR,2,"The bridge's cables were showing signs of corrosion. ______ engineers recommended replacing them within five years.",["Accordingly,","Nevertheless,","Similarly,","For instance,"],"The recommendation follows from the corrosion.");
-K("bk-cr1",BD,2,"The concert hall is famous for its ______ the quietest notes can be heard clearly from the back row.",["acoustics; even","acoustics, even","acoustics even","acoustics, and, even"],"A semicolon joins two complete sentences.");
-K("bk-cr1",BD,3,"The museum's collection includes paintings, sculptures, and ______ also hosts regular film screenings.",["photographs; it","photographs, it","photographs it","photographs, and, it"],"Two complete sentences: semicolon.");
-K("bk-cr1",TR,1,"First, preheat the oven to 180°C. ______ grease the baking pan.",["Then,","However,","For example,","In contrast,"],"Sequence.");
-K("bk-cr1",BD,2,"Ralph Ellison's 1952 novel ______ won the National Book Award.",["<i>Invisible Man</i>","<i>Invisible Man</i>,",", <i>Invisible Man</i>,",", <i>Invisible Man</i>"],"Here the title identifies the novel the sentence is about, so no commas.");
-K("bk-cr1",TR,3,"Tomatoes originated in South America. ______ they are now most closely associated with the cuisine of Italy.",["Today, however,","Therefore,","Similarly,","For instance,"],"The present association contrasts with the origin.");
-
-/* Ch 8 Verbs */
-K("bk-8",FS,1,"The flowers in the window box ______ watered every morning.",["are","is","was","has been"],"The subject is “flowers,” not “box.”");
-K("bk-8",FS,1,"Last year, the club ______ money to build a new playground.",["raised","raises","will raise","is raising"],"“Last year” requires the past tense.");
-K("bk-8",FS,2,"There ______ several reasons why the experiment failed.",["were","was","is","has been"],"After “there,” the verb agrees with “reasons,” which is plural.");
-K("bk-8",FS,2,"The team of engineers responsible for the new bridge ______ that construction will finish next spring.",["expects","expect","are expecting","have expected"],"The subject is “team,” which is singular.");
-K("bk-8",FS,2,"Both the poet and her translator ______ invited to speak at the festival.",["were","was","is","has been"],"A compound subject with “and” is plural.");
-K("bk-8",FS,3,"On the top shelf of the cabinet ______ a set of antique teacups and a silver tray.",["sit","sits","is sitting","has sat"],"The subject comes after the verb: “a set… and a tray” is plural.");
-K("bk-8",FS,2,"By the time the firefighters arrived, the fire ______ to the second floor.",["had spread","has spread","spreads","will spread"],"An action completed before another past action takes the past perfect.");
-K("bk-8",FS,3,"In her novels, the author often describes small towns and ______ the lives of the people who live in them.",["explores","explored","had explored","will explore"],"Keep the tense parallel with “describes.”");
-K("bk-8",FS,2,"Each of the players on the team ______ a different number on the back of the jersey.",["wears","wear","are wearing","have worn"],"“Each” is singular.");
-K("bk-8",FS,3,"The ship had ______ before the rescue boats could reach it.",["sunk","sank","sinked","sink"],"After “had,” use the past participle “sunk.”");
-K("bk-8",FS,2,"Last spring, the mayor announced that the new library ______ open the following summer.",["would","will","is","has"],"A future seen from the past takes “would.”");
-K("bk-8",FS,3,"A number of recent studies ______ that regular exercise improves memory.",["suggest","suggests","has suggested","is suggesting"],"“A number of” means “many” and takes a plural verb.");
-K("bk-8",FS,1,"When she was a child, Maya ______ to the lake with her grandfather every summer.",["went","goes","will go","has gone"],"“When she was a child” requires the past tense.");
-K("bk-8",FS,3,"The museum, along with several nearby galleries, ______ free admission on the first Sunday of every month.",["offers","offer","are offering","have offered"],"“Along with…” does not make the subject plural; the subject is “museum.”");
-K("bk-8",FS,2,"Learning to play several musical instruments ______ a great deal of patience.",["requires","require","are requiring","have required"],"The subject is the singular “learning.”");
-
-/* Ch 9 Pronouns */
-K("bk-9",FS,1,"The company announced that ______ would hire 200 new employees next year.",["it","they","he","we"],"“Company” is singular, so use “it.”");
-K("bk-9",FS,2,"Dolphins communicate with clicks and whistles, and each dolphin has ______ own signature whistle.",["its","their","it's","they're"],"“Each dolphin” is singular.");
-K("bk-9",FS,2,"The scientists published ______ results after reviewing the data for two years.",["their","its","there","they're"],"“Scientists” is plural.");
-K("bk-9",FS,2,"Marie Tharp was a geologist ______ helped map the ocean floor.",["who","which","whom","whose"],"Use “who” for a person who is the subject of the clause.");
-K("bk-9",FS,3,"The candidate, ______ many voters had never heard of before the debate, won the election by a wide margin.",["whom","who","which","whose"],"The candidate is the object (“voters had never heard of him”), so use “whom.”");
-K("bk-9",FS,2,"The novelist, ______ books have been translated into forty languages, rarely gives interviews.",["whose","who's","who","which"],"“Whose” shows possession; “who's” means “who is.”");
-K("bk-9",FS,3,"The museum displays a collection of ancient coins. Many of ______ were found by farmers plowing their fields.",["them","it","this","which"],"The antecedent is “coins,” which is plural.");
-K("bk-9",FS,2,"Each of the islands has ______ own unique species of birds.",["its","their","it's","there"],"“Each” is singular.");
-K("bk-9",FS,3,"The study compared two schools, one ______ students started classes an hour later.",["in which","which","who","whom"],"“One in which students started” correctly describes the school.");
-K("bk-9",FS,1,"The bakery is famous for ______ cinnamon rolls.",["its","it's","their","its'"],"Possessive of a singular thing: “its.”");
-K("bk-9",FS,3,"The researchers interviewed dozens of farmers, ______ said that rainfall had become less predictable.",["most of whom","most of who","most of them","most of which"],"After a preposition, use “whom” for people; “most of them” creates a comma splice.");
-K("bk-9",FS,2,"The band released ______ first album in 1998.",["its","it's","their's","there"],"“Its” is the singular possessive.");
-
-/* Ch 10 Apostrophes */
-K("bk-10",FS,1,"The ______ tail is longer than the rest of its body.",["lizard's","lizards","lizards'","lizards's"],"One lizard's tail: singular possessive.");
-K("bk-10",FS,2,"Both ______ projects were selected for the national science fair.",["students'","student's","students","students's"],"“Both” means two students: plural possessive.");
-K("bk-10",FS,2,"______ going to be a long night of studying before the exam.",["It's","Its","Its'","It"],"“It's” means “it is.”");
-K("bk-10",FS,2,"The ______ annual meeting will be held in Chicago this year.",["association's","associations","associations'","association"],"One association's meeting: singular possessive.");
-K("bk-10",FS,3,"The city ______ decision to expand the park was praised by local residents.",["council's","councils","councils'","council"],"One council's decision: singular possessive.");
-K("bk-10",FS,1,"Several ______ were damaged in the storm.",["houses","house's","houses'","houses's"],"A plain plural with no possession.");
-K("bk-10",FS,3,"Many ______ nests were found high in the canopy of the rainforest.",["parrots'","parrot's","parrots","parrots's"],"Nests of many parrots: plural possessive.");
-K("bk-10",FS,2,"The children played games while ______ parents prepared dinner.",["their","they're","there","their's"],"“Their” is the plural possessive.");
-K("bk-10",FS,3,"The ______ new wing, which opened last spring, houses its collection of ancient textiles.",["museum's","museums","museums'","museum"],"One museum's wing: singular possessive.");
-K("bk-10",FS,2,"The teacher asked ______ backpack had been left in the hallway.",["whose","who's","whos","who"],"“Whose” shows possession; “who's” means “who is.”");
-
-/* Ch 11 Modification */
-K("bk-11",FS,1,"Known for its brightly painted houses, ______",["the island of Burano attracts thousands of photographers each year.","thousands of photographers visit the island of Burano each year.","photographers flock to the island of Burano each year.","Burano's canals attract thousands of photographers each year."],"The island is known for its houses, so “the island of Burano” must follow the comma.");
-K("bk-11",FS,2,"After studying the fossils for months, ______",["the paleontologists concluded that they belonged to a new species.","a new species was identified by the paleontologists.","the fossils were found to belong to a new species.","it was concluded that the fossils belonged to a new species."],"The people who studied must come right after the modifier.");
-K("bk-11",FS,2,"A pioneer of modern dance, ______",["Martha Graham developed a technique that is still taught today.","a technique developed by Martha Graham is still taught today.","Martha Graham's technique is still taught today.","today dancers still learn Martha Graham's technique."],"Graham, not her technique, was the pioneer.");
-K("bk-11",FS,3,"Hidden beneath layers of paint for centuries, ______",["an earlier portrait was discovered by conservators using X-ray imaging.","conservators discovered an earlier portrait using X-ray imaging.","X-ray imaging revealed an earlier portrait to conservators.","the conservators' X-ray images revealed an earlier portrait."],"The portrait was hidden, so it must come right after the modifier, even though that makes the sentence passive.");
-K("bk-11",FS,2,"Originally built as a train station, ______",["the building now serves as an art museum.","the art museum now occupies the building.","visitors now enjoy art in the building.","an art museum is what the building now houses."],"The building was built as a station.");
-K("bk-11",FS,3,"Like her older brother, ______",["Ana studied engineering at the university.","Ana's field of study was engineering.","engineering was the subject Ana studied.","the university was where Ana studied engineering."],"The comparison is between Ana and her brother, so “Ana” must follow.");
-K("bk-11",FS,2,"Racing across the field, ______",["the dog chased the ball until it disappeared into the tall grass.","the ball was chased by the dog until it disappeared into the tall grass.","the tall grass hid the ball from the dog.","the ball bounced into the tall grass."],"The dog is the one racing.");
-K("bk-11",FS,3,"Unlike most mammals, ______",["the platypus lays eggs.","the platypus's eggs are laid outside its body.","eggs are laid by the platypus.","the eggs of the platypus hatch outside the body."],"Compare the platypus, not its eggs, with other mammals.");
-K("bk-11",FS,1,"Excited about the trip, ______",["the students packed their bags the night before.","the bags were packed by the students the night before.","the night before was when the students packed.","packing took place the night before."],"The students were excited.");
-K("bk-11",FS,3,"Composed when he was only seventeen, ______",["Felix Mendelssohn's overture to <i>A Midsummer Night's Dream</i> remains one of his most popular works.","Felix Mendelssohn wrote an overture that remains one of his most popular works.","Felix Mendelssohn remained proud of his overture to <i>A Midsummer Night's Dream</i>.","it was Felix Mendelssohn who wrote the overture to <i>A Midsummer Night's Dream</i>."],"The overture was composed, so “overture” must be the subject described.");
-
-/* Ch 12 Parallel structure */
-K("bk-12",FS,1,"The club's members enjoy hiking, camping, and ______",["kayaking.","to kayak.","they kayak.","kayak."],"Match the -ing pattern.");
-K("bk-12",FS,2,"The new law aims to reduce traffic, improve air quality, and ______ public transportation.",["expand","expanding","expansion of","to expanding"],"Match “reduce” and “improve.”");
-K("bk-12",FS,2,"The coach told the players to arrive early, warm up carefully, and ______",["listen to the referee.","listening to the referee.","they should listen to the referee.","to listening to the referee."],"Match “arrive” and “warm up.”");
-K("bk-12",FS,3,"Reading a novel is often more rewarding than ______ its film adaptation.",["watching","to watch","watch","the watching of"],"Compare “reading” with “watching.”");
-K("bk-12",FS,2,"The festival not only celebrates local musicians ______ raises money for music education.",["but also","and also","but","and"],"“Not only” pairs with “but also.”");
-K("bk-12",FS,3,"The report criticized the plan for being expensive, ______ and difficult to carry out.",["unpopular,","its unpopularity,","being disliked by many,","it was unpopular,"],"Match the adjectives “expensive” and “difficult.”");
-K("bk-12",FS,2,"She would rather walk to school than ______ the crowded bus.",["take","taking","to take","taken"],"Match “walk.”");
-K("bk-12",FS,3,"The goal of the program is not to replace teachers but ______ them with better tools.",["to provide","providing","provide","it provides"],"Match “to replace.”");
-K("bk-12",FS,1,"The recipe is quick, easy, and ______",["inexpensive.","it is inexpensive.","costs little money.","doesn't cost much."],"Match the adjectives.");
-K("bk-12",FS,2,"The speaker was praised both for her clarity and ______",["for her humor.","she was funny.","being humorous.","her being funny."],"“Both for… and for…”");
-
-/* Cumulative Review 2 */
-K("bk-cr2",FS,2,"The list of ingredients on the back of the packages ______ difficult to read.",["is","are","were","have been"],"The subject is “list.”");
-K("bk-cr2",FS,2,"Each of the paintings ______ been cleaned and restored.",["has","have","are","were"],"“Each” is singular.");
-K("bk-cr2",FS,3,"The professor, together with her two assistants, ______ the results of the survey next week.",["will present","present","are presenting","have presented"],"“Together with…” doesn't change the singular subject, and “next week” needs the future.");
-K("bk-cr2",FS,2,"The city council voted to increase ______ budget for public parks.",["its","their","it's","there"],"“Council” is singular.");
-K("bk-cr2",FS,3,"Hoping to see the comet, ______",["the astronomers stayed up until dawn.","the night sky was watched until dawn.","the telescope was pointed at the sky until dawn.","dawn arrived before the comet appeared."],"The astronomers were hoping.");
-K("bk-cr2",FS,2,"Before the invention of the printing press, books ______ copied by hand.",["were","are","will be","have been"],"A past situation takes the past tense.");
-K("bk-cr2",FS,3,"The prize was shared by the two finalists, Amara and ______",["me.","I.","myself.","mine."],"The pronoun is part of the object of “by,” so use “me.”");
-K("bk-cr2",FS,2,"Founded in 1851, ______",["<i>The New York Times</i> is one of the oldest newspapers in the United States.","one of the oldest newspapers in the United States is <i>The New York Times</i>.","readers have trusted <i>The New York Times</i> for generations.","it is one of the oldest newspapers in the United States, <i>The New York Times</i>."],"The newspaper was founded, so it must follow the modifier.");
-K("bk-cr2",FS,3,"The researchers studied how bees choose which flowers to visit and ______ they remember the locations of those flowers.",["how","how do","how did","that how"],"Parallel: “how bees choose… and how they remember.”");
-K("bk-cr2",FS,2,"Neither of the proposals ______ enough support to pass.",["has received","have received","are receiving","were receiving"],"“Neither” is singular.");
-K("bk-cr2",FS,3,"Walking through the old market, ______",["we noticed the smell of fresh bread and spices.","the smell of fresh bread and spices filled the air.","fresh bread and spices could be smelled.","the market smelled of fresh bread and spices."],"The people walking must follow the modifier.");
-K("bk-cr2",FS,2,"The athletes who ______ in last month's race had trained for months.",["competed","competes","competing","compete"],"Plural past tense to match “last month's.”");
-
-/* Practice Set 1 */
-K("bk-ps1",TR,2,"Most metals are solid at room temperature. ______ mercury is a liquid.",["However,","Therefore,","For example,","Similarly,"],"Mercury is the exception: contrast.");
-K("bk-ps1",BD,3,"Jazz developed in New Orleans in the early twentieth ______ quickly spread to cities such as Chicago and New York.",["century and","century, and","century; and","century, it"],"One subject (“jazz”) with two verbs: no comma.");
-K("bk-ps1",FS,2,"The results of the election ______ announced late last night.",["were","was","is","has been"],"The subject is “results.”");
-K("bk-ps1",BD,2,"The museum has one rule that visitors must never ______ not touch the artwork.",["break: do","break, do","break do","break, and do"],"A colon introduces the rule.");
-K("bk-ps1",FS,1,"The tortoise withdrew into ______ shell when the dog approached.",["its","it's","their","its'"],"Singular possessive: “its.”");
-K("bk-ps1",SY,2,NOTES(["The Silk Road was a network of trade routes.","It connected China with the Mediterranean world.","Silk, spices, and paper traveled along it.","Ideas and religions also spread along the routes."]),["In addition to goods such as silk and spices, ideas and religions spread along the Silk Road.","The Silk Road connected China with the Mediterranean world.","Silk, spices, and paper traveled along the Silk Road.","The Silk Road was a network of trade routes."],"Only this choice shows the routes carried more than goods.",RS("emphasize that the Silk Road spread more than goods"));
-K("bk-ps1",FS,3,"Discovered in 1922, ______",["the tomb of Tutankhamun contained more than 5,000 artifacts.","archaeologist Howard Carter found more than 5,000 artifacts in the tomb of Tutankhamun.","more than 5,000 artifacts were found by Howard Carter.","Howard Carter's discovery of the tomb revealed more than 5,000 artifacts."],"The tomb was discovered.");
-K("bk-ps1",BD,2,"The Atacama Desert—one of the driest places on ______ receives almost no rain in some areas.",["Earth—","Earth,","Earth","Earth;"],"Dash in, dash out.");
-K("bk-ps1",FS,2,"The program helps students improve their writing, prepare for exams, and ______ for college.",["apply","applying","application","to applying"],"Match “improve” and “prepare.”");
-K("bk-ps1",FS,2,"All of the ______ uniforms were donated by a local business.",["players'","player's","players","players's"],"Many players: plural possessive.");
-K("bk-ps1",TR,3,"The scientist's early experiments failed repeatedly. ______ each failure revealed something new about the material, eventually leading to a breakthrough.",["Still,","Therefore,","Similarly,","In other words,"],"Despite failing, the experiments were useful: contrast.");
-K("bk-ps1",FS,3,"By next June, the company ______ in business for fifty years.",["will have been","has been","had been","was"],"Completed by a future point: future perfect.");
-
-/* Practice Set 2 */
-K("bk-ps2",TR,1,"The café was closed on Monday for repairs. ______ customers had to find somewhere else to get their morning coffee.",["As a result,","However,","Similarly,","For example,"],"Cause and effect.");
-K("bk-ps2",BD,2,"The giant sequoia can live for more than three thousand ______ of these trees are among the oldest living things on Earth.",["years; some","years, some","years some","years, and, some"],"A semicolon joins two complete sentences.");
-K("bk-ps2",FS,3,"The collection of essays, which includes pieces written over four decades, ______ the author's changing views on education.",["traces","trace","are tracing","have traced"],"The subject is “collection.”");
-K("bk-ps2",SY,3,NOTES(["Hedy Lamarr was a film actress in the 1930s and 1940s.","During World War II, she co-invented a frequency-hopping radio system.","The system was meant to keep the signals that guided torpedoes from being jammed.","Similar frequency-hopping methods are used today in Wi-Fi and Bluetooth."]),["The frequency-hopping system Hedy Lamarr co-invented during World War II used methods similar to those in today's Wi-Fi and Bluetooth.","Hedy Lamarr was a film actress in the 1930s and 1940s.","Hedy Lamarr's system was meant to keep torpedo signals from being jammed.","During World War II, Hedy Lamarr co-invented a radio system."],"Only this choice connects the invention to technology used today.",RS("emphasize the lasting relevance of Lamarr's invention"));
-K("bk-ps2",FS,2,"When the scientists finished the experiment, ______ shared the results with the public.",["they","it","he","she"],"“Scientists” is plural.");
-K("bk-ps2",BD,3,"Only one sound could be heard in the empty ______ ticking of an old clock.",["hall: the","hall; the","hall, it was the","hall. The"],"A colon introduces the explanation.");
-K("bk-ps2",FS,2,"Using a powerful space telescope, ______",["astronomers detected water vapor in the planet's atmosphere.","water vapor was detected in the planet's atmosphere.","the planet's atmosphere was found to contain water vapor.","the presence of water vapor was confirmed."],"The astronomers used the telescope.");
-K("bk-ps2",FS,2,"Since the new park opened, the number of families visiting downtown ______ steadily.",["has risen","rose","rises","had risen"],"“Since” to the present: present perfect.");
-K("bk-ps2",BD,3,"The painter's studio—a converted barn on the edge of ______ is now open to the public as a museum.",["town—","town,","town","town;"],"Dash in, dash out.");
-K("bk-ps2",FS,3,"The area of Rhode Island is smaller than ______",["that of any other U.S. state.","any other U.S. state.","those of any other U.S. state.","any other U.S. state's is."],"Compare area to area: “that of.”");
-K("bk-ps2",FS,1,"The maple ______ leaves turned bright red in October.",["tree's","trees","trees's","tree"],"One tree's leaves: singular possessive.");
-K("bk-ps2",TR,2,"Some birds, such as ostriches and emus, cannot fly. ______ they are excellent runners.",["However,","Therefore,","For example,","Similarly,"],"Running well contrasts with not flying.");
-
-/* Practice Set 3 */
-K("bk-ps3",TR,2,"The author's first novel received little attention. ______ her second novel became an international bestseller.",["By contrast,","Similarly,","Therefore,","For example,"],"Contrast.");
-K("bk-ps3",BD,3,"Some frogs can survive being frozen solid during the ______ hearts stop beating, but they thaw and recover in the spring.",["winter; their","winter, their","winter their","winter, and, their"],"A semicolon joins the two complete sentences.");
-K("bk-ps3",FS,2,"Neither the students nor the teacher ______ aware that the fire alarm would be tested.",["was","were","are","have been"],"With “neither… nor,” the verb agrees with the nearer subject, “teacher.”");
-K("bk-ps3",SY,2,NOTES(["The Panama Canal opened in 1914.","It connects the Atlantic and Pacific Oceans.","Before it was built, ships sailing between New York and San Francisco had to travel around South America.","The canal shortened that trip by roughly 13,000 kilometers."]),["By connecting the Atlantic and Pacific Oceans, the Panama Canal shortened the trip between New York and San Francisco by roughly 13,000 kilometers.","The Panama Canal opened in 1914.","The Panama Canal connects the Atlantic and Pacific Oceans.","Ships once had to travel around South America."],"Only this choice explains the shipping benefit.",RS("explain the canal's main benefit for shipping"));
-K("bk-ps3",FS,3,"The orchestra, ______ conductor has led it for twenty years, will perform a new symphony next season.",["whose","who's","which","whom"],"Possession: “whose.”");
-K("bk-ps3",BD,2,"The hikers packed only the ______ food, and a first-aid kit.",["essentials: water,","essentials; water,","essentials, they packed water,","essentials. Water,"],"A colon introduces the list.");
-K("bk-ps3",FS,2,"Once a busy port, ______",["the town now relies mainly on tourism.","tourism is now the town's main industry.","the town's economy now relies mainly on tourism.","visitors now come to the town for tourism."],"The town, not its economy, was once a port.");
-K("bk-ps3",FS,3,"Her goals for the year were to read more books, to learn Spanish, and ______",["to run a marathon.","running a marathon.","she wanted to run a marathon.","a marathon."],"Match “to read” and “to learn.”");
-K("bk-ps3",FS,1,"Yesterday the team ______ its first game of the season.",["won","wins","will win","has won"],"“Yesterday” requires the past tense.");
-K("bk-ps3",FS,2,"______ been raining all week, so the soccer field is muddy.",["It's","Its","Its'","It"],"“It's” = “it has.”");
-K("bk-ps3",BD,3,"Francis ______ identified the structure of DNA with James Watson, was born in England.",["Crick, who","Crick who","Crick; who","Crick—who"],"The clause ends with a comma, so it must begin with one.");
-K("bk-ps3",BD,2,"Researchers are still trying to determine how ancient Polynesian navigators crossed thousands of kilometers of open ______",["ocean.","ocean?","ocean?.","ocean!"],"This is an indirect question, so it ends with a period.");
-
-/* Appendix A */
-K("bk-a",FS,1,"Visitors can pay either with cash ______ with a credit card.",["or","nor","and","but"],"“Either” pairs with “or.”");
-K("bk-a",FS,2,"Neither the coach ______ the players expected the game to go into overtime.",["nor","or","and","but"],"“Neither” pairs with “nor.”");
-K("bk-a",FS,2,"The new phone is both lighter ______ faster than the previous model.",["and","or","but also","as well as"],"“Both” pairs with “and.”");
-K("bk-a",FS,3,"The climate of Seattle is milder than ______",["that of Chicago.","Chicago.","Chicago's climate is.","those of Chicago."],"Compare climate with climate: “that of Chicago.”");
-K("bk-a",FS,3,"The novels of Jane Austen are more widely read today than ______",["those of most other writers of her time.","most other writers of her time.","that of most other writers of her time.","most other writers' of her time."],"Compare novels with novels (plural): “those of.”");
-K("bk-a",FS,2,"The trail was so steep ______ many hikers turned back before reaching the top.",["that","than","as","so"],"“So” pairs with “that.”");
-K("bk-a",FS,2,"The museum attracts as many visitors in a week ______ the old gallery did in a year.",["as","than","then","that"],"“As many” pairs with “as.”");
-K("bk-a",FS,1,"The cheetah is faster ______ any other land animal.",["than","then","as","that"],"Comparatives use “than.”");
-K("bk-a",FS,3,"The study was designed not only to measure students' sleep ______ to track their test scores.",["but also","and also","and","but rather"],"“Not only” pairs with “but also.”");
-K("bk-a",FS,3,"Like ______ the roots of the mesquite tree can grow extremely deep.",["those of many desert plants,","many desert plants,","that of many desert plants,","many desert plant's,"],"Compare roots with roots: “those of many desert plants.”");
-
-/* Appendix B */
-K("bk-b",BD,1,"Scientists have long wondered why some birds migrate thousands of kilometers each ______",["year.","year?","year?.","year!"],"An indirect question (“wondered why…”) ends with a period.");
-K("bk-b",BD,2,"The documentary asks a simple question: why do cats ______",["purr?","purr.","purr?.","purr!"],"A direct question ends with a question mark.");
-K("bk-b",BD,2,"The researcher wanted to know whether the plants would grow faster under blue ______",["light.","light?","light?.","light!"],"An indirect question ends with a period.");
-K("bk-b",BD,3,"“Where does the river end?” the child ______ as we crossed the bridge.",["asked","asked?",", asked","?asked"],"The question mark stays inside the quotation; the sentence continues without extra punctuation.");
-K("bk-b",BD,2,"The teacher began the lesson with a question: what makes a story ______",["memorable?","memorable.","memorable?.","memorable,"],"A direct question ends with a question mark.");
-K("bk-b",BD,3,"Historians still debate how the ancient builders moved such enormous ______",["stones.","stones?","stones?.","stones!"],"An indirect question ends with a period.");
-
-const BOOKSETS={};
-(()=>{
-  const r=rng(4242);
-  for(const t of BK_TESTS){
-    BOOKSETS[t.id]=(BKRAW[t.id]||[]).map((x,i)=>{
-      const correct=x.c[0];const ch=shuffle(x.c,r);
-      const q={id:t.id+"-"+(i+1),sub:"rw",book:t.id,d:RW_SKILLDOM[x.s],s:x.s,lv:x.lv,t:"mc",p:x.p,q:x.q||RW_Q[x.s],c:ch,a:ch.indexOf(correct),e:x.e,f:null};
-      BYID[q.id]=q;return q.id;
-    });
-    t.n=BOOKSETS[t.id].length;
-  }
-  for(const t of BK_TESTS){const l={...t,sub:"rw",kind:"drill",book:true};LIB.push(l);LIBID[l.id]=l}
-})();
-const CH_TESTS=[
- {id:"ch-1",part:"Topic Tests",sym:"1",title:"Tips 1–7 · Lines and Linear Functions",desc:"Reflections, intercept triangles, midpoints, distance, parallel lines and linear models.",fam:["gC1","gC2","gC3","gC4","gC5","gC18"]},
- {id:"ch-2",part:"Topic Tests",sym:"2",title:"Tips 5, 9–11 · Systems and Inequalities",desc:"Line–parabola systems, counting solutions, systems of inequalities and word problems.",fam:["gC6","gC7","gC8","gC9"]},
- {id:"ch-3",part:"Topic Tests",sym:"3",title:"Tips 16–23 · Polynomials and Identities",desc:"Remainder and factor theorems, sum and product of roots, and identical equations.",fam:["gC10","gC11","gC12","gC13","gC14"]},
- {id:"ch-4",part:"Topic Tests",sym:"4",title:"Tips 13–15, 30–31 · Functions and Exponents",desc:"Composition, undefined values, range, exponent equations and half-life models.",fam:["gC15","gC16","gC17","gC24","gC25"]},
- {id:"ch-5",part:"Topic Tests",sym:"5",title:"Tips 19–29, 34 · Rates, Ratios and Percents",desc:"Inverse variation, average speed, mixtures, combined work, ratio chains and reverse percents.",fam:["gC19","gC20","gC21","gC22","gC23","gC26","gC27"]},
- {id:"ch-6",part:"Topic Tests",sym:"6",title:"Tips 28, 37–50, 63 · Geometry and Trigonometry",desc:"Triangle inequality, similar figures and solids, special right triangles, arcs, sectors, radians and cofunctions.",fam:["gC28","gC29","gC30","gC31","gC32","gC33","gC34","gC35"]},
- {id:"ch-7",part:"Topic Tests",sym:"7",title:"Tips 52–62 · Data and Probability",desc:"Geometric probability, means, standard deviation, medians from frequency tables and margin of error.",fam:["gC36","gC37","gC38","gC39","gC40"]},
- {id:"ch-p1",part:"Hard Practice Tests",sym:"P1",title:"Hard Practice Test 1",desc:"20 mixed questions across every tip, easiest first.",pt:[4,0]},
- {id:"ch-p2",part:"Hard Practice Tests",sym:"P2",title:"Hard Practice Test 2",desc:"20 mixed questions across every tip, easiest first.",pt:[4,1]},
- {id:"ch-p3",part:"Hard Practice Tests",sym:"P3",title:"Hard Practice Test 3",desc:"20 mixed questions across every tip, easiest first.",pt:[5,0]},
- {id:"ch-p4",part:"Hard Practice Tests",sym:"P4",title:"Hard Practice Test 4",desc:"20 mixed questions across every tip, easiest first.",pt:[5,1]}
-];
-(()=>{
-  const fams=GEN.filter(g=>g.id.startsWith("gC")).map(g=>g.id);
-  for(const t of CH_TESTS){
-    let ids=t.fam?t.fam.flatMap(f=>[1,2,3].map(v=>f+"-"+v)):fams.filter((_,i)=>i%2===t.pt[1]).map(f=>f+"-"+t.pt[0]);
-    ids=ids.filter(id=>BYID[id]).sort((a,b)=>BYID[a].lv-BYID[b].lv);
-    BOOKSETS[t.id]=ids;t.n=ids.length;
-    const l={...t,kind:"drill",book:true,mbook:true};LIB.push(l);LIBID[l.id]=l;
-  }
-})();
 for(let n=1;n<=6;n++){const l={id:"sat"+n,kind:"sat",n,title:"Full SAT "+n,desc:"Bluebook format: Reading and Writing (two 32-minute modules), a 10-minute break, then Math (two 35-minute modules). One score out of 1600.",rw:"rw"+n,math:"pt"+n};LIB.push(l);LIBID[l.id]=l}
 FAMSEL=true; /* fixed tests are built; from here on, selection avoids repeating question types */
-let bookTab="math";
-function renderBook(){
-  view="book";
-  const B=LIB.filter(l=>l.book&&(bookTab==="math"?l.mbook:!l.mbook));const parts=[...new Set(B.map(l=>l.part))];
-  const intro=bookTab==="math"?`Tests that follow <i>Dr. John Chung's SAT Math</i> (5th edition) tip by tip. Every question is original and tests the same skill as its tip; nothing is copied from the book. Tips that the Digital SAT no longer tests, such as complex numbers, are left out.`:`Practice sets that follow <i>The Ultimate Guide to SAT Grammar</i> (Erica L. Meltzer, 6th edition) chapter by chapter. Every question is original and tests the same rules as its chapter; nothing is copied from the book. Use them alongside the book's explanations.`;
-  shell(`<div class="pagehead"><div><h1>Book Tests</h1><p class="muted">${intro}</p><p class="muted" style="margin-top:4px"><b>${B.reduce((s,l)=>s+l.n,0)}</b> questions in ${B.length} tests. Results count toward your ${bookTab==="math"?"Math":"Reading &amp; Writing"} progress.</p></div></div>
-  <div class="chips" role="group" aria-label="Choose a book" style="margin-bottom:18px">${[["math","Dr. Chung's SAT Math"],["rw","SAT Grammar (Meltzer)"]].map(([k,t])=>`<button class="chipbtn" data-bt="${k}" aria-pressed="${bookTab===k}">${t}</button>`).join("")}</div>
-  <section class="stack">${parts.map(p=>`<h2 style="margin:12px 0 0">${esc(p)}</h2><div class="lib">${B.filter(l=>l.part===p).map(libCard).join("")}</div>`).join("")}</section>`);
-  $$("[data-bt]").forEach(b=>b.onclick=()=>{bookTab=b.dataset.bt;renderBook()});
-  bindCommon();
-}
 
 /* ---------- Storage ---------- */
 function localStore(){
@@ -6838,7 +6502,7 @@ function chart(h){
 function shell(content){
   if(calcOpen())toggleCalc(false);toggleRef(false);toggleDir(false);
   screen=view;
-  const nav=[["home","Home",ICON.home],["course","90-Day Course",window.CR_ICON||ICON.book,"Course"],["quick","Quick Practice",ICON.quick,"Quick"],["tests","Math",ICON.tests,"Math"],["english","Reading & Writing",ICON.book,"R&W"],["words","Word bank",ICON.wb,"Words"],["book","Book Tests",ICON.bk,"Book"],["feedback","Feedback",ICON.fb,"Feedback"],["progress","Progress",ICON.chart],["history","History",ICON.clock]].concat(window.BILL?BILL.navItem():[]).concat(ME.owner?[["students","Students",ICON.chart]]:[]);
+  const nav=[["home","Home",ICON.home],["course","90-Day Course",window.CR_ICON||ICON.book,"Course"],["quick","Quick Practice",ICON.quick,"Quick"],["tests","Math",ICON.tests,"Math"],["english","Reading & Writing",ICON.book,"R&W"],["words","Word bank",ICON.wb,"Words"],["feedback","Feedback",ICON.fb,"Feedback"],["progress","Progress",ICON.chart],["history","History",ICON.clock]].concat(window.BILL?BILL.navItem():[]).concat(ME.owner?[["students","Students",ICON.chart]]:[]);
   const ns=Object.keys(SESSIONS).length;
   app.innerHTML=`<div class="shell"><nav class="side" aria-label="Main">
     <div class="brand"><img class="logo" src="/icons/logo-sm.png" alt="" width="34" height="34" style="background:none;object-fit:cover">SAT Studio</div>
@@ -6847,7 +6511,7 @@ function shell(content){
   </nav><main class="main">${content}</main></div>`;
   $$("[data-nav]").forEach(b=>b.onclick=()=>go(b.dataset.nav));
 }
-function go(v){lxStop();ASKR=null;setTimeout(askSync,0);view=v;qClock=null;({billing:()=>window.BILL?BILL.render():renderHome(),course:()=>window.renderCourse(),quick:renderQuick,lessons:renderLessons,feedback:renderFeedback,words:renderWords,home:renderHome,tests:renderTests,english:renderEnglish,book:renderBook,plan:renderPlan,progress:renderProgress,history:renderHistory,students:renderStudents,videos:renderVideos})[v]();window.scrollTo(0,0)}
+function go(v){lxStop();ASKR=null;setTimeout(askSync,0);view=v;qClock=null;({billing:()=>window.BILL?BILL.render():renderHome(),course:()=>window.renderCourse(),quick:renderQuick,lessons:renderLessons,feedback:renderFeedback,words:renderWords,home:renderHome,tests:renderTests,english:renderEnglish,plan:renderPlan,progress:renderProgress,history:renderHistory,students:renderStudents,videos:renderVideos})[v]();window.scrollTo(0,0)}
 function resumeStrip(s){
   const i=sessionInfo(s);
   return `<div class="resume"><div class="info"><b>${esc(i.title)}</b><div class="muted" style="font-size:.9rem">${i.where}, ${i.ans} of ${i.n} answered, ${i.left}. Saved ${esc(fmtDate(s.savedAt))}</div><div class="mini"><i style="width:${pct(i.ans,i.n)}%"></i></div></div>
@@ -6984,8 +6648,8 @@ function libCard(l){
   const att=l.kind==="sat"?[...new Set(HISTORY.filter(r=>r.sat===l.id).map(r=>r.satRun))].map(satRecs).filter(x=>x.rw&&x.math):HISTORY.filter(r=>r.libId===l.id);
   const best=l.kind==="sat"?att.reduce((m,x)=>Math.max(m,adj(x.rw)+adj(x.math)),0):att.reduce((m,r)=>Math.max(m,adj(r)),0);
   const disabled=(l.ai&&!AI)||(l.weak&&!weakSkills(1,l.sub||"math").length)||(l.redo&&!mistakePool(l.redo).length);
-  const color=l.kind==="sat"?"var(--sun)":l.redo?"var(--bad)":l.book?({"Part I":"var(--dEOI)","Part II":"var(--dSEC)","Part III":"var(--dCS)","Practi":"var(--primary)","Append":"var(--dII)"})[l.part.startsWith("Part")?l.part.split(" ·")[0]:l.part.slice(0,6)]||"var(--primary)":l.d?`var(--d${l.d})`:l.ai?"var(--primary)":l.sub==="rw"?"var(--dII)":"var(--hero)";
-  const sym=l.kind==="sat"?l.n:l.redo?"↺":l.book?l.sym:l.sub==="rw"&&l.src==="mix"?"∞":l.figOnly?"▦":l.d?SYM[l.d]:l.ai?"✦":l.am?"ƒ":l.src==="mix"?"∞":l.hard?"★":l.sprOnly?"#":l.id==="hard"?"★":l.set+1;
+  const color=l.kind==="sat"?"var(--sun)":l.redo?"var(--bad)":l.d?`var(--d${l.d})`:l.ai?"var(--primary)":l.sub==="rw"?"var(--dII)":"var(--hero)";
+  const sym=l.kind==="sat"?l.n:l.redo?"↺":l.sub==="rw"&&l.src==="mix"?"∞":l.figOnly?"▦":l.d?SYM[l.d]:l.ai?"✦":l.am?"ƒ":l.src==="mix"?"∞":l.hard?"★":l.sprOnly?"#":l.id==="hard"?"★":l.set+1;
   let status="";
   if(s){const i=sessionInfo(s);status=`<span class="status prog">In progress: ${i.where}, ${i.ans}/${i.n} answered</span>`}
   else if(att.length)status=`<span class="status">${l.kind==="full"||l.kind==="sat"?`Best ${best}`:`Best ${best}%`}, ${att.length} attempt${att.length>1?"s":""}</span>`;
@@ -6998,12 +6662,10 @@ function libCard(l){
 function renderTests(){
   view="tests";
   shell(`<div class="pagehead"><div><h1>Math</h1><p class="muted">Full tests follow the Digital SAT format: two 35-minute modules, with Module 2 adapting to Module 1. Drills target one area. You can save and exit any test and resume it later.</p></div></div>
-  <div class="chips" role="group" aria-label="Filter tests" style="margin-bottom:18px">${[["all","All"],["full","Full tests"],["drill","Drills"],["book","Book tests"],["skill","Skill drills"]].map(([k,t])=>`<button class="chipbtn" data-tf="${k}" aria-pressed="${testFilter===k}">${t}</button>`).join("")}</div>
+  <div class="chips" role="group" aria-label="Filter tests" style="margin-bottom:18px">${[["all","All"],["full","Full tests"],["drill","Drills"],["skill","Skill drills"]].map(([k,t])=>`<button class="chipbtn" data-tf="${k}" aria-pressed="${testFilter===k}">${t}</button>`).join("")}</div>
   <section class="stack">
-  ${testFilter==="all"||testFilter==="full"?`<h2 style="margin:0">Full SAT, Bluebook format <span class="muted" style="font-size:1rem">both sections, one 1600 score</span></h2><div class="lib">${LIB.filter(l=>l.kind==="sat").map(libCard).join("")}</div>`:""}
   ${testFilter==="all"||testFilter==="full"?`<h2 style="margin:12px 0 0">Full-length adaptive tests <span class="muted" style="font-size:1rem">${LIB.filter(l=>l.kind==="full"&&!l.sub).length}</span></h2><div class="lib">${LIB.filter(l=>l.kind==="full"&&!l.sub).map(libCard).join("")}</div>`:""}
-  ${testFilter==="all"||testFilter==="drill"?`<h2 style="margin:12px 0 0">Practice drills</h2><div class="lib">${LIB.filter(l=>l.kind==="drill"&&!l.skill&&!l.sub&&!l.book).map(libCard).join("")}</div>`:""}
-  ${testFilter==="all"||testFilter==="book"?[...new Set(LIB.filter(l=>l.mbook).map(l=>l.part))].map(p=>`<h2 style="margin:12px 0 0">Book tests: ${esc(p)} <span class="muted" style="font-size:1rem">Dr. Chung's SAT Math</span></h2><div class="lib">${LIB.filter(l=>l.mbook&&l.part===p).map(libCard).join("")}</div>`).join(""):""}
+  ${testFilter==="all"||testFilter==="drill"?`<h2 style="margin:12px 0 0">Practice drills</h2><div class="lib">${LIB.filter(l=>l.kind==="drill"&&!l.skill&&!l.sub).map(libCard).join("")}</div>`:""}
   ${testFilter==="all"||testFilter==="skill"?ORDER.map(d=>`<h2 style="margin:12px 0 0">Skill drills: ${DOM[d]}</h2><div class="lib">${LIB.filter(l=>l.skill&&l.d===d).map(libCard).join("")}</div>`).join(""):""}
   </section>`);
   $$("[data-tf]").forEach(b=>b.onclick=()=>{testFilter=b.dataset.tf;renderTests()});
@@ -7097,10 +6759,9 @@ function beginTest(l,timed,chain){
   if(l.kind==="sat")return beginTest({...LIBID[l.rw],title:l.title+" · Reading & Writing"},timed,{sat:l.id,run:"sat"+Date.now(),math:l.math,title:l.title});
   closeSheet();discardSession(l.id);
   resetCalc();
-  test={id:"t"+Date.now(),libId:l.id,sub:l.sub||"math",title:l.title,kind:l.kind,date:new Date().toISOString(),timed,modSec:(l.redo?spec(l).min:l.book?Math.ceil(l.n*(l.mbook?1.6:1.2)):l.sub==="rw"?(l.kind==="full"?32:12):(l.kind==="full"||l.am||l.m1?35:15))*60,mod:0,idx:0,modules:[],route:null,m1src:"bank",m2src:null,review:false,showNav:false,hideTimer:false};test.chain=chain||null;
+  test={id:"t"+Date.now(),libId:l.id,sub:l.sub||"math",title:l.title,kind:l.kind,date:new Date().toISOString(),timed,modSec:(l.redo?spec(l).min:l.sub==="rw"?(l.kind==="full"?32:12):(l.kind==="full"||l.am||l.m1?35:15))*60,mod:0,idx:0,modules:[],route:null,m1src:"bank",m2src:null,review:false,showNav:false,hideTimer:false};test.chain=chain||null;
   const seen=seenIds();
   if(l.redo){startModule(mistakePool(l.redo).slice(0,15));return}
-  if(l.mbook){startModule(BOOKSETS[l.id].map(id=>BYID[id]));return}
   if(l.sub==="rw"){beginRW(l,seen);return}
   if(l.kind==="full"){
     if(l.src==="fixed")startModule(SETS[l.set].map(id=>BYID[id]));
