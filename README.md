@@ -64,7 +64,7 @@ To switch it on:
 
 1. Supabase **SQL Editor**: paste `supabase/billing-2026-11.sql` and run it.
 2. Vercel environment variables:
-   - `PAY_CARD` (the card students transfer to) and `PAY_NAME` (the cardholder name banks show)
+   - `PAY_CARD` (the card students transfer to) and `PAY_NAME` (the cardholder name banks show). To offer more than one card, separate them with `|` in both, in the same order (`PAY_CARD=8600…|9860…`, `PAY_NAME=Name One|Name Two`)
    - `PAY_TELEGRAM` (username that receives receipts); optional `PAY_LINK` (a Payme or Click payment link)
    - Optional: `FREE_DAILY_AI_LIMIT` (default 10), `CLAUDE_MODEL_FREE` and `CLAUDE_MODEL_PRO` (default: `CLAUDE_MODEL` for both)
 3. Sign in as an admin and open **Pricing**: the launch checklist shows what is still missing. Students already see the prices on this page and on `/welcome`, marked "Free during launch"; nothing is locked or sold yet.

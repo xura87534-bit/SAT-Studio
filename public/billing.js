@@ -9,6 +9,8 @@
 const CFG = window.SAT_CONFIG || {}, P = window.SAT_PLANS, PF = window.SAT_PLATFORM || {};
 if (!P) return;
 const F = P.free, PAY = CFG.pay || {};
+/* Several cards: put them in PAY_CARD separated by "|" and the holder names in PAY_NAME in the same order. */
+const CARDS = (() => { const cs = String(PAY.card || "").split("|").map(x => x.trim()).filter(Boolean), ns = String(PAY.name || "").split("|").map(x => x.trim()); return cs.map((c, i) => ({ card: c, name: ns[i] || ns[0] || "" })); })();
 const CACHE = "satstudio_plan";
 const S = { until: 0, admin: false, last: null, loaded: false, dbOk: null };
 try { const c = JSON.parse(localStorage.getItem(CACHE) || "null"); if (c) { S.until = +c.until || 0; S.admin = !!c.admin; } } catch (e) { }
@@ -182,7 +184,7 @@ function planCard(p) {
 }
 function ownerCard() {
   if (!isOwner()) return "";
-  const ok = [[S.dbOk === true, "Database: run supabase/billing-2026-11.sql in the Supabase SQL editor"], [!!PAY.card || !!PAY.link, "Vercel: set PAY_CARD and PAY_NAME (or PAY_LINK) so students know where to pay"], [!!PAY.telegram, "Vercel: set PAY_TELEGRAM so students can send receipts"], [enabled(), "Vercel: set BILLING=on and redeploy to switch limits and payments on for students"]];
+  const ok = [[S.dbOk === true, "Database: run supabase/billing-2026-11.sql in the Supabase SQL editor"], [CARDS.length > 0 || !!PAY.link, "Vercel: set PAY_CARD and PAY_NAME (or PAY_LINK) so students know where to pay"], [!!PAY.telegram, "Vercel: set PAY_TELEGRAM so students can send receipts"], [enabled(), "Vercel: set BILLING=on and redeploy to switch limits and payments on for students"]];
   return `<section class="card"><div class="toolbar"><h2 style="margin:0">Launch checklist</h2><span class="chip">${enabled() ? "Billing is live" : "Students see prices, but nothing is locked or sold yet"}</span></div>
   <ul class="blcheck">${ok.map(([y, t]) => `<li class="${y ? "y" : ""}">${esc(t)}</li>`).join("")}</ul>
   <p class="fine" style="margin-top:10px">Payment requests and manual Pro grants are on the Students page.</p></section>`;
@@ -235,7 +237,7 @@ async function buy(code) {
     <div class="actions"><button class="btn" id="blIn">Sign in or create account</button><button class="btn link" id="blNo">Cancel</button></div>`);
     $("#blIn").onclick = () => PF.signIn && PF.signIn(); $("#blNo").onclick = closeSheet; return;
   }
-  if (!PAY.card && !PAY.link) {
+  if (!CARDS.length && !PAY.link) {
     sheet(`<h2 id="shT">Payments open soon</h2><p class="muted">We're finishing the payment setup. ${PAY.telegram ? "Message us on Telegram and we'll switch Pro on for you by hand." : "Check back in a day or two."}</p>
     <div class="actions">${tgBtn("Message us on Telegram", "", `SAT Studio Pro: ${p.name}, ${money(pr)}`)}<button class="btn link" id="blNo">Close</button></div>`);
     $("#blNo").onclick = closeSheet; return;
@@ -245,7 +247,7 @@ async function buy(code) {
   sheet(`<span class="chip">${esc(p.name)} · ${p.months * 30} days</span><h2 id="shT" style="margin-top:12px">Pay ${money(pr)}</h2>
   <ol class="blsteps">
     <li><div><b>Send ${money(pr)}</b><span>From Payme, Click, Uzum or any bank app.</span>
-      ${PAY.card ? `<div class="blcard"><code id="blNum">${esc(PAY.card)}</code><button class="btn sm ghost" id="blCopy">Copy</button></div>${PAY.name ? `<span>Card holder: <b style="display:inline;color:var(--ink)">${esc(PAY.name)}</b>. Check the name before you confirm.</span>` : ""}` : ""}
+      ${CARDS.map((c, i) => `<div class="blcard"><code>${esc(c.card)}</code><button class="btn sm ghost" data-copy="${i}">Copy</button></div>${c.name ? `<span>Card holder: <b style="display:inline;color:var(--ink)">${esc(c.name)}</b>. Check the name before you confirm.</span>` : ""}`).join("")}
       ${PAY.link ? `<div style="margin-top:8px"><a class="btn sm" href="${esc(PAY.link)}" target="_blank" rel="noopener">Open payment page</a></div>` : ""}</div></li>
     ${PAY.telegram ? `<li><div><b>Send us the receipt</b><span>A screenshot on Telegram lets us find your transfer in minutes.</span><div style="margin-top:8px">${tgBtn("Open Telegram", "sm ghost", receipt)}</div></div></li>` : ""}
     <li><div><b>Tell us you've paid</b><span>Name on the card you paid from, so we can match it.</span>
@@ -255,7 +257,7 @@ async function buy(code) {
   <div class="actions"><button class="btn" id="blPaid">I've paid</button><button class="btn link" id="blNo">Cancel</button></div>
   <p class="fine" style="margin-top:12px">Pro switches on after we confirm the transfer, usually the same day.${P.guaranteeDays ? ` ${P.guaranteeDays}-day money-back promise.` : ""}</p>
   <div class="blpar"><span>Does a parent pay?</span><a class="btn sm ghost" id="blPar" href="${esc(parentUrl(p, email))}" target="_blank" rel="noopener">Send this to a parent</a></div>`);
-  const cp = $("#blCopy"); if (cp) cp.onclick = async () => { try { await navigator.clipboard.writeText(PAY.card.replace(/\s+/g, "")); cp.textContent = "Copied"; } catch (e) { cp.textContent = "Select and copy"; } };
+  $$("[data-copy]").forEach(cp => cp.onclick = async () => { try { await navigator.clipboard.writeText(CARDS[+cp.dataset.copy].card.replace(/\s+/g, "")); cp.textContent = "Copied"; } catch (e) { cp.textContent = "Select and copy"; } });
   $("#blNo").onclick = closeSheet;
   $("#blPaid").onclick = async () => {
     const b = $("#blPaid"), m = $("#blMsg"); b.disabled = true; m.textContent = "";
@@ -282,7 +284,8 @@ const L2 = (uz, en) => (window.UZ ? window.UZ(uz, en) : en);
 /* A ready-to-send Telegram message for a parent: what it is, what it costs, where to send it, and which account it is for. */
 function parentText(p, email) {
   const pr = money(priceOf(p)), days = p.months * 30;
-  const pay = PAY.card ? L2(`To‘lov: ${PAY.card}${PAY.name ? " (" + PAY.name + ")" : ""}, Payme, Click yoki Uzum orqali.`, `Pay to card ${PAY.card}${PAY.name ? " (" + PAY.name + ")" : ""} with Payme, Click or Uzum.`) : "";
+  const list = sep => CARDS.map(c => c.card + (c.name ? " (" + c.name + ")" : "")).join(sep);
+  const pay = CARDS.length ? L2(`To‘lov: ${list(" yoki ")}, Payme, Click yoki Uzum orqali.`, `Pay to card ${list(" or ")} with Payme, Click or Uzum.`) : "";
   const ref = email ? L2(`Izohga yoki chekka ${email} ni yozing.`, `Put ${email} in the note or on the receipt.`) : "";
   const tg = PAY.telegram ? L2(`Chekni @${PAY.telegram} ga yuboring.`, `Send the receipt to @${PAY.telegram}.`) : "";
   return [L2(`Assalomu alaykum! Men SAT Studio ilovasida SAT imtihoniga tayyorlanyapman. Davom etish uchun Pro tarif kerak: ${pr}, ${days} kun, bir martalik to‘lov, o‘zi yechilmaydi.`, `Hi! I'm preparing for the SAT in SAT Studio and need Pro to keep going: ${pr} for ${days} days, one payment, no auto-renewal.`), pay, ref, tg].filter(Boolean).join(" ");
