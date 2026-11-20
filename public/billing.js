@@ -153,7 +153,7 @@ function css() {
 @keyframes blspin{to{--a:360deg}}
 @keyframes blfloat{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(4%,-6%,0) scale(1.12)}}
 @keyframes blshine{0%{transform:translateX(-130%) skewX(-20deg)}60%,100%{transform:translateX(330%) skewX(-20deg)}}
-.blhero h1{font-family:"Instrument Serif",Georgia,serif;font-weight:400;letter-spacing:-.025em;line-height:1.02;font-size:clamp(2.3rem,5.6vw,3.7rem);max-width:17ch}
+.blhero h1{font-family:"Inter Tight",var(--ui);font-weight:600;letter-spacing:-.02em;line-height:1.02;font-size:clamp(2.3rem,5.6vw,3.7rem);max-width:17ch}
 .blstage{--ease:cubic-bezier(.2,.8,.2,1);display:block;position:relative;overflow:hidden;isolation:isolate;border-radius:30px;padding:clamp(22px,4.5vw,56px);color:#E8ECF5;background:radial-gradient(120% 90% at 85% 0%,#15337A 0%,rgba(21,51,122,0) 55%),radial-gradient(90% 70% at 0% 100%,#2A1B57 0%,rgba(42,27,87,0) 60%),#070B16;box-shadow:0 50px 90px -50px rgba(7,11,22,.9)}
 .bls-grain{position:absolute;inset:0;z-index:-1;opacity:.07;pointer-events:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
 .bls-blob{position:absolute;z-index:-1;border-radius:50%;filter:blur(70px);pointer-events:none;animation:blfloat 14s ease-in-out infinite}
@@ -162,7 +162,7 @@ function css() {
 .bls-head{display:grid;gap:10px;margin-bottom:clamp(18px,3vw,34px)}
 .bls-eyebrow{font:600 .78rem ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.16em;text-transform:uppercase;color:#F4C95D}
 .bls-eyebrow::before{content:"(02) \\2014  "}
-.blstage h2{margin:0;color:#fff;font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:clamp(2rem,5vw,3.5rem);line-height:1.04;letter-spacing:-.02em;max-width:18ch}
+.blstage h2{margin:0;color:#fff;font-family:"Inter Tight",var(--ui);font-weight:600;font-size:clamp(1.8rem,4.2vw,2.8rem);line-height:1.04;letter-spacing:-.02em;max-width:18ch}
 .blvs{position:relative;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1.3fr);align-items:stretch}
 .blvs>*{position:relative;z-index:1}
 .blvs-dull,.blvs-glow{position:absolute!important;z-index:0!important;grid-row:1/-1;top:0;right:0;bottom:0;left:0}
@@ -209,8 +209,8 @@ function css() {
 .blplan,.blplan.best{background:var(--surface);border:1px solid #111;border-radius:14px;box-shadow:none;transform:none;color:var(--ink);padding:26px 24px 22px}
 .blplan.best{border:2px solid #111}
 .blplan h3,.blplan.best h3{font:600 .8rem "Inter Tight",var(--ui);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.blplan .pr,.blplan.best .pr{font:400 clamp(2.2rem,4vw,2.7rem)/1 "Instrument Serif",Georgia,serif;letter-spacing:-.01em;color:var(--ink);-webkit-text-fill-color:var(--ink);background:none}
-.blplan .pr small,.blplan.best .pr small{font:500 .8rem var(--ui);color:var(--muted);-webkit-text-fill-color:var(--muted);letter-spacing:.04em}
+.blplan .pr,.blplan.best .pr{font:600 clamp(2rem,3.6vw,2.4rem)/1 "Inter Tight",var(--ui);letter-spacing:-.02em;color:var(--ink);-webkit-text-fill-color:var(--ink);background:none}
+.blplan .pr small,.blplan.best .pr small{font:600 .8rem "Inter Tight",var(--ui);color:var(--muted);-webkit-text-fill-color:var(--muted);letter-spacing:.04em}
 .blplan .was,.blplan.best .was{color:var(--muted);font-size:.82rem;-webkit-text-fill-color:var(--muted)}
 .blplan.best .per,.blplan.best .blurb{color:var(--muted)}
 .blplan .blurb{border-top:1px solid #111;padding-top:12px}
