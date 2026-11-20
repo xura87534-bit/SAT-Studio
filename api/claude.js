@@ -7,7 +7,7 @@ import { createClient } from "@supabase/supabase-js";
 
 const MODEL = process.env.CLAUDE_MODEL || "claude-opus-5-5";
 const DAILY_LIMIT = Number(process.env.DAILY_AI_LIMIT || 150); // Pro
-const FREE_DAILY_LIMIT = Number(process.env.FREE_DAILY_AI_LIMIT || 10);
+const FREE_DAILY_LIMIT = Number(process.env.FREE_DAILY_AI_LIMIT || 0);
 // Optional: a different model per plan. Unset = CLAUDE_MODEL for everyone.
 const MODEL_FREE = process.env.CLAUDE_MODEL_FREE || MODEL;
 const MODEL_PRO = process.env.CLAUDE_MODEL_PRO || MODEL;

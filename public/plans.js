@@ -18,9 +18,9 @@ window.SAT_PLANS = {
   free: {
     full: ["pt1", "pt2", "rw1", "rw2"], // full tests open to everyone (retakes allowed)
     sat: ["sat1"],                      // Full SAT in Bluebook format
-    drillsPerDay: 3,                    // "Redo my mistakes" never counts
-    courseWeeks: 1,                     // weeks of Month 1 of the 90-Day Course
-    aiPerDay: 10,                       // keep equal to FREE_DAILY_AI_LIMIT in Vercel (default 10)
+    drillsPerDay: 0,                    // 0 = drills are Pro. "Redo my mistakes" never counts
+    courseWeeks: 0,                     // 0 = the 90-Day Course is Pro. Otherwise free weeks of Month 1
+    aiPerDay: 0,                        // 0 = Claude tutor is Pro. Keep equal to FREE_DAILY_AI_LIMIT in Vercel
     bookFree: true,                     // Book tests stay free and uncounted
     m2Free: 0,                          // full tests a free account may finish, Module 2 and score included. 0 = Module 2 and the score are Pro from the first test; 1 = the first full test is on us
   },

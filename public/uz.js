@@ -286,6 +286,14 @@ function walk(root) {
   els.forEach(e => { if (e.closest && e.closest(SKIPA)) return; for (const a of ["placeholder", "aria-label", "title"]) { const v = e.getAttribute && e.getAttribute(a); if (v) { const u = tr(v); if (u != null) e.setAttribute(a, u); } } });
 }
 const ATTR = { "Ali Karimov": "Ali Karimov", "At least 8 characters": "Kamida 8 ta belgi", "Your password": "Parolingiz", "Show password": "Parolni ko‘rsatish", "Main": "Asosiy menyu", "Filter tests": "Testlarni saralash", "Subject": "Fan", "Close": "Yopish" };
+Object.assign(D, {
+  "Drills are part of Pro": "Mashqlar Pro’ga kiradi",
+  "Redo my mistakes is always open. Pro opens unlimited drills on every skill.": "Xatolarimni qayta ishlash doim ochiq. Pro har bir mavzu bo‘yicha cheksiz mashqlarni ochadi.",
+  "The 90-Day Course is part of Pro": "90 kunlik kurs Pro’ga kiradi",
+  "Pro opens all 12 weeks, from the basics to full timed tests.": "Pro barcha 12 haftani ochadi: asoslardan to‘liq vaqtli testlargacha.",
+  "The Claude tutor is part of Pro": "Claude repetitori Pro’ga kiradi",
+  "Module 1 of the free tests": "Bepul testlarning 1-moduli",
+});
 Object.assign(D, ATTR);
 function start() {
   walk(document.body);
