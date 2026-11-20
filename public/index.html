@@ -6797,12 +6797,14 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState===
 function resume(libId){
   const s=SESSIONS[libId];if(!s)return;
   test=JSON.parse(JSON.stringify(s.data));
+  if(test.gated){closeSheet();m1Gate(false);return}
   resetCalc();if(test.calc){if(test.calc.items?.length){CALC.items=test.calc.items;CALC.items.forEach(it=>{it.id=GID++})}else if(test.calc.exprs?.length)CALC.items=test.calc.exprs.map(s=>gItem(s));CALC.deg=!!test.calc.deg;gAssignColors()}
   if(test.timed)cur().endAt=Date.now()+(test.remaining??test.modSec)*1000;
   closeSheet();runTimer();renderTest();window.scrollTo(0,0);
 }
 function sessionInfo(s){
   const t=s.data;const m=t.modules[t.mod];const ans=m.ans.filter(x=>x!==null&&x!=="").length;
+  if(t.gated)return {where:"Module 1 done",ans,n:m.qs.length,left:"Module 2 is waiting",title:t.title};
   return {where:t.kind==="full"?`Module ${t.mod+1} of 2`:"Drill",ans,n:m.qs.length,left:t.timed?fmtTime(t.remaining)+" left":"Untimed",title:t.title};
 }
 
@@ -7234,8 +7236,19 @@ document.addEventListener("keydown",e=>{
 async function submitModule(){
   clearInterval(timerId);clearTimeout(asT);clockStop();
   const m=cur();m.ok=m.qs.map((q,i)=>grade(q,m.ans[i]));
-  if(test.kind==="full"&&test.mod===0){const rw=test.sub==="rw";test.route=routeOf(m,rw?"rw":"math");rw?buildM2RW():buildM2()}
+  if(test.kind==="full"&&test.mod===0){const rw=test.sub==="rw";test.route=routeOf(m,rw?"rw":"math");m1Gate(true)}
   else finish();
+}
+/* Free accounts stop here: Module 1 is graded and saved, Module 2 and the score are Pro (billing.js decides).
+   Resuming a gated attempt lands here again, so Module 1 can't be redone to change the route. */
+function m1Gate(fresh){
+  const t=test,rw=t.sub==="rw",next=()=>{t.gated=false;rw?buildM2RW():buildM2()};
+  if(!window.BILL||!BILL.gateApplies(t)){next();return}
+  if(calcOpen())toggleCalc(false);
+  clearInterval(timerId);screen="gate";askSync();t.gated=true;
+  if(fresh){const doc=snapshot();SESSIONS[t.libId]=doc;persist(doc)}
+  window.scrollTo(0,0);
+  BILL.drawGate(t,{next,later:()=>{if(test===t){test=null;go("home")}},leave:()=>{if(test===t)test=null}});
 }
 
 /* ---------- ASK tutor (math tests + results review) ---------- */

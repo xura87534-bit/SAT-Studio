@@ -65,7 +65,7 @@ const fullCount = () => LIB.filter(l => l.kind === "full" && l.src === "fixed" &
 const satCount = () => LIB.filter(l => l.kind === "sat").length;
 
 const WHY = {
-  full: () => ["This test is part of Pro", `Free accounts get Practice Tests 1 and 2 in Math and in Reading & Writing, plus Full SAT 1, with unlimited retakes. Pro opens all ${fullCount()} section tests, ${satCount()} Full SATs, the Challenge Test and Fresh mix.`],
+  full: () => ["This test is part of Pro", F.m2Free ? `Free accounts get Practice Tests 1 and 2 in Math and in Reading & Writing, plus Full SAT 1, with unlimited retakes. Pro opens all ${fullCount()} section tests, ${satCount()} Full SATs, the Challenge Test and Fresh mix.` : `Free accounts can take Module 1 of Practice Tests 1 and 2 in Math and in Reading & Writing, and of Full SAT 1. Pro opens Module 2 and your score, plus all ${fullCount()} section tests, ${satCount()} Full SATs, the Challenge Test and Fresh mix.`],
   ai: () => ["AI-written tests are part of Pro", "Claude writes a brand-new test or a drill on your weakest skills every time, so you never run out of fresh questions."],
   drills: () => [`That's today's ${F.drillsPerDay} free drills`, "Free drills reset at midnight, and Redo my mistakes is always open. Pro has no daily limit."],
   course: () => ["The rest of the course is part of Pro", `Week ${F.courseWeeks} of the 90-Day Course is free. Pro opens all 12 weeks, from the basics to full timed tests.`],
@@ -137,6 +137,16 @@ function css() {
 .bladm form{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}.bladm form .blin{width:auto;flex:1;min-width:150px;margin:0}
 .blcheck{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:6px;font-size:.93rem}
 .blcheck li::before{content:"○";margin-right:8px;color:var(--muted)}.blcheck li.y::before{content:"●";color:var(--ok)}
+.blgate{max-width:560px;margin:0 auto;padding:32px 20px 48px;display:grid;gap:14px;justify-items:start;text-align:left}
+.blgate h1{margin:0;font-size:clamp(1.7rem,4.6vw,2.3rem);line-height:1.1}
+.blgate .bl-route{margin:0;max-width:52ch}
+.blgl{list-style:none;padding:0;margin:4px 0 0;display:grid;gap:10px;width:100%}
+.blgl li{display:grid;grid-template-columns:40px 1fr;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.blgl i{width:40px;height:40px;border-radius:12px;background:var(--sel);color:var(--primary);display:grid;place-items:center}
+.blgl b{display:block}.blgl span{color:var(--muted);font-size:.92rem}
+.blgp{width:100%;margin:0;display:grid;gap:6px}.blgp>div{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}.blgp p{margin:0}
+.blgate a.btn,.blpar a.btn{text-decoration:none}
+.blpar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:.92rem;color:var(--muted)}
 .navpro{margin-left:auto;font:700 10.5px var(--ui);padding:2px 7px;border-radius:999px;background:var(--sel);color:var(--primary)}
 .lockb{margin-left:auto;font:700 11px var(--ui);padding:3px 8px;border-radius:999px;background:var(--sel);color:var(--primary);white-space:nowrap}
 @media (max-width:560px){.blcmp th,.blcmp td{padding:10px 6px;font-size:.9rem}.blplan{padding:22px 18px 18px}}`;
@@ -182,7 +192,7 @@ function renderBilling() {
   try { window.SAT_TRACK_ONCE && window.SAT_TRACK_ONCE("pricing_view"); } catch (e) { }
   const g = P.guaranteeDays, n = fullCount();
   const rows = [
-    ["Full adaptive tests", `Practice Tests 1 and 2 per section, plus Full SAT 1`, `All ${n} section tests and ${satCount()} Full SATs, plus Challenge Test and Fresh mix`],
+    ["Full adaptive tests", F.m2Free ? `Practice Tests 1 and 2 per section, plus Full SAT 1` : `Module 1 of Practice Tests 1 and 2 per section, plus Full SAT 1`, F.m2Free ? `All ${n} section tests and ${satCount()} Full SATs, plus Challenge Test and Fresh mix` : `Module 2 and your score on every test: all ${n} section tests and ${satCount()} Full SATs, plus Challenge Test and Fresh mix`],
     ["Drills", `${F.drillsPerDay} a day`, "Unlimited"],
     ["AI-written tests and weak-skill drills", "Not included", "Included"],
     ["Claude tutor, explanations and score reports", `${F.aiPerDay} answers a day`, `${P.pro.aiPerDay} a day`],
@@ -203,7 +213,7 @@ function renderBilling() {
     <details><summary>Will I be charged again?</summary><p>No. You pay once for a fixed number of days. When they run out you go back to the free plan and keep all your scores and history.</p></details>
     <details><summary>What if I buy again while Pro is still active?</summary><p>The new days are added after the ones you already have, so you never lose time.</p></details>
     ${g ? `<details><summary>Can I get my money back?</summary><p>Yes. If Pro isn't what you expected, message us within ${g} days of paying and we return the full amount to your card.</p></details>` : ""}
-    <details><summary>Is the free plan really free?</summary><p>Yes, with no time limit. You can sit two full tests in each section, a Full SAT, ${F.drillsPerDay} drills a day and all of Quick Practice without paying.</p></details>
+    <details><summary>Is the free plan really free?</summary><p>${F.m2Free ? `Yes, with no time limit. You can sit two full tests in each section, a Full SAT, ${F.drillsPerDay} drills a day and all of Quick Practice without paying.` : `Yes, with no time limit. You can take Module 1 of the free tests as often as you like, plus ${F.drillsPerDay} drills a day and all of Quick Practice, without paying. Module 2 and your score are Pro.`}</p></details>
   </section></div>`);
   $$("[data-buy]").forEach(b => b.onclick = () => buy(b.dataset.buy));
   const re = $("#blRe"); if (re) re.onclick = async () => { re.disabled = true; await refresh(); const b = $("#blRe"); if (b) { b.disabled = false; b.textContent = "Still checking"; } };
@@ -243,7 +253,8 @@ async function buy(code) {
   </ol>
   <p class="blmsg" id="blMsg" role="status" aria-live="polite"></p>
   <div class="actions"><button class="btn" id="blPaid">I've paid</button><button class="btn link" id="blNo">Cancel</button></div>
-  <p class="fine" style="margin-top:12px">Pro switches on after we confirm the transfer, usually the same day.${P.guaranteeDays ? ` ${P.guaranteeDays}-day money-back promise.` : ""}</p>`);
+  <p class="fine" style="margin-top:12px">Pro switches on after we confirm the transfer, usually the same day.${P.guaranteeDays ? ` ${P.guaranteeDays}-day money-back promise.` : ""}</p>
+  <div class="blpar"><span>Does a parent pay?</span><a class="btn sm ghost" id="blPar" href="${esc(parentUrl(p, email))}" target="_blank" rel="noopener">Send this to a parent</a></div>`);
   const cp = $("#blCopy"); if (cp) cp.onclick = async () => { try { await navigator.clipboard.writeText(PAY.card.replace(/\s+/g, "")); cp.textContent = "Copied"; } catch (e) { cp.textContent = "Select and copy"; } };
   $("#blNo").onclick = closeSheet;
   $("#blPaid").onclick = async () => {
@@ -258,6 +269,56 @@ async function buy(code) {
     }
   };
 }
+
+/* ---------- Module 1 gate: free students finish Module 1, then Module 2 and the score are Pro ---------- */
+const completedFull = () => HISTORY.filter(r => r.kind === "full").length;
+function gateApplies(t) {
+  if (!enabled() || isPro() || !t || t.kind !== "full" || t.mod !== 0) return false;
+  const l = LIBID[t.libId]; if (l && (l.book || l.mbook || l.redo)) return false;
+  return completedFull() >= (F.m2Free || 0);
+}
+const bestPlan = () => P.plans.find(p => p.best) || P.plans[0];
+const L2 = (uz, en) => (window.UZ ? window.UZ(uz, en) : en);
+/* A ready-to-send Telegram message for a parent: what it is, what it costs, where to send it, and which account it is for. */
+function parentText(p, email) {
+  const pr = money(priceOf(p)), days = p.months * 30;
+  const pay = PAY.card ? L2(`To‘lov: ${PAY.card}${PAY.name ? " (" + PAY.name + ")" : ""}, Payme, Click yoki Uzum orqali.`, `Pay to card ${PAY.card}${PAY.name ? " (" + PAY.name + ")" : ""} with Payme, Click or Uzum.`) : "";
+  const ref = email ? L2(`Izohga yoki chekka ${email} ni yozing.`, `Put ${email} in the note or on the receipt.`) : "";
+  const tg = PAY.telegram ? L2(`Chekni @${PAY.telegram} ga yuboring.`, `Send the receipt to @${PAY.telegram}.`) : "";
+  return [L2(`Assalomu alaykum! Men SAT Studio ilovasida SAT imtihoniga tayyorlanyapman. Davom etish uchun Pro tarif kerak: ${pr}, ${days} kun, bir martalik to‘lov, o‘zi yechilmaydi.`, `Hi! I'm preparing for the SAT in SAT Studio and need Pro to keep going: ${pr} for ${days} days, one payment, no auto-renewal.`), pay, ref, tg].filter(Boolean).join(" ");
+}
+const parentUrl = (p, email) => "https://t.me/share/url?url=" + encodeURIComponent(location.origin + "/welcome") + "&text=" + encodeURIComponent(parentText(p, email));
+
+function drawGate(t, cb) {
+  css();
+  const m1 = t.modules[0], n = m1.qs.length, got = m1.ok.filter(Boolean).length, rw = t.sub === "rw", n2 = rw ? 27 : 22, hard = t.route === "hard";
+  const best = bestPlan(), pr = priceOf(best), perMonth = Math.round(pr / best.months / 1000) * 1000;
+  try { window.SAT_TRACK && window.SAT_TRACK("pricing_view", "m1gate"); } catch (e) { }
+  const pro = isPro();
+  app.innerHTML = `<div class="gen blgate"><span class="chip">Module 1 done</span>
+    <h1>${got} of ${n} correct in Module 1</h1>
+    <p class="muted bl-route">${hard ? "You earned the harder Module 2. That is the route where scores above about 600 are possible." : "Your Module 2 is ready at the easier level. Finish it to see your score and which skills cost you points."}</p>
+    <ul class="blgl">
+      <li><i aria-hidden="true">${LOCK}</i><div><b>Module 2</b><span>${n2} questions, built from your Module 1</span></div></li>
+      <li><i aria-hidden="true">${LOCK}</i><div><b>Your score</b><span>An estimate on the 200 to 800 scale</span></div></li>
+      <li><i aria-hidden="true">${LOCK}</i><div><b>Your score report</b><span>Every skill, and every mistake explained</span></div></li>
+    </ul>
+    <section class="card blgp"><div><b>${esc(best.name)}</b><span class="muted">${money(pr)}${best.months > 1 ? " · " + money(perMonth) + " a month" : ""}</span></div><p class="fine">One payment, no auto-renewal. Pay by Payme, Click or Uzum card transfer.${P.guaranteeDays ? ` ${P.guaranteeDays}-day money-back promise.` : ""}</p></section>
+    <div class="actions" style="margin-top:18px">${pro ? `<button class="btn" id="gNext">Continue to Module 2</button>` : `<button class="btn" id="gBuy">Unlock Module 2</button><a class="btn ghost" id="gPar" target="_blank" rel="noopener" href="${esc(parentUrl(best, ""))}">Send to a parent</a>`}<button class="btn link" id="gLater">Not now</button></div>
+    <p class="fine" style="margin-top:14px">Your Module 1 answers are saved. Come back any time and Module 2 will be waiting.</p></div>`;
+  const b = $("#gNext"); if (b) b.onclick = () => cb.next();
+  $("#gLater").onclick = () => cb.later();
+  if (pro) return;
+  $("#gBuy").onclick = () => {
+    try { window.SAT_TRACK && window.SAT_TRACK("plan_click", "m1gate"); } catch (e) { }
+    cb.leave(); go("billing"); buy(best.code);
+  };
+  // The share link carries the student's account email, so a parent can name it on the transfer.
+  const par = $("#gPar");
+  if (par && PF.getSession) PF.getSession().then(ses => { const em = ses && ses.user && ses.user.email; const a = $("#gPar"); if (em && a) a.href = parentUrl(best, em); }).catch(() => { });
+  $("#gBuy").focus();
+}
+const LOCK = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
 
 /* ---------- strips shown inside the app ---------- */
 function homeStrip() {
@@ -320,5 +381,5 @@ document.addEventListener("visibilitychange", () => { if (document.visibilitySta
 css();
 setTimeout(refresh, 0);
 
-window.BILL = { enabled, visible, isPro, refresh, lockOf, guard, paywall, courseLocked, lockBadge, homeStrip, resultStrip, navItem, render: renderBilling, adminPanel, state: S };
+window.BILL = { enabled, visible, isPro, refresh, lockOf, guard, paywall, gateApplies, drawGate, buy, courseLocked, lockBadge, homeStrip, resultStrip, navItem, render: renderBilling, adminPanel, state: S };
 })();

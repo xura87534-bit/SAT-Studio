@@ -22,6 +22,7 @@ window.SAT_PLANS = {
     courseWeeks: 1,                     // weeks of Month 1 of the 90-Day Course
     aiPerDay: 10,                       // keep equal to FREE_DAILY_AI_LIMIT in Vercel (default 10)
     bookFree: true,                     // Book tests stay free and uncounted
+    m2Free: 0,                          // full tests a free account may finish, Module 2 and score included. 0 = Module 2 and the score are Pro from the first test; 1 = the first full test is on us
   },
   pro: { aiPerDay: 150 },               // keep equal to DAILY_AI_LIMIT in Vercel (default 150)
 };

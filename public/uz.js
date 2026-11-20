@@ -243,6 +243,28 @@ const P = [
   [/^Pay ([\d ]+) so'm$/, "$1 so‘m to‘lash"], [/^Send ([\d ]+) so'm$/, "$1 so‘m yuboring"], [/^Created by (.+)$/, "Muallif: $1"],
 ];
 
+// ----- Module 1 gate (free students: Module 2 and the score are Pro)
+Object.assign(D, {
+  "Module 1 done": "1-modul tugadi", "Module 2": "2-modul", "Your score": "Ballingiz", "Your score report": "Natijalar tahlili",
+  "You earned the harder Module 2. That is the route where scores above about 600 are possible.": "Sizga qiyinroq 2-modul tushdi. Taxminan 600 dan yuqori ball faqat shu yo‘nalishda mumkin.",
+  "Your Module 2 is ready at the easier level. Finish it to see your score and which skills cost you points.": "2-modulingiz yengilroq darajada tayyor. Ballingizni va qaysi mavzularda ball yo‘qotganingizni bilish uchun uni tugating.",
+  "An estimate on the 200 to 800 scale": "200–800 shkalasidagi taxminiy ball", "Every skill, and every mistake explained": "Har bir mavzu va har bir xato tushuntirilgan",
+  "Unlock Module 2": "2-modulni ochish", "Continue to Module 2": "2-modulga o‘tish", "Send to a parent": "Ota-onaga yuborish", "Send this to a parent": "Buni ota-onaga yuborish",
+  "Does a parent pay?": "To‘lovni ota-onangiz qiladimi?",
+  "Your Module 1 answers are saved. Come back any time and Module 2 will be waiting.": "1-modul javoblaringiz saqlandi. Istalgan payt qaytsangiz, 2-modul sizni kutadi.",
+  "Module 1 of Practice Tests 1 and 2 per section, plus Full SAT 1": "Har bo‘limda 1- va 2-amaliy testning 1-moduli hamda To‘liq SAT 1",
+});
+P.push(
+  [/^(\d+) of (\d+) correct in Module 1$/, "1-modulda $2 tadan $1 tasi to‘g‘ri"],
+  [/^(\d+) questions, built from your Module 1$/, "$1 ta savol, 1-modul natijangizga qarab tuzilgan"],
+  [/^([\d ]+) so'm · ([\d ]+) so'm a month$/, "$1 so‘m · oyiga $2 so‘m"],
+  [/^One payment, no auto-renewal\. Pay by Payme, Click or Uzum card transfer\.(?: (\d+)-day money-back promise\.)?$/, (m, g) => `Bir martalik to‘lov, avtomatik uzaytirish yo‘q. Payme, Click yoki Uzum orqali karta o‘tkazmasi bilan to‘lang.${g ? ` ${g} kun ichida pulni qaytarish kafolati.` : ""}`],
+  [/^You have a saved attempt: Module 1 done, (\d+) of (\d+) answered, Module 2 is waiting\.$/, "Saqlangan urinishingiz bor: 1-modul tugagan, $1 / $2 ta javob berilgan, 2-modul kutmoqda."],
+  [/^Free accounts can take Module 1 of Practice Tests 1 and 2 in Math and in Reading & Writing, and of Full SAT 1\. Pro opens Module 2 and your score, plus all (\d+) section tests, (\d+) Full SATs, the Challenge Test and Fresh mix\.$/, "Bepul tarifda Matematika va O‘qish-yozishdan 1- va 2-amaliy testlarning hamda To‘liq SAT 1 ning 1-modulini ishlash mumkin. Pro 2-modulni va ballingizni, shuningdek barcha $1 ta bo‘lim testi, $2 ta To‘liq SAT, Qiyin test va Yangi savollarni ochadi."],
+  [/^Module 2 and your score on every test: all (\d+) section tests and (\d+) Full SATs, plus Challenge Test and Fresh mix$/, "Har bir testda 2-modul va ballingiz: barcha $1 ta bo‘lim testi va $2 ta To‘liq SAT, Qiyin test va Yangi savollar"],
+  [/^Yes, with no time limit\. You can take Module 1 of the free tests as often as you like, plus (\d+) drills a day and all of Quick Practice, without paying\. Module 2 and your score are Pro\.$/, "Ha, muddat cheklovisiz. Bepul testlarning 1-modulini istagancha ishlashingiz, kuniga $1 ta mashq va Tezkor mashqning hammasini to‘lovsiz bajarishingiz mumkin. 2-modul va ball Pro tarifda."],
+);
+
 const SKIP = ".tbar,.tmain,.tfoot,.passage,.qtext,.stem,.choices,.choice,.expl,.item,.motive,.crbody,.crq,.qpq,.qpc,.calc,.refsheet,#dirsheet,script,style,svg,code,input,textarea,[data-notr]";
 const SKIPA = SKIP.replace(",input,textarea", "");     // placeholders live on inputs, so attributes use a narrower skip list
 function tr(s) {
