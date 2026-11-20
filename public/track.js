@@ -1,7 +1,7 @@
 /* SAT Studio visitor counting. Loaded by the app and by /welcome.
    Each browser gets a random id; the app reports a few named events to the database
    (supabase/tracking-2026-11.sql). No names, emails or IP addresses are stored, and
-   nothing is sent to any outside company. Failures are silent: counting must never break the app. */
+   nothing is sent to any outside company. A visit also carries one coarse device label (phone, tablet or computer; system; browser), never anything that identifies a person. Failures are silent: counting must never break the app. */
 (function () {
 "use strict";
 const CFG = window.SAT_CONFIG || {};
@@ -73,5 +73,16 @@ window.SAT_TRACK = track;
 window.SAT_TRACK_ONCE = once;
 window.SAT_TRACK_ADMIN = adminPanel;
 /* The visit itself: "landing" on /welcome, "visit" in the app. */
-once(/welcome/.test(location.pathname) ? "landing" : "visit");
+/* A coarse label such as "mobile-android-chrome": enough to see whether students use phones, and in which app or browser. */
+function device(ua, touch) {
+  try {
+    ua = ua || navigator.userAgent || ""; touch = touch == null ? navigator.maxTouchPoints || 0 : touch;
+    const ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && touch > 1);
+    const os = /Android/.test(ua) ? "android" : ios ? "ios" : /Windows/.test(ua) ? "windows" : /Mac OS/.test(ua) ? "mac" : /Linux|CrOS/.test(ua) ? "linux" : "other";
+    const type = /iPad/.test(ua) || (/Macintosh/.test(ua) && touch > 1) || (/Android/.test(ua) && !/Mobile/.test(ua)) ? "tablet" : /Mobi|iPhone|iPod|Android/.test(ua) ? "mobile" : "desktop";
+    const br = /Instagram/.test(ua) ? "instagram" : /Telegram/i.test(ua) ? "telegram" : /FBAN|FBAV/.test(ua) ? "facebook" : /Edg/.test(ua) ? "edge" : /OPR|Opera/.test(ua) ? "opera" : /SamsungBrowser/.test(ua) ? "samsung" : /Firefox|FxiOS/.test(ua) ? "firefox" : /Chrome|CriOS/.test(ua) ? "chrome" : /Safari/.test(ua) ? "safari" : "other";
+    return type + "-" + os + "-" + br;
+  } catch (e) { return ""; }
+}
+once(/welcome/.test(location.pathname) ? "landing" : "visit", device());
 })();
