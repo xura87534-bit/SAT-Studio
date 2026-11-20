@@ -295,7 +295,7 @@ function renderBilling() {
     ["AI-written tests and weak-skill drills", "Not included", "Included"],
     ["AI tutor, explanations and score reports", F.aiPerDay ? `${F.aiPerDay} answers a day` : "Not included", `${P.pro.aiPerDay} a day`],
     ["90-Day Course", F.courseWeeks ? `Week ${F.courseWeeks}` : "Not included", "All 12 weeks"],
-    ["Quick Practice, calculator, word bank, progress", "Included", "Included"],
+    ["Quick Practice, calculator, word bank", "Included", "Included"],
   ];
   shell(`<div class="stack">
   <section class="blhero"><span class="chip">SAT Studio Pro</span>

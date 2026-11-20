@@ -6502,7 +6502,7 @@ function chart(h){
 function shell(content){
   if(calcOpen())toggleCalc(false);toggleRef(false);toggleDir(false);
   screen=view;
-  const nav=[["home","Home",ICON.home],["course","90-Day Course",window.CR_ICON||ICON.book,"Course"],["quick","Quick Practice",ICON.quick,"Quick"],["tests","Math",ICON.tests,"Math"],["english","Reading & Writing",ICON.book,"R&W"],["words","Word bank",ICON.wb,"Words"],["feedback","Feedback",ICON.fb,"Feedback"],["progress","Progress",ICON.chart],["history","History",ICON.clock]].concat(window.BILL?BILL.navItem():[]).concat(ME.owner?[["students","Students",ICON.chart]]:[]);
+  const nav=[["home","Home",ICON.home],["course","90-Day Course",window.CR_ICON||ICON.book,"Course"],["quick","Quick Practice",ICON.quick,"Quick"],["tests","Math",ICON.tests,"Math"],["english","Reading & Writing",ICON.book,"R&W"],["words","Word bank",ICON.wb,"Words"],["feedback","Feedback",ICON.fb,"Feedback"],["history","History",ICON.clock]].concat(window.BILL?BILL.navItem():[]).concat(ME.owner?[["students","Students",ICON.chart]]:[]);
   const ns=Object.keys(SESSIONS).length;
   app.innerHTML=`<div class="shell"><nav class="side" aria-label="Main">
     <div class="brand"><img class="logo" src="/icons/logo-sm.png" alt="" width="34" height="34" style="background:none;object-fit:cover">SAT Studio</div>
@@ -6511,7 +6511,7 @@ function shell(content){
   </nav><main class="main">${content}</main></div>`;
   $$("[data-nav]").forEach(b=>b.onclick=()=>go(b.dataset.nav));
 }
-function go(v){lxStop();ASKR=null;setTimeout(askSync,0);view=v;qClock=null;({billing:()=>window.BILL?BILL.render():renderHome(),course:()=>window.renderCourse(),quick:renderQuick,lessons:renderLessons,feedback:renderFeedback,words:renderWords,home:renderHome,tests:renderTests,english:renderEnglish,plan:renderPlan,progress:renderProgress,history:renderHistory,students:renderStudents,videos:renderVideos})[v]();window.scrollTo(0,0)}
+function go(v){lxStop();ASKR=null;setTimeout(askSync,0);view=v;qClock=null;({billing:()=>window.BILL?BILL.render():renderHome(),course:()=>window.renderCourse(),quick:renderQuick,lessons:renderLessons,feedback:renderFeedback,words:renderWords,home:renderHome,tests:renderTests,english:renderEnglish,plan:renderPlan,history:renderHistory,students:renderStudents,videos:renderVideos})[v]();window.scrollTo(0,0)}
 function resumeStrip(s){
   const i=sessionInfo(s);
   return `<div class="resume"><div class="info"><b>${esc(i.title)}</b><div class="muted" style="font-size:.9rem">${i.where}, ${i.ans} of ${i.n} answered, ${i.left}. Saved ${esc(fmtDate(s.savedAt))}</div><div class="mini"><i style="width:${pct(i.ans,i.n)}%"></i></div></div>
@@ -6600,7 +6600,7 @@ function renderHome(){
   <section class="cols">
     <div class="card"><div class="toolbar"><h2 style="margin:0">Recent tests</h2>${HISTORY.length?`<button class="btn link" data-go="history">See all</button>`:""}</div>
       ${recent.length?recent.map(histRow).join(""):`<p class="muted">Your completed tests will show up here.</p>`}</div>
-    <div class="card"><div class="toolbar"><h2 style="margin:0">Skills to work on</h2>${HISTORY.length?`<button class="btn link" data-go="progress">Progress</button>`:""}</div>
+    <div class="card"><div class="toolbar"><h2 style="margin:0">Skills to work on</h2></div>
       ${skillList(ws)}
       ${AI&&ws.length?`<div class="actions" style="margin-top:16px"><button class="btn sm ghost" data-open="${wTarget}">Drill ${wTarget==="rwweak"?"Reading &amp; Writing":"Math"} weak skills</button></div>`:""}</div>
   </section><div style="text-align:center">${langToggle()}</div></div>`);
@@ -7566,40 +7566,8 @@ function calCard(){
 function bindCal(){
   const sv=$("#calSave");if(sv)sv.onclick=()=>{const v=Number($("#calOff").value);const r=HISTORY.find(x=>x.id===$("#calApp").value);
     if(!(v>=200&&v<=800)||v%10){$("#calMsg").textContent="Enter an official score between 200 and 800, in steps of 10.";$("#calMsg").className="fine err";return}
-    SETTINGS.calib[progSub]=calOffset(v,r,progSub);SETTINGS.calibV=3;SETTINGS.calibAt={...(SETTINGS.calibAt||{}),[progSub]:{v,date:new Date().toISOString()}};persist(JSON.parse(JSON.stringify(SETTINGS)));view==="feedback"?renderFeedback():renderProgress()};
-  const rs=$("#calReset");if(rs)rs.onclick=()=>{delete SETTINGS.calib[progSub];persist(JSON.parse(JSON.stringify(SETTINGS)));view==="feedback"?renderFeedback():renderProgress()};
-}
-function renderProgress(){
-  view="progress";
-  const chips=`<div class="chips" role="group" aria-label="Section">${[["math","Math"],["rw","Reading & Writing"]].map(([k,t])=>`<button class="chipbtn" data-ps="${k}" aria-pressed="${progSub===k}">${esc(t)}</button>`).join("")}</div>`;
-  const recs=HISTORY.filter(r=>subOf(r)===progSub);const fh=fullHist(progSub);const items=recs.flatMap(r=>r.items||[]);
-  const bindP=()=>{$$("[data-ps]").forEach(b=>b.onclick=()=>{progSub=b.dataset.ps;renderProgress()});bindCommon()};
-  if(!recs.length){shell(`<div class="pagehead"><div><h1>Progress</h1></div>${chips}</div><div class="card empty"><h2>No ${progSub==="rw"?"Reading and Writing":"Math"} results yet</h2><p class="muted">Finish a test or drill and your scores, domain accuracy and weak skills will appear here.</p><button class="btn ghost" data-syncopen style="margin-top:14px">Import a backup</button><button class="btn" data-go="${progSub==="rw"?"english":"tests"}">Choose a test</button></div>`);bindP();return}
-  const best=fh.reduce((m,r)=>Math.max(m,r.score),0);
-  const pr=predicted(progSub),tItems=items.filter(i=>i.sec>0),avgT=tItems.length?tItems.reduce((a,i)=>a+i.sec,0)/tItems.length:0;
-  const change=fh.length>1?fh[fh.length-1].score-fh[0].score:null;
-  const drillItems=recs.filter(r=>r.kind==="drill").flatMap(r=>r.items);
-  const ws=weakSkills(7,progSub),wl=progSub==="rw"?"rwweak":"weak";
-  shell(`<div class="pagehead"><div><h1>Progress</h1><p class="muted">Every completed test and drill in this section counts toward these numbers.</p></div>${chips}</div>
-  <div class="stack">
-  <section class="tiles">
-    <div class="tile"><b>${best||"—"}</b><span>Best score</span></div>
-    <div class="tile"><b>${pr?pr.score:"—"}</b><span>${pr?`Predicted now, likely ${pr.lo}–${pr.hi}`:"Predicted now"}</span></div>
-    <div class="tile"><b>${change===null?"—":(change>=0?"+":"−")+Math.abs(change)}</b><span>Since first test</span></div>
-    <div class="tile"><b>${pct(count(items.map(i=>i.ok)),items.length)}%</b><span>Accuracy, ${items.length} questions</span></div>
-    <div class="tile"><b>${avgT?fmtTime(avgT):"—"}</b><span>Per question (target ${fmtTime(paceOf(progSub))})</span></div>
-  </section>
-  <section class="card"><h2>Score history</h2>${fh.length?chart(fh):`<p class="muted">Take a full-length test to start your score line.</p>`}</section>
-  <section class="cols">
-    <div class="card"><h2>Accuracy by domain</h2>${bars(statsFrom(items).d)}</div>
-    <div class="card"><h2>Weakest skills</h2>${skillList(ws)}${AI&&ws.length?`<div class="actions" style="margin-top:16px"><button class="btn sm ghost" data-open="${wl}">Start a weak-skill drill</button></div>`:""}</div>
-  </section>
-  ${drillItems.length?`<section class="card"><h2>Drill accuracy</h2>${bars(statsFrom(drillItems).d)}</section>`:""}
-  ${pacingHTML(items,progSub)}
-  ${calCard()}
-  <section class="card"><h2>Backup &amp; sync</h2><p class="muted">Move your progress between the downloaded copy and another browser.</p><button class="btn ghost" data-syncopen>Open backup &amp; sync</button></section>
-  </div>`);
-  bindP();bindCal();
+    SETTINGS.calib[progSub]=calOffset(v,r,progSub);SETTINGS.calibV=3;SETTINGS.calibAt={...(SETTINGS.calibAt||{}),[progSub]:{v,date:new Date().toISOString()}};persist(JSON.parse(JSON.stringify(SETTINGS)));renderFeedback()};
+  const rs=$("#calReset");if(rs)rs.onclick=()=>{delete SETTINGS.calib[progSub];persist(JSON.parse(JSON.stringify(SETTINGS)));renderFeedback()};
 }
 
 /* ---------- Study plan ---------- */
@@ -9991,7 +9959,7 @@ async function use(n){try{return window.claude&&window.claude.use?await window.c
   }
   try{if(/[?&]reel=/.test(location.search)){sessionStorage.setItem("satstudio_src","instagram");history.replaceState(null,"",location.pathname);startReel();}}catch(e){}
   BOOTED=true;pushStudentSoon();setTimeout(()=>{if(view==="home"&&!test)checkLevelUp(500)},300);
-  if(!$("#ov")&&["home","tests","english","book","plan","progress"].includes(screen))go(screen);
+  if(!$("#ov")&&["home","tests","english","book","plan"].includes(screen))go(screen);
 })();
 </script>
 </body>
