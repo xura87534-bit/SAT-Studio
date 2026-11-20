@@ -149,6 +149,34 @@ function css() {
 .blgp{width:100%;margin:0;display:grid;gap:6px}.blgp>div{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}.blgp p{margin:0}
 .blgate a.btn,.blpar a.btn{text-decoration:none}
 .blpar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:.92rem;color:var(--muted)}
+.blvs-card{overflow:hidden}
+.blvs{position:relative;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1.25fr);margin-top:14px;align-items:stretch}
+.blvs>*{position:relative;z-index:1}
+.blvs-dull,.blvs-glow{position:absolute!important;z-index:0!important;grid-row:1/-1;top:0;right:0;bottom:0;left:0}
+.blvs-dull{grid-column:2;background:#DDD8CF;border-radius:16px 0 0 16px;margin:0}
+.blvs-glow{grid-column:3;margin:-14px -10px -14px -2px;border-radius:22px;background:linear-gradient(160deg,#10264D 0%,#1D4F9C 62%,#2D6CD6 100%);box-shadow:0 26px 50px -22px rgba(16,38,77,.8),0 0 0 3px #FFC83D}
+.blvs-h{padding:14px 16px 12px;display:flex;flex-direction:column;justify-content:flex-end;gap:4px}
+.blvs-h.free{font:700 .8rem var(--ui);letter-spacing:.08em;text-transform:uppercase;color:#8B857B}
+.blvs-badge{display:inline-flex;align-items:center;gap:7px;align-self:flex-start;background:#FFC83D;color:#10264D;font:800 .95rem var(--ui);letter-spacing:.06em;text-transform:uppercase;padding:6px 14px;border-radius:999px}
+.blvs-h.pro small{color:#CFE0FF;font:600 .82rem var(--ui)}
+.blvs-l{padding:15px 14px 15px 4px;font-weight:600;border-top:1px solid var(--line);display:flex;align-items:center}
+.blvs-c{padding:15px 16px;display:flex;align-items:flex-start;gap:10px;border-top:1px solid var(--line);font-size:.95rem;line-height:1.35}
+.blvs-c i{flex:none;display:grid;place-items:center;margin-top:1px}
+.blvs-c.free{color:#8B857B;border-top-color:rgba(0,0,0,.07)}
+.blvs-c.pro{color:#fff;font-weight:700;border-top-color:rgba(255,255,255,.16)}
+.blvs-f{padding:16px;display:flex;align-items:center}
+.blvs-f.free{color:#8B857B;font-size:.88rem}
+.blvs-cta{width:100%;border:0;cursor:pointer;background:linear-gradient(180deg,#FFD65C,#FFB800);color:#10264D;font:800 1rem var(--ui);padding:14px 18px;border-radius:14px;box-shadow:0 10px 24px -10px rgba(255,184,0,.9)}
+.blvs-cta:hover{filter:brightness(1.05)}.blvs-cta:focus-visible{outline:3px solid #fff;outline-offset:2px}
+@media (max-width:640px){
+.blvs{grid-template-columns:1fr 1fr;gap:0}
+.blvs-dull,.blvs-glow{display:none}
+.blvs-h.gap,.blvs-f.gap{display:none}
+.blvs-h{border-radius:14px 14px 0 0}.blvs-h.free{background:#DDD8CF}.blvs-h.pro{background:linear-gradient(160deg,#10264D,#1D4F9C)}
+.blvs-l{grid-column:1/-1;padding:14px 4px 6px;border-top:1px solid var(--line);font-size:.95rem}
+.blvs-c{border-top:0;padding:10px 12px;font-size:.88rem}.blvs-c.free{background:#DDD8CF}.blvs-c.pro{background:#14346A}
+.blvs-f.free{background:#DDD8CF;border-radius:0 0 0 14px}.blvs-f.pro{background:#14346A;border-radius:0 0 14px 0;padding:12px 8px}
+.blvs-cta{font-size:.85rem;padding:12px 8px}}
 .navpro{margin-left:auto;font:700 10.5px var(--ui);padding:2px 7px;border-radius:999px;background:var(--sel);color:var(--primary)}
 .lockb{margin-left:auto;font:700 11px var(--ui);padding:3px 8px;border-radius:999px;background:var(--sel);color:var(--primary);white-space:nowrap}
 @media (max-width:560px){.blcmp th,.blcmp td{padding:10px 6px;font-size:.9rem}.blplan{padding:22px 18px 18px}}`;
@@ -208,8 +236,17 @@ function renderBilling() {
   ${ownerCard()}${enabled() ? statusCard() : `<section class="card blstat ok"><div class="grow"><b>Free during launch</b><span class="muted">Right now everything in SAT Studio is open to everyone at no cost. These are the prices for when Pro opens; the free plan below stays free after that.</span></div></section>`}
   <section><div class="blplans">${P.plans.map(planCard).join("")}</div>
     <p class="blnote">${P.founding ? esc(P.foundingNote) + ". " : ""}One payment, no auto-renewal, nothing to cancel.${g ? ` Not for you? Tell us within ${g} days and we send the money back.` : ""}</p></section>
-  <section class="card"><h2>Free and Pro, side by side</h2>
-    <table class="blcmp"><thead><tr><th></th><th>Free</th><th>Pro</th></tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></section>
+  <section class="card blvs-card"><h2>Free and Pro, side by side</h2>
+    <div class="blvs" role="table" style="grid-template-rows:repeat(${rows.length + 2},auto)" aria-label="Free and Pro, side by side">
+      <div class="blvs-dull" aria-hidden="true"></div><div class="blvs-glow" aria-hidden="true"></div>
+      <div class="blvs-h gap" role="presentation"></div>
+      <div class="blvs-h free" role="columnheader">Free</div>
+      <div class="blvs-h pro" role="columnheader"><span class="blvs-badge">${CROWN}Pro</span><small>Everything unlocked</small></div>
+      ${rows.map(r => `<div class="blvs-l" role="rowheader">${esc(r[0])}</div><div class="blvs-c free" role="cell"><i aria-hidden="true">${r[1] === "Not included" ? NO : DOT}</i><span>${esc(r[1])}</span></div><div class="blvs-c pro" role="cell"><i aria-hidden="true">${TICK}</i><span>${esc(r[2])}</span></div>`).join("")}
+      <div class="blvs-f gap" role="presentation"></div>
+      <div class="blvs-f free" role="cell">Free, no time limit</div>
+      <div class="blvs-f pro" role="cell"><button class="blvs-cta" data-buy="${bestPlan().code}">Get ${esc(bestPlan().name)}</button></div>
+    </div></section>
   <section class="card blfaq"><h2>Questions</h2>
     <details><summary>How do I pay?</summary><p>Choose a plan, send the amount from Payme, Click, Uzum or any bank app to the card shown, then press "I've paid". We check the transfer and switch Pro on, usually the same day.</p></details>
     <details><summary>Will I be charged again?</summary><p>No. You pay once for a fixed number of days. When they run out you go back to the free plan and keep all your scores and history.</p></details>
@@ -321,6 +358,10 @@ function drawGate(t, cb) {
   if (par && PF.getSession) PF.getSession().then(ses => { const em = ses && ses.user && ses.user.email; const a = $("#gPar"); if (em && a) a.href = parentUrl(best, em); }).catch(() => { });
   $("#gBuy").focus();
 }
+const TICK = '<svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="10" fill="#FFC83D"/><path d="M5.6 10.4l3 3 5.8-6.4" fill="none" stroke="#10264D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const DOT = '<svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="3" fill="#A9A399"/></svg>';
+const NO = '<svg viewBox="0 0 20 20" width="20" height="20"><path d="M6 6l8 8M14 6l-8 8" stroke="#A9A399" stroke-width="2" stroke-linecap="round"/></svg>';
+const CROWN = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 10H5z" fill="#10264D"/></svg>';
 const LOCK = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
 
 /* ---------- strips shown inside the app ---------- */

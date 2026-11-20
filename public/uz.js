@@ -245,7 +245,7 @@ const P = [
 
 // ----- Module 1 gate (free students: Module 2 and the score are Pro)
 Object.assign(D, {
-  "Module 1 done": "1-modul tugadi", "Module 2": "2-modul", "Your score": "Ballingiz", "Your score report": "Natijalar tahlili",
+  "Everything unlocked": "Hammasi ochiq", "Free, no time limit": "Bepul, muddatsiz", "Module 1 done": "1-modul tugadi", "Module 2": "2-modul", "Your score": "Ballingiz", "Your score report": "Natijalar tahlili",
   "You earned the harder Module 2. That is the route where scores above about 600 are possible.": "Sizga qiyinroq 2-modul tushdi. Taxminan 600 dan yuqori ball faqat shu yo‘nalishda mumkin.",
   "Your Module 2 is ready at the easier level. Finish it to see your score and which skills cost you points.": "2-modulingiz yengilroq darajada tayyor. Ballingizni va qaysi mavzularda ball yo‘qotganingizni bilish uchun uni tugating.",
   "An estimate on the 200 to 800 scale": "200–800 shkalasidagi taxminiy ball", "Every skill, and every mistake explained": "Har bir mavzu va har bir xato tushuntirilgan",
