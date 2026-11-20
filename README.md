@@ -72,6 +72,8 @@ To switch it on:
 
 Each day, check **Students → Payments**, match each request to a transfer in your bank app, and press **Approve**. To give Pro without a request (cash, a prize), use **Give Pro days** on the same panel.
 
+**Module 1 paywall.** With `BILLING=on`, a free student who finishes Module 1 of a full test sees their result and the Module 2 route they earned, with Module 2, the score and the score report locked. They can unlock Pro, send a ready-made Telegram message to a parent (card, amount and their account email included), or leave: the attempt is saved and resumes at this screen, so Module 1 can't be redone to change the route. `free.m2Free` in `public/plans.js` sets how many full tests a free account may finish completely (0 = none, 1 = the first one is free).
+
 Built-in tests and drills are limited in the browser, so a determined student can get around those limits. The Claude allowance is enforced on the server.
 
 ## Language
