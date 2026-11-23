@@ -40,6 +40,18 @@ QUESTIONS = {
         hook=["5 soniyada", "yecha olasizmi?"], eq="3ˣ⁺¹ = 81", ask="Ko‘rsatkichli tenglama berilgan.", ask2="x = ?",
         opts=["2", "4", "3", "27"], right=2, steps=["81 = 3⁴", "x + 1 = 4", "x = 3"],
         caption="3ˣ⁺¹ = 81. x nechiga teng?"),
+    "UZ12_chiziq": dict(
+        hook=["5 soniyada", "yecha olasizmi?"], eq="y = 3x − 5", ask="Chiziq (4; k) nuqtadan o‘tadi.", ask2="k = ?",
+        opts=["12", "7", "−7", "17"], right=1, steps=["x = 4 ni qo‘yamiz", "y = 3 · 4 − 5", "12 − 5 = 7"],
+        caption="y = 3x − 5 chiziq (4; k) nuqtadan o‘tadi. k nechiga teng?"),
+    "UZ13_modul": dict(
+        hook=["Buni 5 soniyada", "yeching"], eq="|x − 3| = 5", ask="Modulli tenglama berilgan.", ask2="x larning yig‘indisi = ?",
+        opts=["8", "6", "−2", "10"], right=1, steps=["x − 3 = 5 yoki x − 3 = −5", "x = 8 yoki x = −2", "8 + (−2) = 6"],
+        caption="|x − 3| = 5. x ning barcha qiymatlari yig‘indisi nechiga teng?"),
+    "UZ14_chegirma": dict(
+        hook=["Ko‘pchilik", "xato qiladi"], eq="−20% = 600 000", ask="Chegirmadan keyin narx 600 000 so‘m, chegirma 20%.", ask2="Avvalgi narx = ?",
+        opts=["720 000", "750 000", "800 000", "780 000"], right=1, steps=["Avvalgi narx = x", "0,8 · x = 600 000", "x = 600 000 ÷ 0,8", "x = 750 000"],
+        caption="Chegirmadan keyin narx 600 000 so‘m, chegirma 20% edi. Avvalgi narx qancha?"),
 }
 
 # End card for this batch: send viewers to the app for the next question.
