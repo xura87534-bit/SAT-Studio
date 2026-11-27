@@ -22,7 +22,7 @@ window.SAT_PLANS = {
     courseWeeks: 0,                     // 0 = the 90-Day Course is Pro. Otherwise free weeks of Month 1
     aiPerDay: 0,                        // 0 = AI tutor is Pro. Keep equal to FREE_DAILY_AI_LIMIT in Vercel
     bookFree: true,                     // Book tests stay free and uncounted
-    m2Free: 0,                          // full tests a free account may finish, Module 2 and score included. 0 = Module 2 and the score are Pro from the first test; 1 = the first full test is on us
+    m2Free: 1,                          // full tests a free account may finish, Module 2 and score included. 0 = Module 2 and the score are Pro from the first test; 1 = the first full test is on us (a Full SAT counts as one)
   },
   pro: { aiPerDay: 150 },               // keep equal to DAILY_AI_LIMIT in Vercel (default 150)
 };
