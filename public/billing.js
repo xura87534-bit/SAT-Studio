@@ -67,7 +67,7 @@ const fullCount = () => LIB.filter(l => l.kind === "full" && l.src === "fixed" &
 const satCount = () => LIB.filter(l => l.kind === "sat").length;
 
 const WHY = {
-  full: () => ["This test is part of Pro", F.m2Free ? `Free accounts get Practice Tests 1 and 2 in Math and in Reading & Writing, plus Full SAT 1, with unlimited retakes. Pro opens all ${fullCount()} section tests, ${satCount()} Full SATs, the Challenge Test and Fresh mix.` : `Free accounts can take Module 1 of Practice Tests 1 and 2 in Math and in Reading & Writing, and of Full SAT 1. Pro opens Module 2 and your score, plus all ${fullCount()} section tests, ${satCount()} Full SATs, the Challenge Test and Fresh mix.`],
+  full: () => ["This test is part of Pro", F.m2Free ? `Free accounts get Practice Tests 1 and 2 in Math and in Reading & Writing, and Full SAT 1. Your first full test is free to the end, score included. After that, Module 2 and your score are Pro. Pro opens all ${fullCount()} section tests, ${satCount()} Full SATs, the Challenge Test and Fresh mix.` : `Free accounts can take Module 1 of Practice Tests 1 and 2 in Math and in Reading & Writing, and of Full SAT 1. Pro opens Module 2 and your score, plus all ${fullCount()} section tests, ${satCount()} Full SATs, the Challenge Test and Fresh mix.`],
   ai: () => ["AI-written tests are part of Pro", "AI writes a brand-new test or a drill on your weakest skills every time, so you never run out of fresh questions."],
   drills: () => F.drillsPerDay ? [`That's today's ${F.drillsPerDay} free drills`, "Free drills reset at midnight, and Redo my mistakes is always open. Pro has no daily limit."] : ["Drills are part of Pro", "Redo my mistakes is always open. Pro opens unlimited drills on every skill."],
   course: () => [F.courseWeeks ? "The rest of the course is part of Pro" : "The 90-Day Course is part of Pro", F.courseWeeks ? `Week ${F.courseWeeks} of the 90-Day Course is free. Pro opens all 12 weeks, from the basics to full timed tests.` : "Pro opens all 12 weeks, from the basics to full timed tests."],
@@ -290,7 +290,7 @@ function renderBilling() {
   try { window.SAT_TRACK_ONCE && window.SAT_TRACK_ONCE("pricing_view"); } catch (e) { }
   const g = P.guaranteeDays, n = fullCount();
   const rows = [
-    ["Full adaptive tests", F.m2Free ? `Practice Tests 1 and 2 per section, plus Full SAT 1` : `Module 1 of Practice Tests 1 and 2 per section, plus Full SAT 1`, F.m2Free ? `All ${n} section tests and ${satCount()} Full SATs, plus Challenge Test and Fresh mix` : `Module 2 and your score on every test: all ${n} section tests and ${satCount()} Full SATs, plus Challenge Test and Fresh mix`],
+    ["Full adaptive tests", F.m2Free ? `Your first full test with its score, then Module 1 of Practice Tests 1 and 2 per section, plus Full SAT 1` : `Module 1 of Practice Tests 1 and 2 per section, plus Full SAT 1`, `Module 2 and your score on every test: all ${n} section tests and ${satCount()} Full SATs, plus Challenge Test and Fresh mix`],
     ["Drills", F.drillsPerDay ? `${F.drillsPerDay} a day` : "Not included", "Unlimited"],
     ["AI-written tests and weak-skill drills", "Not included", "Included"],
     ["AI tutor, explanations and score reports", F.aiPerDay ? `${F.aiPerDay} answers a day` : "Not included", `${P.pro.aiPerDay} a day`],
@@ -321,7 +321,7 @@ function renderBilling() {
     <details><summary>Will I be charged again?</summary><p>No. You pay once for a fixed number of days. When they run out you go back to the free plan and keep all your scores and history.</p></details>
     <details><summary>What if I buy again while Pro is still active?</summary><p>The new days are added after the ones you already have, so you never lose time.</p></details>
     ${g ? `<details><summary>Can I get my money back?</summary><p>Yes. If Pro isn't what you expected, message us within ${g} days of paying and we return the full amount to your card.</p></details>` : ""}
-    <details><summary>Is the free plan really free?</summary><p>${F.m2Free ? `Yes, with no time limit. You can sit two full tests in each section, a Full SAT, ${F.drillsPerDay ? F.drillsPerDay + " drills a day and " : ""}all of Quick Practice without paying.` : `Yes, with no time limit. You can take Module 1 of the free tests as often as you like, plus ${F.drillsPerDay ? F.drillsPerDay + " drills a day and " : ""}all of Quick Practice, without paying. Module 2 and your score are Pro.`}</p></details>
+    <details><summary>Is the free plan really free?</summary><p>${F.m2Free ? `Yes, with no time limit. Your first full test is free to the end, score included. After that you can take Module 1 of the free tests as often as you like, plus ${F.drillsPerDay ? F.drillsPerDay + " drills a day and " : ""}all of Quick Practice, without paying.` : `Yes, with no time limit. You can take Module 1 of the free tests as often as you like, plus ${F.drillsPerDay ? F.drillsPerDay + " drills a day and " : ""}all of Quick Practice, without paying. Module 2 and your score are Pro.`}</p></details>
   </section></div>`);
   $$("[data-buy]").forEach(b => b.onclick = () => buy(b.dataset.buy));
   const stg = $(".blstage");   // the comparison fades in row by row when it scrolls into view
@@ -381,11 +381,21 @@ async function buy(code) {
 }
 
 /* ---------- Module 1 gate: free students finish Module 1, then Module 2 and the score are Pro ---------- */
-const completedFull = () => HISTORY.filter(r => r.kind === "full").length;
+/* Free full tests already used. Book and redo tests don't count, and both sections of one Full SAT count as one test. */
+function usedFree(skipRun) {
+  const u = new Set();
+  HISTORY.forEach(r => {
+    if (r.kind !== "full" || (skipRun && r.satRun === skipRun)) return;
+    const l = LIBID[r.libId]; if (l && (l.book || l.mbook || l.redo)) return;
+    u.add(r.satRun || r.id);
+  });
+  return u.size;
+}
+const freeLeft = () => Math.max(0, (F.m2Free || 0) - usedFree());
 function gateApplies(t) {
   if (!enabled() || isPro() || !t || t.kind !== "full" || t.mod !== 0) return false;
   const l = LIBID[t.libId]; if (l && (l.book || l.mbook || l.redo)) return false;
-  return completedFull() >= (F.m2Free || 0);
+  return usedFree(t.chain && t.chain.run) >= (F.m2Free || 0);
 }
 const bestPlan = () => P.plans.find(p => p.best) || P.plans[0];
 const L2 = (uz, en) => (window.UZ ? window.UZ(uz, en) : en);
@@ -416,7 +426,7 @@ function drawGate(t, cb) {
     </ul>
     <section class="card blgp"><div><b>${esc(best.name)}</b><span class="muted">${money(pr)}${best.months > 1 ? " · " + money(perMonth) + " a month" : ""}</span></div><p class="fine">One payment, no auto-renewal. Pay by Payme, Click or Uzum card transfer.${P.guaranteeDays ? ` ${P.guaranteeDays}-day money-back promise.` : ""}</p></section>
     <div class="actions" style="margin-top:18px">${pro ? `<button class="btn" id="gNext">Continue to Module 2</button>` : `<button class="btn" id="gBuy">Unlock Module 2</button><a class="btn ghost" id="gPar" target="_blank" rel="noopener" href="${esc(parentUrl(best, ""))}">Send to a parent</a>`}<button class="btn link" id="gLater">Not now</button></div>
-    <p class="fine" style="margin-top:14px">Your Module 1 answers are saved. Come back any time and Module 2 will be waiting.</p></div>`;
+    ${F.m2Free && !pro ? `<p class="fine" style="margin-top:14px">You have used your free full test.</p>` : ""}<p class="fine" style="margin-top:14px">Your Module 1 answers are saved. Come back any time and Module 2 will be waiting.</p></div>`;
   const b = $("#gNext"); if (b) b.onclick = () => cb.next();
   $("#gLater").onclick = () => cb.later();
   if (pro) return;
@@ -439,7 +449,7 @@ const LOCK = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke
 function homeStrip() {
   if (!enabled() || isPro() || !HISTORY.length) return "";
   const left = Math.max(0, F.drillsPerDay - drillsToday());
-  return `<section class="resume"><div class="info"><b>Free plan</b><div class="muted" style="font-size:.9rem">${F.drillsPerDay ? `${left} of ${F.drillsPerDay} drills left today · ` : ""}${F.aiPerDay ? `${F.aiPerDay} AI answers a day · ` : ""}Module 1 of the free tests</div></div><div class="actions"><button class="btn sm" data-bill>See Pro</button></div></section>`;
+  return `<section class="resume"><div class="info"><b>Free plan</b><div class="muted" style="font-size:.9rem">${F.drillsPerDay ? `${left} of ${F.drillsPerDay} drills left today · ` : ""}${F.aiPerDay ? `${F.aiPerDay} AI answers a day · ` : ""}${freeLeft() ? "1 full test free, score included" : "Module 1 of the free tests"}</div></div><div class="actions"><button class="btn sm" data-bill>See Pro</button></div></section>`;
 }
 function resultStrip(rec) {
   if (!enabled() || isPro() || !rec || !Array.isArray(rec.items)) return "";

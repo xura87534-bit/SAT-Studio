@@ -262,6 +262,8 @@ P.push(
   [/^You have a saved attempt: Module 1 done, (\d+) of (\d+) answered, Module 2 is waiting\.$/, "Saqlangan urinishingiz bor: 1-modul tugagan, $1 / $2 ta javob berilgan, 2-modul kutmoqda."],
   [/^Free accounts can take Module 1 of Practice Tests 1 and 2 in Math and in Reading & Writing, and of Full SAT 1\. Pro opens Module 2 and your score, plus all (\d+) section tests, (\d+) Full SATs, the Challenge Test and Fresh mix\.$/, "Bepul tarifda Matematika va O‘qish-yozishdan 1- va 2-amaliy testlarning hamda To‘liq SAT 1 ning 1-modulini ishlash mumkin. Pro 2-modulni va ballingizni, shuningdek barcha $1 ta bo‘lim testi, $2 ta To‘liq SAT, Qiyin test va Yangi savollarni ochadi."],
   [/^Module 2 and your score on every test: all (\d+) section tests and (\d+) Full SATs, plus Challenge Test and Fresh mix$/, "Har bir testda 2-modul va ballingiz: barcha $1 ta bo‘lim testi va $2 ta To‘liq SAT, Qiyin test va Yangi savollar"],
+  [/^Free accounts get Practice Tests 1 and 2 in Math and in Reading & Writing, and Full SAT 1\. Your first full test is free to the end, score included\. After that, Module 2 and your score are Pro\. Pro opens all (\d+) section tests, (\d+) Full SATs, the Challenge Test and Fresh mix\.$/, "Bepul tarifda Matematika va O‘qish-yozishdan 1- va 2-amaliy testlar hamda To‘liq SAT 1 bor. Birinchi to‘liq testingiz oxirigacha, ball bilan bepul. Undan keyin 2-modul va ball Pro tarifda. Pro barcha $1 ta bo‘lim testi, $2 ta To‘liq SAT, Qiyin test va Yangi savollarni ochadi."],
+  [/^Yes, with no time limit\. Your first full test is free to the end, score included\. After that you can take Module 1 of the free tests as often as you like, plus (?:(\d+) drills a day and )?all of Quick Practice, without paying\.$/, (m, d) => `Ha, muddat cheklovisiz. Birinchi to‘liq testingiz oxirigacha, ball bilan bepul. Undan keyin bepul testlarning 1-modulini istagancha ishlashingiz${d ? `, kuniga ${d} ta mashq` : ""} va Tezkor mashqning hammasini to‘lovsiz bajarishingiz mumkin.`],
   [/^Yes, with no time limit\. You can take Module 1 of the free tests as often as you like, plus (\d+) drills a day and all of Quick Practice, without paying\. Module 2 and your score are Pro\.$/, "Ha, muddat cheklovisiz. Bepul testlarning 1-modulini istagancha ishlashingiz, kuniga $1 ta mashq va Tezkor mashqning hammasini to‘lovsiz bajarishingiz mumkin. 2-modul va ball Pro tarifda."],
 );
 
@@ -293,6 +295,9 @@ Object.assign(D, {
   "Pro opens all 12 weeks, from the basics to full timed tests.": "Pro barcha 12 haftani ochadi: asoslardan to‘liq vaqtli testlargacha.",
   "The AI tutor is part of Pro": "AI repetitori Pro’ga kiradi",
   "Module 1 of the free tests": "Bepul testlarning 1-moduli",
+  "1 full test free, score included": "1 ta to‘liq test bepul, ball bilan",
+  "You have used your free full test.": "Bepul to‘liq testingizdan foydalanib bo‘ldingiz.",
+  "Your first full test with its score, then Module 1 of Practice Tests 1 and 2 per section, plus Full SAT 1": "Birinchi to‘liq test ball bilan, keyin har bo‘limda 1- va 2-amaliy testning 1-moduli hamda To‘liq SAT 1",
 });
 Object.assign(D, {"Founding price": "Maxsus narx"});
 Object.assign(D, ATTR);
