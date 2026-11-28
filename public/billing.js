@@ -273,7 +273,7 @@ function planCard(p) {
   return `<article class="blplan${p.best ? " best" : ""}">${p.best ? `<span class="tag">Most popular</span>` : ""}
   <h3>${esc(p.name)}</h3>
   <div class="pr">${money(pr).replace(" " + P.currency, "")} <small>${esc(P.currency)}</small></div>
-  <div class="was">${off ? `Founding price` : ""}</div>
+  <div class="was">${off ? L2(`Maxsus narx · oddiy narx ${money(p.list)}`, `Founding price · normal price ${money(p.list)}`) : ""}</div>
   <div class="per">${p.months > 1 ? `${money(perMonth)} a month · ` : ""}${p.months * 30} days of Pro</div>
   <p class="blurb">${esc(p.blurb || "")}</p>
   <button class="btn${p.best ? "" : " ghost"}" data-buy="${p.code}">${!enabled() ? "Opens soon" : isPro() && !isOwner() ? "Add " + esc(p.name.toLowerCase()) : "Get " + esc(p.name)}</button></article>`;
@@ -303,7 +303,7 @@ function renderBilling() {
     <p class="muted">Sitting the SAT costs about $111 each time. Pro is the practice that makes one sitting enough: ${n} full adaptive section tests, unlimited drills, and AI explaining every question you miss.</p></section>
   ${ownerCard()}${enabled() ? statusCard() : `<section class="card blstat ok"><div class="grow"><b>Free during launch</b><span class="muted">Right now everything in SAT Studio is open to everyone at no cost. These are the prices for when Pro opens; the free plan below stays free after that.</span></div></section>`}
   <section><div class="blplans">${P.plans.map(planCard).join("")}</div>
-    <p class="blnote">${P.founding ? esc(P.foundingNote) + ". " : ""}One payment, no auto-renewal, nothing to cancel.${g ? ` Not for you? Tell us within ${g} days and we send the money back.` : ""}</p></section>
+    <p class="blnote">${PAY.telegram ? `${L2("To‘lov karta o‘tkazmasi orqali, odatda shu kuni tasdiqlanadi. Savollar uchun: ", "Pay by card transfer; we usually confirm it the same day. Questions: ")}<a href="${esc(tgUrl(""))}" target="_blank" rel="noopener">Telegram @${esc(PAY.telegram)}</a><br>` : ""}${P.founding ? esc(P.foundingNote) + ". " : ""}One payment, no auto-renewal, nothing to cancel.${g ? ` Not for you? Tell us within ${g} days and we send the money back.` : ""}</p></section>
   <section class="blstage"><div class="bls-blob a" aria-hidden="true"></div><div class="bls-blob b" aria-hidden="true"></div><div class="bls-grain" aria-hidden="true"></div>
     <div class="bls-head"><span class="bls-eyebrow">SAT Studio Pro</span><h2>Free and Pro, side by side</h2></div>
     <div class="blvs" role="table" style="grid-template-rows:repeat(${rows.length + 2},auto)" aria-label="Free and Pro, side by side">
